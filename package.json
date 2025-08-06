@@ -1,5 +1,5 @@
 {
   "scripts": {
-    "build": "cp -r src/* public/"
+    "build": "rm -rf public && mkdir public && cp -r src/* public/"
   }
 }
