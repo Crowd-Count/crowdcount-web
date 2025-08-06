@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CrowdCount</title>
+    <meta name="title" content="CrowdCount">
+    <meta name="description" content="CrowdCount offers accurate crowd counting solutions. Discover the best crowd counting technology for a wide range of applications.">
+    <meta name="keywords" content="Crowd Count, crowd counting, crowdcounting, crowd count, crowd counter, crowd counting solutions, event crowd counter, venue crowd counter, CrowdCount, count crowd, CountCrowd, crowd check, crowdcount app, crowd counting app, crowd check app, app, device">
+    <meta property="og:title" content="CrowdCount">
+    <meta property="og:description" content="CrowdCount offers accurate crowd counting solutions. Discover the best crowd counting technology for a wide range of applications.">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="CrowdCount">
+    <meta property="og:image" content="assets/Logos/banner.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="assets/Favicon-Icons/favicon-16x16.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="assets/Favicon-Icons/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="assets/Favicon-Icons/android-chrome-192x192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="assets/Favicon-Icons/android-chrome-512x512.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="assets/Favicon-Icons/apple-touch-icon.png">
+    <link rel="shortcut icon" href="assets/Favicon-Icons/favicon.ico">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="styles/styles.css" rel="stylesheet">
+    <link href="https://fonts.cdnfonts.com/css/sf-pro-display" rel="stylesheet">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <!-- Schema Markup -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "CrowdCount",
+      "url": "https://www.crowdcount.tech",
+      "description": "CrowdCount offers accurate crowd counting solutions. Discover the best crowd counting technology for a wide range of applications.",
+      "sameAs": [
+        "https://www.crowdcount.tech/linkedin"
+      ]
+    }
+    </script>
+</head>
+<div id="alertBox" class="alert hidden">
+  <strong id="alertTitle"></strong>
+  <div id="alertBody"></div>
+</div>
+<body id="home" data-aos-easing="ease" data-aos-duration="1000">
+    <header class="d-flex flex-column align-items-center justify-content-center text-center vh-100 homeheader">
+        <div>
+            <div data-aos="fade-down">
+            <div id="LargeHomeText">Total People Counted with <div id="primary">CrowdCount</div></div>
+            </div>
+            <div id="peopleCounter">0</div>
+        </div>
+        <!-- <div class="partners-container" data-aos="fade-up">
+            <div class="partners-scroll">
+                <div class="partners-track">
+                   
+                </div>
+            </div>
+        </div> -->
+        <div  data-aos="fade-up">
+        <ul id="menu" class="list-inline mt-3">
+            <li class="list-inline-item"><a href='index.html' class="ripple">Home</a></li>
+            <li class="list-inline-item"><a href='products.html' class="ripple">Products</a></li>
+            <li class="list-inline-item"><a href='map.html' class="ripple">Map</a></li>
+            <li class="list-inline-item"><a href='api.html' class="ripple">API</a></li>
+            <li class="list-inline-item"><a href='about.html' class="ripple">About & Contact</a></li>
+        </ul>
+        <br>
+            <div id="LargeHomeText">Launching <div id="primary">Q3 2025</div></div>
+        </div>
+    </header>
+
+    <div id="bottom-note">© 2025 CrowdCount. All rights reserved. | <a href="legal/privacy-policy.html" id="bottom-color">Privacy Policy</a> | <a href="legal/terms-of-use.html" id="bottom-color">Terms of Use</a></div>    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>
+      AOS.init();
+
+    /*
+    document.addEventListener("DOMContentLoaded", function() {
+      checkForAlert();
+    });
+    */
+
+    function checkForAlert() {
+      fetch('/api/check_if_alert')
+          .then(response => response.json())
+          .then(data => {
+              if (data.is_alert) {
+                  fetchAlertDetails();
+              }
+          })
+          .catch(error => console.error('Error checking alert:', error));
+    }
+
+    function fetchAlertDetails() {
+      fetch('/api/get_active_alert')
+          .then(response => response.json())
+          .then(data => {
+              if (data.alert_info) {
+                  showAlert(data.alert_info);
+              }
+          })
+          .catch(error => console.error('Error fetching alert details:', error));
+    }
+
+    <!-- showAlert("Server Maintenance", "We are currently undergoing server maintenance. None of our systems are currently functional, please be patient while we work to improve your experience.", "warning"); -->
+
+    function showAlert(customTitle, customBody, customType) {
+      const alertBox = document.getElementById('alertBox');
+      const alertTitle = document.getElementById('alertTitle');
+      const alertBody = document.getElementById('alertBody');
+
+      alertTitle.textContent = customTitle;
+      alertBody.textContent = customBody;
+
+      // Customize alert appearance based on customType
+      if (customType === "warning") {
+          alertBox.style.backgroundColor = "#ff3a30"; // orange: #ff9500, red: #ff3a30
+          alertBox.style.color = "black";
+      } else if (customType === "celebration") {
+          alertBox.style.backgroundColor = "#ffcc00"; // yellow
+          alertBox.style.color = "black";
+      } else if (customType === "info") {
+          alertBox.style.backgroundColor = "#007bff"; // blue
+          alertBox.style.color = "white";
+      } else if (customType === "privacy") {
+          alertBox.style.backgroundColor = "#007bff"; // blue
+          alertBox.style.color = "white";
+      } else if (customType === "terms-of-use") {
+        alertBox.style.backgroundColor = "#ff9500"; // orange
+        alertBox.style.color = "black";
+      } else if (customType === "leaf") {
+          alertBox.style.backgroundColor = "#34c759"; // green
+          alertBox.style.color = "black";
+      } else {
+          alertBox.style.backgroundColor = "#333"; // default color
+          alertBox.style.color = "white";
+      }
+
+      alertBox.classList.remove('hidden');
+      
+      // Delay the addition of 'show' class to allow for the opacity transition
+      setTimeout(() => {
+          alertBox.classList.add('show');
+      }, 10); // Small delay to trigger the transition
+    }
+    </script>
+    <script src="./scripts/script.js"></script>
+</body>
+</html>

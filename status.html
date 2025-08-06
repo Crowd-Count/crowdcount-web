@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Server Status - CrowdCount</title>
+    <meta property="og:title" content="Server Status - CrowdCount">
+    <meta property="og:description" content="Check the current status of CrowdCount servers and devices.">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="CrowdCount">
+    <meta property="og:image" content="./assets/Logos/banner.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="./assets/Favicon_Icons/favicon-16x16.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="./assets/Favicon_Icons/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="./assets/Favicon_Icons/android-chrome-192x192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="./assets/Favicon_Icons/android-chrome-512x512.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="./assets/Favicon_Icons/apple-touch-icon.png">
+    <link rel="shortcut icon" href="./assets/Favicon_Icons/favicon.ico">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="./styles/styles.css" rel="stylesheet">
+    <link href="https://fonts.cdnfonts.com/css/sf-pro-display" rel="stylesheet">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/typewriter-effect@2.18.2/dist/core.js"></script>
+</head>
+<body id="secondarypage">
+    <header class="d-flex flex-column" data-aos="fade-down">
+        <div class="text-center">
+            <div id="MediumHomeTitle" class="d-inline-block"><div id="CrowdCountSTATUS"></div></div>
+        </div>
+        <ul id="menu" class="list-inline mt-3">
+            <li class="list-inline-item"><a href='index.html' class="ripple">Home</a></li>
+            <li class="list-inline-item"><a href='products.html' class="ripple">Products</a></li>
+            <li class="list-inline-item"><a href='map.html' class="ripple">Map</a></li>
+            <li class="list-inline-item"><a href='api.html' class="ripple">API</a></li>
+            <li class="list-inline-item"><a href='about.html' class="ripple">About & Contact</a></li>
+        </ul>
+    </header>
+    <br>
+
+    <h3 id="center" data-aos="fade-up">
+        <div id="secondary">Real-time <div id="primary">server</div> and <div id="primary">device</div> status</div>
+    </h3>
+    <br>
+
+    <!-- Server Health Status -->
+    <div id="center" data-aos="fade-up">
+        <div class="text-box-legal">
+            <div id="primaryTitleBold">Server Health</div>
+            <br><br>
+            <div class="status-grid">
+                <div class="status-item">
+                    <div id="secondary">API Status</div><br>
+                    <div id="api-status" class="status-indicator">
+                        <span class="status-dot" id="api-status-dot"></span>
+                        <span id="api-status-text">Checking...</span>
+                    </div>
+                </div>
+                <div class="status-item">
+                    <div id="secondary">Response Time</div><br>
+                    <div id="response-time">-- ms</div>
+                </div>
+                <div class="status-item">
+                    <div id="secondary">Total Count</div><br>
+                    <div id="total-count-status">--</div>
+                </div>
+                <div class="status-item">
+                    <div id="secondary">Active Alerts</div><br>
+                    <div id="alert-status">Checking...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Location Status -->
+    <div id="center" data-aos="fade-up">
+        <div class="text-box-legal">
+            <div id="primaryTitleBold">Location Status</div>
+            <br><br>
+            <div id="location-status-container">
+                <div id="secondary">Loading location data...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Device Statistics -->
+    <div id="center" data-aos="fade-up">
+        <div class="text-box-legal">
+            <div id="primaryTitleBold">Device Statistics</div>
+            <br><br>
+            <div class="status-grid">
+                <div class="status-item">
+                    <div id="secondary">Total Devices</div><br>
+                    <div id="total-devices" class="big-number">--</div>
+                </div>
+                <div class="status-item">
+                    <div id="secondary">Online Devices</div><br>
+                    <div id="online-devices" class="big-number" style="color: var(--accent-color);">--</div>
+                </div>
+                <div class="status-item">
+                    <div id="secondary">Offline Devices</div><br>
+                    <div id="offline-devices" class="big-number">--</div>
+                </div>
+                <div class="status-item">
+                    <div id="secondary">Active Users</div><br>
+                    <div id="active-users" class="big-number">--</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Detailed Device List -->
+    <div id="center" data-aos="fade-up">
+        <div class="text-box-legal">
+            <div id="primaryTitleBold">Device Details</div>
+            <br><br>
+            <div class="auth-section">
+                <input type="password" id="admin-password" placeholder="Admin Password" />
+                <button id="auth-button" class="ripple">Authenticate</button>
+            </div>
+            <div id="device-list-container" style="display: none;">
+                <div class="table-wrapper">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Device ID</th>
+                                <th>Status</th>
+                                <th>Current Count</th>
+                                <th>Location</th>
+                            </tr>
+                        </thead>
+                        <tbody id="device-list">
+                            <tr><td colspan="4">Authenticate to view device details</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="bottom-note">© 2025 CrowdCount. All rights reserved. | <a href="legal/privacy-policy.html" id="bottom-color">Privacy Policy</a> | <a href="legal/terms-of-use.html" id="bottom-color">Terms of Use</a></div>
+
+    <style>
+        .status-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 30px;
+            margin: 20px 0;
+        }
+
+        .status-item {
+            text-align: center;
+            padding: 20px;
+        }
+
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            font-size: 1.2rem;
+        }
+
+        .status-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background-color: var(--gray-color);
+            display: inline-block;
+            animation: pulse 2s infinite;
+        }
+
+        .status-dot.online {
+            background-color: #4CAF50;
+        }
+
+        .status-dot.offline {
+            background-color: #f44336;
+            animation: none;
+        }
+
+        @keyframes pulse {
+            0% {
+                opacity: 0.6;
+                transform: scale(0.8);
+            }
+            50% {
+                opacity: 1;
+                transform: scale(1.1);
+            }
+            100% {
+                opacity: 0.6;
+                transform: scale(0.8);
+            }
+        }
+
+        .big-number {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: var(--light-color);
+        }
+
+        .auth-section {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .auth-section input {
+            width: 300px;
+        }
+
+        .auth-section button {
+            padding: 20px 40px;
+            border: none;
+            border-radius: 25px;
+            background-color: var(--accent-color);
+            color: var(--light-color);
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .auth-section button:hover {
+            background-color: #f56363;
+        }
+
+        .location-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            margin: 10px 0;
+            background-color: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+        }
+
+        .location-name {
+            font-weight: bold;
+            color: var(--light-color);
+        }
+
+        .location-count {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .location-status {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: var(--gray-color);
+        }
+
+        .location-status.up {
+            background-color: #4CAF50;
+        }
+
+        .location-status.down {
+            background-color: #f44336;
+        }
+
+        .auto-refresh {
+            text-align: center;
+            margin: 20px 0;
+            color: var(--gray-color);
+        }
+
+        @media (max-width: 768px) {
+            .status-grid {
+                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+                gap: 15px;
+            }
+
+            .big-number {
+                font-size: 2rem;
+            }
+
+            .auth-section {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .auth-section input {
+                width: 100%;
+                max-width: 300px;
+            }
+        }
+    </style>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script src="./scripts/script.js"></script>
+    <script>
+        AOS.init();
+
+        // Auto-refresh interval
+        let refreshInterval;
+        let isAuthenticated = false;
+
+        // Function to check API health
+        async function checkAPIHealth() {
+            const startTime = Date.now();
+            try {
+                const response = await fetch('/api/healthcheck');
+                const endTime = Date.now();
+                const responseTime = endTime - startTime;
+                
+                if (response.ok) {
+                    document.getElementById('api-status-dot').className = 'status-dot online';
+                    document.getElementById('api-status-text').textContent = 'Online';
+                    document.getElementById('response-time').textContent = `${responseTime} ms`;
+                } else {
+                    document.getElementById('api-status-dot').className = 'status-dot offline';
+                    document.getElementById('api-status-text').textContent = 'Offline';
+                    document.getElementById('response-time').textContent = '-- ms';
+                }
+            } catch (error) {
+                document.getElementById('api-status-dot').className = 'status-dot offline';
+                document.getElementById('api-status-text').textContent = 'Offline';
+                document.getElementById('response-time').textContent = '-- ms';
+            }
+        }
+
+        // Function to get total count
+        async function getTotalCount() {
+            try {
+                const response = await fetch('/api/totalcount');
+                const data = await response.json();
+                document.getElementById('total-count-status').textContent = data.total_count.toLocaleString();
+            } catch (error) {
+                document.getElementById('total-count-status').textContent = 'Error';
+            }
+        }
+
+        // Function to check for alerts
+        async function checkAlerts() {
+            try {
+                const response = await fetch('/api/check_if_alert');
+                const data = await response.json();
+                
+                if (data.is_alert) {
+                    document.getElementById('alert-status').textContent = 'Active';
+                    document.getElementById('alert-status').style.color = 'var(--accent-color)';
+                } else {
+                    document.getElementById('alert-status').textContent = 'None';
+                    document.getElementById('alert-status').style.color = 'var(--light-color)';
+                }
+            } catch (error) {
+                document.getElementById('alert-status').textContent = 'Error';
+            }
+        }
+
+        // Function to get device statistics
+        async function getDeviceStats(password = null) {
+            try {
+                // Public endpoints
+                const totalResponse = await fetch('/api/totalcount');
+                const totalData = await totalResponse.json();
+                
+                // Try to get authenticated data if password provided
+                if (password) {
+                    const devicesResponse = await fetch(`/api/get_amount_of_devices?password=${password}`);
+                    const onlineResponse = await fetch(`/api/get_amount_of_devices?status=online&password=${password}`);
+                    const offlineResponse = await fetch(`/api/get_amount_of_devices?status=offline&password=${password}`);
+                    const activeResponse = await fetch(`/api/active_count?password=${password}`);
+                    
+                    if (devicesResponse.ok) {
+                        const devicesData = await devicesResponse.json();
+                        document.getElementById('total-devices').textContent = devicesData.amount;
+                    }
+                    
+                    if (onlineResponse.ok) {
+                        const onlineData = await onlineResponse.json();
+                        document.getElementById('online-devices').textContent = onlineData.amount;
+                    }
+                    
+                    if (offlineResponse.ok) {
+                        const offlineData = await offlineResponse.json();
+                        document.getElementById('offline-devices').textContent = offlineData.amount;
+                    }
+                    
+                    if (activeResponse.ok) {
+                        const activeData = await activeResponse.json();
+                        document.getElementById('active-users').textContent = activeData.active_count;
+                    }
+                }
+            } catch (error) {
+                console.error('Error fetching device stats:', error);
+            }
+        }
+
+        // Function to get location status
+        async function getLocationStatus() {
+            try {
+                const response = await fetch('/api/get_all_location_data_with_extra');
+                const data = await response.json();
+                
+                const container = document.getElementById('location-status-container');
+                
+                if (data.locations && data.locations.length > 0) {
+                    let html = '';
+                    data.locations.forEach(location => {
+                        const statusClass = location.location_comparison === 'up' ? 'up' : 
+                                          location.location_comparison === 'down' ? 'down' : '';
+                        const arrow = location.location_comparison === 'up' ? '↑' : 
+                                     location.location_comparison === 'down' ? '↓' : '';
+                        
+                        html += `
+                            <div class="location-item">
+                                <span class="location-name">${location.location_name}</span>
+                                <div class="location-count">
+                                    <span class="location-status ${statusClass}"></span>
+                                    <span>${location.location_current_count} ${arrow}</span>
+                                    ${location.location_overcrowding_count !== 'N/A' ? 
+                                      `<span id="secondary">/ ${location.location_overcrowding_count}</span>` : ''}
+                                </div>
+                            </div>
+                        `;
+                    });
+                    container.innerHTML = html;
+                } else {
+                    container.innerHTML = '<div id="secondary">No location data available</div>';
+                }
+            } catch (error) {
+                document.getElementById('location-status-container').innerHTML = 
+                    '<div id="secondary">Error loading location data</div>';
+            }
+        }
+
+        // Function to get device list (requires authentication)
+        async function getDeviceList(password) {
+            try {
+                const response = await fetch(`/api/get_all_devices?password=${password}`);
+                if (!response.ok) {
+                    throw new Error('Authentication failed');
+                }
+                
+                const data = await response.json();
+                const locations = await fetch('/api/get_all_location_data_with_extra').then(r => r.json());
+                
+                const deviceLocationMap = {};
+                if (locations.locations) {
+                    locations.locations.forEach(loc => {
+                        deviceLocationMap[loc.location_device] = loc.location_name;
+                    });
+                }
+                
+                const tbody = document.getElementById('device-list');
+                let html = '';
+                
+                for (const [deviceId, status] of data.devices) {
+                    const statusDot = status === 'online' ? 
+                        '<span class="status-dot online" style="display: inline-block; margin-right: 5px;"></span>' : 
+                        '<span class="status-dot offline" style="display: inline-block; margin-right: 5px;"></span>';
+                    
+                    let currentCount = '--';
+                    try {
+                        const countResponse = await fetch(`/api/currentcount?user_id=${deviceId}`);
+                        if (countResponse.ok) {
+                            const countData = await countResponse.json();
+                            currentCount = countData.current_count;
+                        }
+                    } catch (e) {
+                        // Ignore individual device errors
+                    }
+                    
+                    const locationName = deviceLocationMap[deviceId] || '--';
+                    
+                    html += `
+                        <tr>
+                            <td>${deviceId}</td>
+                            <td>${statusDot}${status}</td>
+                            <td>${currentCount}</td>
+                            <td>${locationName}</td>
+                        </tr>
+                    `;
+                }
+                
+                tbody.innerHTML = html || '<tr><td colspan="4">No devices found</td></tr>';
+                document.getElementById('device-list-container').style.display = 'block';
+                
+            } catch (error) {
+                console.error('Error fetching device list:', error);
+                document.getElementById('device-list').innerHTML = 
+                    '<tr><td colspan="4">Authentication required or error loading data</td></tr>';
+            }
+        }
+
+        // Authentication handler
+        document.getElementById('auth-button').addEventListener('click', async () => {
+            const password = document.getElementById('admin-password').value;
+            
+            try {
+                const response = await fetch(`/api/check_admin_password?password=${password}`);
+                const data = await response.json();
+                
+                if (data.is_password_correct) {
+                    isAuthenticated = true;
+                    document.getElementById('auth-button').textContent = 'Authenticated';
+                    document.getElementById('auth-button').style.backgroundColor = '#4CAF50';
+                    
+                    // Load authenticated data
+                    await getDeviceStats(password);
+                    await getDeviceList(password);
+                } else {
+                    alert('Invalid password');
+                }
+            } catch (error) {
+                alert('Error authenticating');
+            }
+        });
+
+        // Refresh all data
+        async function refreshAllData() {
+            await checkAPIHealth();
+            await getTotalCount();
+            await checkAlerts();
+            await getLocationStatus();
+            
+            if (isAuthenticated) {
+                const password = document.getElementById('admin-password').value;
+                await getDeviceStats(password);
+                await getDeviceList(password);
+            } else {
+                await getDeviceStats();
+            }
+        }
+
+        // Initial load
+        refreshAllData();
+
+        // Set up auto-refresh every 10 seconds
+        refreshInterval = setInterval(refreshAllData, 10000);
+
+        // Add refresh indicator
+        const center = document.getElementById('center');
+        const refreshIndicator = document.createElement('div');
+        refreshIndicator.className = 'auto-refresh';
+        refreshIndicator.innerHTML = '<div id="secondary">Auto-refreshing every 10 seconds</div>';
+        document.body.insertBefore(refreshIndicator, document.getElementById('bottom-note'));
+    </script>
+</body>
+</html>

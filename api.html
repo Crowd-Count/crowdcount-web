@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API - CrowdCount</title>
+    <meta property="og:title" content="API - CrowdCount">
+    <meta property="og:description" content="CrowdCount offers accurate crowd counting solutions. Discover the best crowd counting technology for a wide range of applications.">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="CrowdCount">
+    <meta property="og:image" content="./assets/Logos/banner.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="./assets/Favicon-Icons/favicon-16x16.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="./assets/Favicon-Icons/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="./assets/Favicon-Icons/android-chrome-192x192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="./assets/Favicon-Icons/android-chrome-512x512.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="./assets/Favicon-Icons/apple-touch-icon.png">
+    <link rel="shortcut icon" href="./assets/Favicon-Icons/favicon.ico">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="./styles/styles.css" rel="stylesheet">
+    <link href="https://fonts.cdnfonts.com/css/sf-pro-display" rel="stylesheet">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/typewriter-effect@2.18.2/dist/core.js"></script> <!-- TypewriterJS -->
+</head>
+<body id="secondarypage">
+    <header class="d-flex flex-column" data-aos="fade-down">
+        <div class="text-center">
+            <div id="MediumHomeTitle" class="d-inline-block"><div id="CrowdCountAPI"></div></div> <!-- Ensure it's inline-block -->
+        </div>
+        <ul id="menu" class="list-inline mt-3">
+            <li class="list-inline-item"><a href='index.html' class="ripple">Home</a></li>
+            <li class="list-inline-item"><a href='products.html' class="ripple">Products</a></li>
+            <li class="list-inline-item"><a href='map.html' class="ripple">Map</a></li>
+            <li class="list-inline-item"><a href='api.html' class="ripple">API</a></li>
+            <li class="list-inline-item"><a href='about.html' class="ripple">About & Contact</a></li>
+        </ul>
+    </header>
+
+    <h1 id="center" data-aos="fade-up">
+        <div id="primary">List of available API Commands</div>
+    </h1>
+    <h3 id="center" data-aos="fade-up">
+        <div id="secondary">To be used with a Crowd Counter if you wish to integrate its functionality with your own application.</div>
+    </h3>
+
+    <div class="container mt-4" data-aos="fade-up">
+        <div id="table-wrapper">
+            <table class="table table-bordered">
+                <colgroup>
+                <col style="width: 30%;" />
+                <col style="width: 50%;" />
+                <col style="width: 20%;" />
+                </colgroup>
+
+                <thead class="thead-light">
+                    <tr>
+                        <th scope="col" class="center-text">Command</th>
+                        <th scope="col" class="center-text">Description</th>
+                        <th scope="col" class="center-text">Parameters</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>GET /api/ping</code></td>
+                        <td>Returns "pong", indicating that the server is running.</td>
+                        <td>
+                            <ul>
+                                <li>None</li>
+                            </ul>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><code>GET /api/totalcount</code></td>
+                        <td>Returns the total count of people ever detected by CrowdCount.</td>
+                        <td>
+                            <ul>
+                                <li>None</li>
+                            </ul>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><code>GET /api/check_user</code></td>
+                        <td>Checks if a user exists and returns their online status.</td>
+                        <td>
+                            <ul>
+                                <li><code>user_id</code> (required)</li>
+                            </ul>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><code>GET /api/connection_status</code></td>
+                        <td>Returns the connection status of a specified user.</td>
+                        <td>
+                            <ul>
+                                <li><code>user_id</code> (required)</li>
+                            </ul>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><code>GET /api/check_password</code></td>
+                        <td>Checks if the provided password for a specified user is correct.</td>
+                        <td>
+                            <ul>
+                                <li><code>user_id</code> (required)</li>
+                                <li><code>password</code> (required)</li>
+                            </ul>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><code>GET /api/currentcount</code></td>
+                        <td>Returns the current count for a specified user.</td>
+                        <td>
+                            <ul>
+                                <li><code>user_id</code> (required)</li>
+                            </ul>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><code>POST /api/currentcount</code></td>
+                        <td>Updates the current count for a specified user.</td>
+                        <td>
+                            <ul>
+                                <li><code>user_id</code> (required)</li>
+                                <li><code>password</code> (required)</li>
+                                <li><code>new_count</code> (required)</li>
+                            </ul>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><code>GET /api/get_user_days</code></td>
+                        <td>Returns a list of days for which the user has count data.</td>
+                        <td>
+                            <ul>
+                                <li><code>user_id</code> (required)</li>
+                                <li><code>password</code> (required)</li>
+                            </ul>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><code>GET /api/check_if_user_has_day</code></td>
+                        <td>Checks if the user has data for a specific day.</td>
+                        <td>
+                            <ul>
+                                <li><code>user_id</code> (required)</li>
+                                <li><code>password</code> (required)</li>
+                                <li><code>date</code> (required)</li>
+                            </ul>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><code>GET /api/get_day_data</code></td>
+                        <td>Returns data for a specific day for the user. <div id="secondary">An example of this api call is provided below.</div></td>
+                        <td>
+                            <ul>
+                                <li><code>user_id</code> (required)</li>
+                                <li><code>password</code> (required)</li>
+                                <li><code>date</code> (required)</li>
+                            </ul>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><code>GET /api/get_average_day_data</code></td>
+                        <td>Returns the average data for a specific day for the user. <div id="secondary">The average is calculated based on data from the same weekday over the previous 8 weeks, provided there is enough data. A minimum of 2 weeks of data is required.</div></td>
+                        <td>
+                            <ul>
+                                <li><code>user_id</code> (required)</li>
+                                <li><code>password</code> (required)</li>
+                                <li><code>date</code> (required)</li>
+                            </ul>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><code>GET /api/check_if_user_has_week</code></td>
+                        <td>Checks if the user has data for a specific week.</td>
+                        <td>
+                            <ul>
+                                <li><code>user_id</code> (required)</li>
+                                <li><code>password</code> (required)</li>
+                                <li><code>start_date</code> (required)</li>
+                            </ul>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><code>GET /api/get_week_data</code></td>
+                        <td>Returns data for a specific week for the user. <div id="secondary">To select a week, input any day of that week and it will provide the data from the previous Monday to the next Sunday</div></td>
+                        <td>
+                            <ul>
+                                <li><code>user_id</code> (required)</li>
+                                <li><code>password</code> (required)</li>
+                                <li><code>date</code> (required)</li>
+                            </ul>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><code>GET /api/get_average_week_data</code></td>
+                        <td>Returns the average data for a specific week for the user. <div id="secondary">The average is calculated based on weekly weekday data over the previous 4 weeks, provided there is enough data.</div></td>
+                        <td>
+                            <ul>
+                                <li><code>user_id</code> (required)</li>
+                                <li><code>password</code> (required)</li>
+                                <li><code>date</code> (required)</li>
+                            </ul>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><code>GET /api/check_if_user_has_month</code></td>
+                        <td>Checks if the user has data for a specific month.</td>
+                        <td>
+                            <ul>
+                                <li><code>user_id</code> (required)</li>
+                                <li><code>password</code> (required)</li>
+                                <li><code>date</code> (required)</li>
+                            </ul>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><code>GET /api/get_month_data</code></td>
+                        <td>Returns data for a specific month for the user. <div id="secondary">Returns daily averages for each day of the month that has data.</div></td>
+                        <td>
+                            <ul>
+                                <li><code>user_id</code> (required)</li>
+                                <li><code>password</code> (required)</li>
+                                <li><code>date</code> (required)</li>
+                            </ul>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><code>GET /api/get_average_month_data</code></td>
+                        <td>Returns the average data for a specific month for the user. <div id="secondary">The average is calculated based on data from the same month over the previous 5 months, provided there is enough data. A minimum of 2 months of data is required. Returns "N/A" if insufficient data.</div></td>
+                        <td>
+                            <ul>
+                                <li><code>user_id</code> (required)</li>
+                                <li><code>password</code> (required)</li>
+                                <li><code>date</code> (required)</li>
+                            </ul>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><code>GET /api/get_year_data</code></td>
+                        <td>Returns data for a specific year for the user. <div id="secondary">Returns monthly averages for each month of the year that has data.</div></td>
+                        <td>
+                            <ul>
+                                <li><code>user_id</code> (required)</li>
+                                <li><code>password</code> (required)</li>
+                                <li><code>year</code> (required)</li>
+                            </ul>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><code>GET /api/get_average_year_data</code></td>
+                        <td>Returns the average data for a specific year for the user. <div id="secondary">The average is calculated based on data from the same month over the previous 3 years, provided there is enough data. A minimum of 2 years of data is required. Returns "N/A" if insufficient data.</div></td>
+                        <td>
+                            <ul>
+                                <li><code>user_id</code> (required)</li>
+                                <li><code>password</code> (required)</li>
+                                <li><code>year</code> (required)</li>
+                            </ul>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><code>GET /api/export_csv</code></td>
+                        <td>Exports CSV data for a specified user and date. <div id="secondary">If no date is provided, all data is exported in a zip file.</div></td>
+                        <td>
+                            <ul>
+                                <li><code>user_id</code> (required)</li>
+                                <li><code>password</code> (required)</li>
+                                <li><code>date</code> (optional) </li>
+                            </ul>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <br>
+    <h3 id="center">
+        <div id="LargeHomeText"><div id="primary">Important Notes</div></div>
+        <br><br>
+        <div id="secondary"><div id="primary">user_id and Device ID are synonymous</div> throughout the system, you can use your Device ID for user_id parameters.</div>
+        <br>
+        <div id="secondary">The date format used is <div id="primary">yyyy-mm-dd</div>.</div>
+        <br>
+        <div id="secondary">For year-based endpoints, use a 4-digit year format like <div id="primary">2024</div>.</div>
+        <br>
+        <div id="secondary">The URL used is <a href="https://www.crowdcount.tech" id="primary">crowdcount.tech</a> (This will soon be deprecated and changed to api.crowdcount.tech)</div>
+        <br>
+        <br><div id="secondary">Check our server status at <a id='primary' href="status.html">crowdcount.tech/status</a></div></div><br>
+        <br><div id="secondary">Here is an <div id="primary">example</div> of a working API call:</div><br><br>
+        <a
+      id="example-link"
+      class="desktop-link"
+      href="#"
+      target="_blank"
+      rel="noopener"
+    >
+      https://www.crowdcount.tech/api/get_day_data?user_id=Demo&password=password&date=YYYY-MM-DD
+    </a>
+    <button class="mobile-button" onclick="copyToClipboard()">Copy to Clipboard</button>
+    </h3>
+    <br>
+    <div id="bottom-note">© 2025 CrowdCount. All rights reserved. | <a href="legal/privacy-policy.html" id="bottom-color">Privacy Policy</a> | <a href="legal/terms-of-use.html" id="bottom-color">Terms of Use</a></div>    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>
+      AOS.init();
+      const d = new Date();
+      d.setDate(d.getDate() - 1);
+      const yyyy = d.getFullYear();
+      const mm = String(d.getMonth() + 1).padStart(2, "0");
+      const dd = String(d.getDate()).padStart(2, "0");
+      const yesterday = `${yyyy}-${mm}-${dd}`;
+
+      // Update the example link's href and text
+      const link = document.getElementById("example-link");
+      const url = `https://www.crowdcount.tech/api/get_day_data?user_id=Demo&password=password&date=${yesterday}`;
+      link.href = url;
+      link.textContent = url;
+    </script>
+    <script src="./scripts/script.js"></script>
+</body>
+</html>
