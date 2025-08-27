@@ -47,13 +47,6 @@
             </div>
             <div id="peopleCounter">0</div>
         </div>
-        <!-- <div class="partners-container" data-aos="fade-up">
-            <div class="partners-scroll">
-                <div class="partners-track">
-                   
-                </div>
-            </div>
-        </div> -->
         <div  data-aos="fade-up">
         <ul id="menu" class="list-inline mt-3">
             <li class="list-inline-item"><a href='index.html' class="ripple">Home</a></li>
@@ -80,7 +73,7 @@
     */
 
     function checkForAlert() {
-      fetch('/api/check_if_alert')
+      fetch('https://api.crowdcount.tech/check_if_alert')
           .then(response => response.json())
           .then(data => {
               if (data.is_alert) {
@@ -91,7 +84,7 @@
     }
 
     function fetchAlertDetails() {
-      fetch('/api/get_active_alert')
+      fetch('https://api.crowdcount.tech/get_active_alert')
           .then(response => response.json())
           .then(data => {
               if (data.alert_info) {
@@ -101,8 +94,6 @@
           .catch(error => console.error('Error fetching alert details:', error));
     }
 
-    <!-- showAlert("Server Maintenance", "We are currently undergoing server maintenance. None of our systems are currently functional, please be patient while we work to improve your experience.", "warning"); -->
-
     function showAlert(customTitle, customBody, customType) {
       const alertBox = document.getElementById('alertBox');
       const alertTitle = document.getElementById('alertTitle');
@@ -111,36 +102,33 @@
       alertTitle.textContent = customTitle;
       alertBody.textContent = customBody;
 
-      // Customize alert appearance based on customType
       if (customType === "warning") {
-          alertBox.style.backgroundColor = "#ff3a30"; // orange: #ff9500, red: #ff3a30
+          alertBox.style.backgroundColor = "#ff3a30";
           alertBox.style.color = "black";
       } else if (customType === "celebration") {
-          alertBox.style.backgroundColor = "#ffcc00"; // yellow
+          alertBox.style.backgroundColor = "#ffcc00";
           alertBox.style.color = "black";
       } else if (customType === "info") {
-          alertBox.style.backgroundColor = "#007bff"; // blue
+          alertBox.style.backgroundColor = "#007bff";
           alertBox.style.color = "white";
       } else if (customType === "privacy") {
-          alertBox.style.backgroundColor = "#007bff"; // blue
+          alertBox.style.backgroundColor = "#007bff";
           alertBox.style.color = "white";
       } else if (customType === "terms-of-use") {
-        alertBox.style.backgroundColor = "#ff9500"; // orange
+        alertBox.style.backgroundColor = "#ff9500";
         alertBox.style.color = "black";
       } else if (customType === "leaf") {
-          alertBox.style.backgroundColor = "#34c759"; // green
+          alertBox.style.backgroundColor = "#34c759";
           alertBox.style.color = "black";
       } else {
-          alertBox.style.backgroundColor = "#333"; // default color
+          alertBox.style.backgroundColor = "#333";
           alertBox.style.color = "white";
       }
 
       alertBox.classList.remove('hidden');
-      
-      // Delay the addition of 'show' class to allow for the opacity transition
       setTimeout(() => {
           alertBox.classList.add('show');
-      }, 10); // Small delay to trigger the transition
+      }, 10);
     }
     </script>
     <script src="./scripts/script.js"></script>

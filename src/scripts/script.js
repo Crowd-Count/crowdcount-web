@@ -121,7 +121,7 @@ function copyToClipboard() {
     const yesterday = `${yyyy}-${mm}-${dd}`;
 
     // Build URL with yesterday’s date
-    const textToCopy = `https://www.crowdcount.tech/api/get_day_data?user_id=Demo&password=password&date=${yesterday}`;
+    const textToCopy = `https://www.api.crowdcount.tech/get_day_data?user_id=Demo&password=password&date=${yesterday}`;
 
     const tempInput = document.createElement("input");
     document.body.appendChild(tempInput);
@@ -212,7 +212,7 @@ const map = new mapkit.Map("map", {
 // Function to fetch locations from the new API
 async function fetchLocations() {
     try {
-        const response = await fetch('https://crowdcount.tech/api/get_all_location_data_with_extra');
+        const response = await fetch('https://api.crowdcount.tech/get_all_location_data_with_extra');
         if (!response.ok) {
             throw new Error('Network response was not ok');
         }
