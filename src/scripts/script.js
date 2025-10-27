@@ -121,7 +121,7 @@ function copyToClipboard() {
     const yesterday = `${yyyy}-${mm}-${dd}`;
 
     // Build URL with yesterday’s date
-    const textToCopy = `https://www.api.crowdcount.tech/get_day_data?user_id=Demo&password=password&date=${yesterday}`;
+    const textToCopy = `https://api.crowdcount.tech/get_day_data?user_id=Demo&password=password&date=${yesterday}`;
 
     const tempInput = document.createElement("input");
     document.body.appendChild(tempInput);
