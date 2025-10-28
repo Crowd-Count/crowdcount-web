@@ -19,12 +19,12 @@
     <link href="./styles/styles.css" rel="stylesheet">
     <link href="https://fonts.cdnfonts.com/css/sf-pro-display" rel="stylesheet">
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/typewriter-effect@2.18.2/dist/core.js"></script> <!-- TypewriterJS -->
+    <script src="https://cdn.jsdelivr.net/npm/typewriter-effect@2.18.2/dist/core.js"></script>
 </head>
 <body id="secondarypage">
     <header class="d-flex flex-column" data-aos="fade-down">
         <div class="text-center">
-            <div id="MediumHomeTitle" class="d-inline-block"><div id="CrowdCountPRODUCTS"></div></div> <!-- Ensure it's inline-block -->
+            <div id="MediumHomeTitle" class="d-inline-block"><div id="CrowdCountPRODUCTS"></div></div>
         </div>
         <ul id="menu" class="list-inline mt-3">
             <li class="list-inline-item"><a href='index.html' class="ripple">Home</a></li>
@@ -52,15 +52,38 @@
             <br>
             <br>The Crowd Counter 1 will count the number of people entering and exiting your location, <div id="primary">providing you with a live count of the number of people inside.</div> 
             <br>
-            <br>Simply <div id="primary">place the small device above your door and let it do the rest.</div> Using its infrared camera, it sends the footage to our servers for us to do the processing. That way, the device can remain inexpensive and reliable for our customers.
+            <br>Simply <div id="primary">place the small device above your door and let it do the rest.</div> Using its global shutter camera, it sends the footage to our servers for us to do the processing. That way, the device can remain inexpensive and reliable for our customers.
             <br>
-            <br>Integrated with our wonderful <div id="primary">iOS App</div> which will allow you to access this information from anywhere and anytime. The app also serves as a tool to help you set it up for the first time, and add multiple if you have multiple entrances.
+            <br>Integrated with our wonderful <div id="primary">iOS App</div> which allows you to access this information from anywhere and anytime. The app also serves as a tool to help you set it up for the first time, and add multiple if you have multiple entrances.
             <br>
-            <br>Check out our <div id='primary'>first fully functional prototype!</div> Created September 4th, 2024
-            <br><br><video controls data-aos="fade-up">
-                <source src="./assets/Videos/CrowdCountPrototype1.mp4" type="video/mp4">
-                Your browser does not support the video tag.
-            </video>
+            <br>Check out our <div id='primary'>most recent prototype!</div> Gen 2 - Created October 27th, 2025
+            <div data-aos="fade-up">
+                <div class="text-box-legal gallery-container" id="counter-gallery">
+                    <div class="photo-gallery" aria-label="Crowd Counter Gen 2 photo gallery">
+                        <img src="./assets/CounterPhotos/gen-2-1.jpeg" alt="Crowd Counter Gen 2 - Photo 1">
+                        <img src="./assets/CounterPhotos/gen-2-2.jpeg" alt="Crowd Counter Gen 2 - Photo 2">
+                        <img src="./assets/CounterPhotos/gen-2-3.jpeg" alt="Crowd Counter Gen 2 - Photo 3">
+                        <img src="./assets/CounterPhotos/gen-2-4.jpeg" alt="Crowd Counter Gen 2 - Photo 4">
+                        <img src="./assets/CounterPhotos/gen-2-5.jpeg" alt="Crowd Counter Gen 2 - Photo 5">
+                        <img src="./assets/CounterPhotos/gen-2-6.jpeg" alt="Crowd Counter Gen 2 - Photo 6">
+                    </div>
+
+                    <div class="dots-container">
+                        <span class="dot"></span>
+                        <span class="dot"></span>
+                        <span class="dot"></span>
+                        <span class="dot"></span>
+                        <span class="dot"></span>
+                        <span class="dot"></span>
+                    </div>
+
+                    <div class="gallery-controls">
+                        <button class="gallery-arrow prev-button" aria-label="Previous Image">&lt;</button>
+                        <button class="gallery-arrow next-button" aria-label="Next Image">&gt;</button>
+                    </div>
+                </div>
+            </div>
+            <!-- /NEW -->
             <br>
             <br>If you wish, you can preorder today and receive your <div id="primary">first month for free!</div> (Limited time offer)
             <br>
@@ -68,6 +91,7 @@
             <br>
             <br>
         </div>
+
             <div class="text-box-legal" data-aos="fade-up">
                 <img src="./assets/Logos/CrowdCount App Logo-iOS-Default-1024x1024@2x.png" alt="App Logo" class="scaled-image-app"><br>
                 <div id="primaryTitleBold">CrowdCount App</div><br><br>
@@ -80,8 +104,9 @@
                 <br>Additionally, you can <div id="primary">view all public Crowd Counters on a map!</div> And be able to see how many people are in that location!
                 <br>
                 <div data-aos="fade-up">
-                    <div class="text-box-legal">
-                        <div id="photo-gallery">
+                    <!-- EXISTING App gallery: add classes so shared JS works -->
+                    <div class="text-box-legal gallery-container" id="app-gallery">
+                        <div id="photo-gallery" class="photo-gallery" aria-label="CrowdCount App screenshots">
                             <img src="./assets/AppPhotos/WelcomePage.png" alt="Welcome Page">
                             <img src="./assets/AppPhotos/MapView.png" alt="Map View">
                             <img src="./assets/AppPhotos/MapListView.png" alt="Map List View">
@@ -98,7 +123,7 @@
                             <img src="./assets/AppPhotos/InfoPage.png" alt="Information Page">
                         </div>
 
-                        <div id="dots-container">
+                        <div id="dots-container" class="dots-container">
                             <span class="dot"></span>
                             <span class="dot"></span>
                             <span class="dot"></span>
@@ -114,10 +139,10 @@
                             <span class="dot"></span>
                             <span class="dot"></span>
                         </div>
-                        <!-- Add the gallery controls -->
-                        <div id="gallery-controls">
-                            <button id="prev-button" class="gallery-arrow" aria-label="Previous Image">&lt;</button>
-                            <button id="next-button" class="gallery-arrow" aria-label="Next Image">&gt;</button>
+
+                        <div id="gallery-controls" class="gallery-controls">
+                            <button id="prev-button" class="gallery-arrow prev-button" aria-label="Previous Image">&lt;</button>
+                            <button id="next-button" class="gallery-arrow next-button" aria-label="Next Image">&gt;</button>
                         </div>
                     </div>
                 </div>
@@ -131,110 +156,81 @@
         </div>
     </h3>
     <div id="bottom-note">© 2025 CrowdCount. All rights reserved. | <a href="legal/privacy-policy.html" id="bottom-color">Privacy Policy</a> | <a href="legal/terms-of-use.html" id="bottom-color">Terms of Use</a></div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
     <script src="./scripts/script.js"></script>
+
     <script>
         AOS.init();
-    
-        document.addEventListener('DOMContentLoaded', function() {
-            const gallery = document.getElementById('photo-gallery');
-            const dots = document.querySelectorAll('.dot');
-            const images = document.querySelectorAll('#photo-gallery img');
-            const prevButton = document.getElementById('prev-button');
-            const nextButton = document.getElementById('next-button');
-    
-            let scrollInterval = null; // To store the scrolling interval
-    
-            function updateDots() {
-                const scrollLeft = gallery.scrollLeft;
-                const totalScrollWidth = gallery.scrollWidth - gallery.clientWidth;
-                const scrollFraction = scrollLeft / totalScrollWidth;
-                const activeDotIndex = Math.round(scrollFraction * (dots.length - 1));
-    
-                dots.forEach((dot, index) => {
-                    if (index === activeDotIndex) {
-                        dot.classList.add('active');
-                    } else {
-                        dot.classList.remove('active');
-                    }
-                });
-            }
-    
-            gallery.addEventListener('scroll', updateDots);
-            updateDots(); // Initialize the dots on load
-    
-            // Ensure the first dot is active on initial load
-            dots.forEach((dot, index) => {
-                if (index === 0) {
-                    dot.classList.add('active');
-                } else {
-                    dot.classList.remove('active');
+
+        // Multi-gallery initializer (works for both Counter & App galleries)
+        document.addEventListener('DOMContentLoaded', function () {
+            function initGallery(container) {
+                const gallery = container.querySelector('.photo-gallery');
+                const dots = container.querySelectorAll('.dots-container .dot');
+                const prevButton = container.querySelector('.prev-button');
+                const nextButton = container.querySelector('.next-button');
+
+                if (!gallery || dots.length === 0 || !prevButton || !nextButton) return;
+
+                let scrollInterval = null;
+
+                function updateDots() {
+                    const total = gallery.scrollWidth - gallery.clientWidth;
+                    const fraction = total > 0 ? (gallery.scrollLeft / total) : 0;
+                    const active = Math.round(fraction * (dots.length - 1));
+                    dots.forEach((dot, i) => dot.classList.toggle('active', i === active));
                 }
-            });
-    
-            // Arrow button click handlers
-            prevButton.addEventListener('click', function() {
-                moveGallery(-1);
-            });
-    
-            nextButton.addEventListener('click', function() {
-                moveGallery(1);
-            });
-    
-            // Function to move the gallery by one dot's worth
-            function moveGallery(direction) {
-                const totalScrollWidth = gallery.scrollWidth - gallery.clientWidth;
-                const scrollAmount = totalScrollWidth / (dots.length - 1);
-                gallery.scrollBy({
-                    left: direction * scrollAmount,
-                    behavior: 'smooth'
-                });
-            }
-    
-            // Add event listeners to enable holding down arrow buttons
-            function startScrolling(direction) {
-                scrollInterval = setInterval(() => {
-                    moveGallery(direction);
-                }, 100); // Adjust the interval time as needed
-            }
-    
-            function stopScrolling() {
-                clearInterval(scrollInterval);
-                scrollInterval = null;
-            }
-    
-            prevButton.addEventListener('mousedown', function() {
-                startScrolling(-1);
-            });
-    
-            nextButton.addEventListener('mousedown', function() {
-                startScrolling(1);
-            });
-    
-            prevButton.addEventListener('mouseup', stopScrolling);
-            nextButton.addEventListener('mouseup', stopScrolling);
-    
-            // Stop scrolling when mouse leaves the button
-            prevButton.addEventListener('mouseleave', stopScrolling);
-            nextButton.addEventListener('mouseleave', stopScrolling);
-    
-            // Stop scrolling on touchend for mobile devices (in case arrows are visible on tablets)
-            prevButton.addEventListener('touchend', stopScrolling);
-            nextButton.addEventListener('touchend', stopScrolling);
-    
-            // Dot click handlers
-            dots.forEach((dot, index) => {
-                dot.addEventListener('click', () => {
-                    const totalScrollWidth = gallery.scrollWidth - gallery.clientWidth;
-                    const scrollPosition = (totalScrollWidth / (dots.length - 1)) * index;
-                    gallery.scrollTo({
-                        left: scrollPosition,
-                        behavior: 'smooth'
+
+                function moveGallery(direction) {
+                    const total = gallery.scrollWidth - gallery.clientWidth;
+                    const step = (dots.length > 1) ? total / (dots.length - 1) : total;
+                    gallery.scrollBy({ left: direction * step, behavior: 'smooth' });
+                }
+
+                function startScrolling(direction) {
+                    if (scrollInterval) return;
+                    scrollInterval = setInterval(() => moveGallery(direction), 100);
+                }
+
+                function stopScrolling() {
+                    if (scrollInterval) {
+                        clearInterval(scrollInterval);
+                        scrollInterval = null;
+                    }
+                }
+
+                // Events
+                gallery.addEventListener('scroll', updateDots);
+                prevButton.addEventListener('click', () => moveGallery(-1));
+                nextButton.addEventListener('click', () => moveGallery(1));
+
+                prevButton.addEventListener('mousedown', () => startScrolling(-1));
+                nextButton.addEventListener('mousedown', () => startScrolling(1));
+                prevButton.addEventListener('mouseup', stopScrolling);
+                nextButton.addEventListener('mouseup', stopScrolling);
+                prevButton.addEventListener('mouseleave', stopScrolling);
+                nextButton.addEventListener('mouseleave', stopScrolling);
+                prevButton.addEventListener('touchend', stopScrolling);
+                nextButton.addEventListener('touchend', stopScrolling);
+
+                dots.forEach((dot, index) => {
+                    dot.addEventListener('click', () => {
+                        const total = gallery.scrollWidth - gallery.clientWidth;
+                        const pos = (dots.length > 1) ? (total / (dots.length - 1)) * index : 0;
+                        gallery.scrollTo({ left: pos, behavior: 'smooth' });
                     });
                 });
-            });
+
+                // Initialize dot state
+                dots.forEach((dot, i) => dot.classList.toggle('active', i === 0));
+                updateDots();
+            }
+
+            // Initialize all galleries on the page
+            document.querySelectorAll('.gallery-container').forEach(initGallery);
         });
-    </script>    
+    </script>
 </body>
 </html>
