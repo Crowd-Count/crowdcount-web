@@ -340,6 +340,7 @@ async function initMap() {
 
 // Call the initMap function to load the locations and annotations
 initMap();
+populateLocationList();
 
 function loadPartnerLogos() {
     const partnersTrack = document.querySelector('.partners-track');
@@ -631,13 +632,6 @@ function escapeHtml(text) {
         "'": '&#039;'
     };
     return text.replace(/[&<>"']/g, m => map[m]);
-}
-
-// Function to refresh location list data
-function refreshLocationList() {
-    if (window.location.pathname.includes('map.html')) {
-        populateLocationList();
-    }
 }
 
 // Auto-refresh location list every 30 seconds
