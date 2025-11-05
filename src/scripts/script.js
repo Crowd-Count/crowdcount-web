@@ -483,11 +483,10 @@ function displayLocations(locations) {
     // Sort locations alphabetically by name
     uniqueLocations.sort((a, b) => a.location_name.localeCompare(b.location_name));
     
+    // In the displayLocations function, update the HTML generation:
     const html = uniqueLocations.map(location => {
         const comparisonSymbol = getComparisonSymbol(location.location_comparison);
         const comparisonClass = getComparisonClass(location.location_comparison);
-        const iconColor = getIconColor(location.location_color);
-        const bgColor = getIconBgColor(location.location_color);
         
         // Parse overcrowding count
         let overcrowding = null;
@@ -501,9 +500,12 @@ function displayLocations(locations) {
         return `
             <div class="location-item" onclick="centerMapOnLocation(${location.location_latitude}, ${location.location_longitude})">
                 <span class="location-name">${escapeHtml(location.location_name)}</span>
-                <span class="location-count">Count: ${location.location_current_count}</span>
-                ${comparisonSymbol ? `<span class="${comparisonClass}">${comparisonSymbol}</span>` : ''}
-                ${overcrowding ? `<span style="color: var(--gray-color); font-size: 0.9em;"> / ${overcrowding}</span>` : ''}
+                <div class="location-stats">
+                    <span class="location-count-label">Count:</span>
+                    <span class="location-count-number">${location.location_current_count}</span>
+                    ${overcrowding ? `<span class="location-overcrowding"> / ${overcrowding}</span>` : ''}
+                    ${comparisonSymbol ? `<span class="${comparisonClass}">${comparisonSymbol}</span>` : ''}
+                </div>
             </div>
         `;
     }).join('');

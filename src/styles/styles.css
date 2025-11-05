@@ -741,6 +741,77 @@ video {
     align-items: center;
 }
 
+.location-list {
+    max-height: 400px;
+    overflow-y: auto;
+    margin-top: 20px;
+}
+
+/* Updated Location List Styles */
+.location-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between; /* Push name left and stats right */
+    padding: 12px 15px;
+    margin-bottom: 5px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 15px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.location-item:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.location-name {
+    flex: 1;
+    color: var(--light-color);
+    font-weight: 500;
+    text-align: left;
+}
+
+#location-search {
+    width: 100%;  /* Full width */
+    margin-bottom: 15px;
+    padding: 15px 20px;  /* Consistent padding with other inputs */
+    border-radius: 25px;  /* Match your design system */
+    background-color: rgba(255, 255, 255, 0.1);
+    color: var(--light-color);
+    border: none;
+    transition: background-color 0.3s ease;
+}
+
+.location-stats {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    flex-shrink: 0; /* Prevent wrapping */
+}
+
+.location-count-label {
+    color: var(--gray-color);
+}
+
+.location-count-number {
+    color: var(--light-color);
+    font-weight: 500;
+}
+
+.location-overcrowding {
+    color: var(--gray-color);
+}
+
+.comparison-up {
+    color: #34C759;
+    margin-left: 5px;
+}
+
+.comparison-down {
+    color: var(--accent-color);
+    margin-left: 5px;
+}
+
 @keyframes scroll {
     0% {
         transform: translateX(0);
