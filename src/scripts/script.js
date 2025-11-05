@@ -109,10 +109,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 .start();
         }
     });
+
+    // Initialize location list if on map page
+    if (window.location.pathname.includes('map.html')) {
+        setTimeout(() => {
+            populateLocationList();
+        }, 1000);
+    }
 });
 
 function copyToClipboard() {
-    // Compute yesterday’s date
+    // Compute yesterday's date
     const d = new Date();
     d.setDate(d.getDate() - 1);
     const yyyy = d.getFullYear();
@@ -120,7 +127,7 @@ function copyToClipboard() {
     const dd = String(d.getDate()).padStart(2, "0");
     const yesterday = `${yyyy}-${mm}-${dd}`;
 
-    // Build URL with yesterday’s date
+    // Build URL with yesterday's date
     const textToCopy = `https://api.crowdcount.tech/get_day_data?user_id=Demo&password=password&date=${yesterday}`;
 
     const tempInput = document.createElement("input");
@@ -402,3 +409,255 @@ function loadPartnerLogos() {
         partnersTrack.style.animationPlayState = 'running';
     });
 }
+
+// ============================================
+// LOCATION LIST FUNCTIONALITY
+// ============================================
+
+// Global variable to store locations
+let allLocations = [];
+let locationsMap = new Map();
+let listVisible = true;
+
+// Function to populate the location list
+async function populateLocationList() {
+    try {
+        const response = await fetch('https://api.crowdcount.tech/get_all_location_data_with_extra');
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        const data = await response.json();
+        allLocations = data.locations;
+        
+        // Store locations in map for quick lookup
+        allLocations.forEach(location => {
+            const key = `${location.location_name}_${location.location_device}`;
+            if (!locationsMap.has(key)) {
+                locationsMap.set(key, location);
+            }
+        });
+        
+        displayLocations(allLocations);
+    } catch (error) {
+        console.error('Error fetching locations for list:', error);
+        const container = document.getElementById('locations-container');
+        if (container) {
+            container.innerHTML = `
+                <div class="no-results">
+                    <div class="no-results-icon">⚠️</div>
+                    <p>Unable to load locations</p>
+                </div>
+            `;
+        }
+    }
+}
+
+// Function to display locations in the list
+function displayLocations(locations) {
+    const container = document.getElementById('locations-container');
+    if (!container) return; // Exit if not on map page
+    
+    if (!locations || locations.length === 0) {
+        container.innerHTML = `
+            <div class="no-results">
+                <div class="no-results-icon"></div>
+                <p>No locations found</p>
+            </div>
+        `;
+        return;
+    }
+    
+    // Remove duplicates based on name and device
+    const uniqueLocations = [];
+    const seenKeys = new Set();
+    
+    locations.forEach(location => {
+        const key = `${location.location_name}_${location.location_device}`;
+        if (!seenKeys.has(key)) {
+            seenKeys.add(key);
+            uniqueLocations.push(location);
+        }
+    });
+    
+    // Sort locations alphabetically by name
+    uniqueLocations.sort((a, b) => a.location_name.localeCompare(b.location_name));
+    
+    const html = uniqueLocations.map(location => {
+        const comparisonSymbol = getComparisonSymbol(location.location_comparison);
+        const comparisonClass = getComparisonClass(location.location_comparison);
+        const iconColor = getIconColor(location.location_color);
+        const bgColor = getIconBgColor(location.location_color);
+        
+        // Parse overcrowding count
+        let overcrowding = null;
+        if (location.location_overcrowding_count && location.location_overcrowding_count !== 'N/A') {
+            overcrowding = parseInt(location.location_overcrowding_count);
+            if (isNaN(overcrowding)) {
+                overcrowding = null;
+            }
+        }
+        
+        return `
+            <div class="location-item" onclick="centerMapOnLocation(${location.location_latitude}, ${location.location_longitude})">
+                <span class="location-name">${escapeHtml(location.location_name)}</span>
+                <span class="location-count">Count: ${location.location_current_count}</span>
+                ${comparisonSymbol ? `<span class="${comparisonClass}">${comparisonSymbol}</span>` : ''}
+                ${overcrowding ? `<span style="color: var(--gray-color); font-size: 0.9em;"> / ${overcrowding}</span>` : ''}
+            </div>
+        `;
+    }).join('');
+    
+    container.innerHTML = html;
+}
+
+// Function to filter locations based on search input
+function filterLocations() {
+    const searchInput = document.getElementById('location-search');
+    if (!searchInput) return; // Exit if not on map page
+    
+    const searchTerm = searchInput.value.toLowerCase();
+    
+    if (!searchTerm) {
+        displayLocations(allLocations);
+        return;
+    }
+    
+    const filteredLocations = allLocations.filter(location => 
+        location.location_name.toLowerCase().includes(searchTerm)
+    );
+    
+    displayLocations(filteredLocations);
+}
+
+// Function to get comparison class for styling
+function getComparisonClass(comparison) {
+    switch (comparison) {
+        case "up":
+            return "comparison-up";
+        case "down":
+            return "comparison-down";
+        default:
+            return "";
+    }
+}
+
+// Function to get icon color based on location color
+function getIconColor(colorName) {
+    const colorMap = {
+        "red": "#FF3B30",
+        "orange": "#FF9500",
+        "yellow": "#FFCC00",
+        "green": "#34C759",
+        "mint": "#00C7BE",
+        "teal": "#30B0C7",
+        "cyan": "#32ADE6",
+        "blue": "#007AFF",
+        "indigo": "#5856D6",
+        "purple": "#AF52DE",
+        "pink": "#FF2D55",
+        "brown": "#A2845E",
+        "gray": "#8E8E93",
+        "primary": "#007AFF"
+    };
+    
+    return colorMap[colorName?.toLowerCase()] || "#007AFF";
+}
+
+// Function to get icon background color (lighter version)
+function getIconBgColor(colorName) {
+    const colorMap = {
+        "red": "rgba(255, 59, 48, 0.2)",
+        "orange": "rgba(255, 149, 0, 0.2)",
+        "yellow": "rgba(255, 204, 0, 0.2)",
+        "green": "rgba(52, 199, 89, 0.2)",
+        "mint": "rgba(0, 199, 190, 0.2)",
+        "teal": "rgba(48, 176, 199, 0.2)",
+        "cyan": "rgba(50, 173, 230, 0.2)",
+        "blue": "rgba(0, 122, 255, 0.2)",
+        "indigo": "rgba(88, 86, 214, 0.2)",
+        "purple": "rgba(175, 82, 222, 0.2)",
+        "pink": "rgba(255, 45, 85, 0.2)",
+        "brown": "rgba(162, 132, 94, 0.2)",
+        "gray": "rgba(142, 142, 147, 0.2)",
+        "primary": "rgba(0, 122, 255, 0.2)"
+    };
+    
+    return colorMap[colorName?.toLowerCase()] || "rgba(0, 122, 255, 0.2)";
+}
+
+// Function to center map on a specific location
+function centerMapOnLocation(latitude, longitude) {
+    if (typeof map !== 'undefined' && map) {
+        const coordinate = new mapkit.Coordinate(latitude, longitude);
+        const region = new mapkit.CoordinateRegion(
+            coordinate,
+            new mapkit.CoordinateSpan(0.01, 0.01)
+        );
+        map.setRegionAnimated(region);
+        
+        // Smooth scroll to map
+        const mapContainer = document.getElementById('map-container');
+        if (mapContainer) {
+            mapContainer.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+    }
+}
+
+// Function to toggle location list visibility
+function toggleLocationList() {
+    const listContent = document.getElementById('location-list-content');
+    const toggleBtn = document.getElementById('toggle-text');
+    
+    if (!listContent || !toggleBtn) return;
+    
+    listVisible = !listVisible;
+    
+    if (listVisible) {
+        listContent.style.display = 'block';
+        toggleBtn.textContent = 'Hide List';
+    } else {
+        listContent.style.display = 'none';
+        toggleBtn.textContent = 'Show List';
+    }
+}
+
+// Function to escape HTML to prevent XSS
+function escapeHtml(text) {
+    const map = {
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#039;'
+    };
+    return text.replace(/[&<>"']/g, m => map[m]);
+}
+
+// Function to refresh location list data
+function refreshLocationList() {
+    if (window.location.pathname.includes('map.html')) {
+        populateLocationList();
+    }
+}
+
+// Auto-refresh location list every 30 seconds
+setInterval(refreshLocationList, 30000);
+
+// Add keyboard shortcut to toggle list (Ctrl/Cmd + L)
+document.addEventListener('keydown', (e) => {
+    if ((e.ctrlKey || e.metaKey) && e.key === 'l') {
+        e.preventDefault();
+        toggleLocationList();
+    }
+});
+
+// Clear search when Escape is pressed
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+        const searchInput = document.getElementById('location-search');
+        if (searchInput && searchInput.value) {
+            searchInput.value = '';
+            filterLocations();
+        }
+    }
+});
