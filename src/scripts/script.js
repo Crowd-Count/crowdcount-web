@@ -210,11 +210,103 @@ mapkit.init({
     }
 });
 
-// Create a new map with dark mode
+// Create a new map with dark mode (initial center will be updated based on user location or markers)
 const map = new mapkit.Map("map", {
-    center: new mapkit.Coordinate(40.01833, -105.28202), // Center the map on CrowdCount HQ
+    center: new mapkit.Coordinate(39.8283, -98.5795), // Initial center on USA (will be updated)
     colorScheme: mapkit.Map.ColorSchemes.Dark // Enable dark mode
 });
+
+// Track if initial position has been set
+let hasSetInitialPosition = false;
+
+// Function to get user's current location
+function getUserLocation() {
+    return new Promise((resolve, reject) => {
+        if (!navigator.geolocation) {
+            reject(new Error('Geolocation not supported'));
+            return;
+        }
+
+        navigator.geolocation.getCurrentPosition(
+            (position) => {
+                resolve({
+                    latitude: position.coords.latitude,
+                    longitude: position.coords.longitude
+                });
+            },
+            (error) => {
+                reject(error);
+            },
+            {
+                enableHighAccuracy: true,
+                timeout: 5000,
+                maximumAge: 0
+            }
+        );
+    });
+}
+
+// Function to center map on user's location
+function centerOnUserLocation(latitude, longitude) {
+    const coordinate = new mapkit.Coordinate(latitude, longitude);
+    const region = new mapkit.CoordinateRegion(
+        coordinate,
+        new mapkit.CoordinateSpan(0.01, 0.01) // Tight zoom on user location
+    );
+    map.setRegionAnimated(region);
+    hasSetInitialPosition = true;
+}
+
+// Function to fit all markers in the map view
+function fitAllMarkers(locations) {
+    if (!locations || locations.length === 0) {
+        // No markers, keep default USA view
+        return;
+    }
+
+    // Calculate bounding box
+    let minLat = locations[0].location_latitude;
+    let maxLat = locations[0].location_latitude;
+    let minLon = locations[0].location_longitude;
+    let maxLon = locations[0].location_longitude;
+
+    locations.forEach(location => {
+        minLat = Math.min(minLat, location.location_latitude);
+        maxLat = Math.max(maxLat, location.location_latitude);
+        minLon = Math.min(minLon, location.location_longitude);
+        maxLon = Math.max(maxLon, location.location_longitude);
+    });
+
+    // Calculate center and span with padding
+    const centerLat = (minLat + maxLat) / 2;
+    const centerLon = (minLon + maxLon) / 2;
+    const spanLat = Math.max((maxLat - minLat) * 1.5, 0.01); // 50% padding, minimum span
+    const spanLon = Math.max((maxLon - minLon) * 1.5, 0.01);
+
+    const region = new mapkit.CoordinateRegion(
+        new mapkit.Coordinate(centerLat, centerLon),
+        new mapkit.CoordinateSpan(spanLat, spanLon)
+    );
+    map.setRegionAnimated(region);
+    hasSetInitialPosition = true;
+}
+
+// Function to set initial map position based on user location or fit all markers
+async function setInitialMapPosition(locations) {
+    if (hasSetInitialPosition) return;
+
+    try {
+        // Try to get user's location
+        const userLocation = await getUserLocation();
+        centerOnUserLocation(userLocation.latitude, userLocation.longitude);
+        console.log('Map centered on user location');
+    } catch (error) {
+        // User denied location or error occurred, fit all markers
+        console.log('Could not get user location:', error.message);
+        fitAllMarkers(locations);
+        console.log('Map fitted to show all markers');
+    }
+}
 
 // Function to fetch locations from the new API
 async function fetchLocations() {
@@ -329,13 +421,8 @@ async function initMap() {
         map.addAnnotation(annotation);
     });
 
-    // Set the map region
-    const newCenter = new mapkit.Coordinate(40.00907, -105.27124);
-    const newSpan = new mapkit.CoordinateSpan(0.035, 0.035); // Adjust span to fit all annotations
-    const newRegion = new mapkit.CoordinateRegion(newCenter, newSpan);
-
-    // Set the new region with animation
-    map.setRegionAnimated(newRegion);
+    // Set initial map position based on user location or fit all markers
+    await setInitialMapPosition(locations);
 }
 
 // Call the initMap function to load the locations and annotations
