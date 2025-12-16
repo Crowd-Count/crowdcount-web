@@ -36,7 +36,7 @@ function updatePeopleCounter(callback) {
 }
 
 function animateCounter(counter, targetCount, callback) {
-    let currentCount = parseInt(counter.textContent.replace(/,/g, '')) || 0;
+    let currentCount = parseInt(counter.textContent) || 0;
     console.log('Starting animation from', currentCount, 'to', targetCount); // Log animation start
 
     const duration = 2000; // Duration of the animation in milliseconds
@@ -50,11 +50,11 @@ function animateCounter(counter, targetCount, callback) {
         currentCount = Math.round(currentCount + (targetCount - currentCount) * progress);
         console.log('Current count at frame', frame, ':', currentCount); // Log current count at each frame
 
-        counter.textContent = currentCount.toLocaleString();
+        counter.textContent = currentCount;
 
         if (frame >= totalFrames) {
             clearInterval(interval);
-            counter.textContent = targetCount.toLocaleString();
+            counter.textContent = targetCount;
             console.log('Animation completed with final count:', targetCount); // Log animation completion
             if (callback) callback();
         }

@@ -108,7 +108,7 @@ header {
 }
 
 #peopleCounter {
-    font-size: 15rem; /* Make the counter larger */
+    font-size: min(15rem, 90vw); /* Max 15rem, scales down to fit screen width */
     font-weight: bold; /* Make the counter bold */
     color: var(--light-color); /* Ensure the counter text is white */
 }
@@ -832,7 +832,7 @@ video {
         font-size: 1.75rem;
     }
     #peopleCounter {
-        font-size: 12rem;
+        font-size: min(12rem, 90vw);
     }
     #menu {
         font-size: 1rem;
@@ -914,7 +914,7 @@ video {
         font-size: 1.5rem;
     }
     #peopleCounter {
-        font-size: 10rem;
+        font-size: min(10rem, 90vw);
     }
     #menu {
         font-size: 1.25rem;
