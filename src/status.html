@@ -22,6 +22,30 @@
     <script src="https://cdn.jsdelivr.net/npm/typewriter-effect@2.18.2/dist/core.js"></script>
 </head>
 <body id="secondarypage">
+    <nav id="sticky-nav" class="sticky-nav">
+        <div class="sticky-nav-content">
+            <a href="index.html" class="nav-logo"><img src="assets/Logos/TransparentLogoCropped.png" alt="CrowdCount">CrowdCount</a>
+            <ul class="nav-menu">
+                <li><a href="index.html" class="ripple">Home</a></li>
+                <li><a href="products.html" class="ripple">Products</a></li>
+                <li><a href="map.html" class="ripple">Map</a></li>
+                <li><a href="api.html" class="ripple">API</a></li>
+                <li><a href="about.html" class="ripple">About & Contact</a></li>
+            </ul>
+            <button class="nav-toggle" onclick="toggleMobileNav()">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
+        <ul class="nav-menu-mobile">
+            <li><a href="index.html">Home</a></li>
+            <li><a href="products.html">Products</a></li>
+            <li><a href="map.html">Map</a></li>
+            <li><a href="api.html">API</a></li>
+            <li><a href="about.html">About & Contact</a></li>
+        </ul>
+    </nav>
     <header class="d-flex flex-column" data-aos="fade-down">
         <div class="text-center">
             <div id="MediumHomeTitle" class="d-inline-block"><div id="CrowdCountSTATUS"></div></div>

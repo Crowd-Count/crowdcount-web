@@ -4,6 +4,50 @@ AOS.init({
     once: true
 });
 
+// Sticky Navigation
+let lastScrollY = window.scrollY;
+let ticking = false;
+
+function updateStickyNav() {
+    const stickyNav = document.getElementById('sticky-nav');
+    if (!stickyNav) return;
+
+    const scrollY = window.scrollY;
+    const threshold = window.innerHeight * 0.5; // Show after scrolling 50% of viewport height
+
+    if (scrollY > threshold) {
+        stickyNav.classList.add('visible');
+    } else {
+        stickyNav.classList.remove('visible');
+        // Close mobile menu when nav hides
+        const mobileMenu = document.querySelector('.nav-menu-mobile');
+        const navToggle = document.querySelector('.nav-toggle');
+        if (mobileMenu) mobileMenu.classList.remove('open');
+        if (navToggle) navToggle.classList.remove('active');
+    }
+
+    lastScrollY = scrollY;
+    ticking = false;
+}
+
+window.addEventListener('scroll', function() {
+    if (!ticking) {
+        window.requestAnimationFrame(updateStickyNav);
+        ticking = true;
+    }
+});
+
+// Mobile nav toggle
+function toggleMobileNav() {
+    const mobileMenu = document.querySelector('.nav-menu-mobile');
+    const navToggle = document.querySelector('.nav-toggle');
+
+    if (mobileMenu && navToggle) {
+        mobileMenu.classList.toggle('open');
+        navToggle.classList.toggle('active');
+    }
+}
+
 function updatePeopleCounter(callback) {
     const counter = document.getElementById('peopleCounter');
     const apiUrl = '/api/totalcount';  // Use relative path
