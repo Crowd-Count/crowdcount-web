@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Server Status - CrowdCount</title>
     <meta property="og:title" content="Server Status - CrowdCount">
-    <meta property="og:description" content="Check the current status of CrowdCount servers and devices.">
+    <meta property="og:description" content="Check the current status of CrowdCount servers.">
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="CrowdCount">
     <meta property="og:image" content="./assets/Logos/banner.png">
@@ -61,7 +61,7 @@
     <br>
 
     <h3 id="center" data-aos="fade-up">
-        <div id="secondary">Real-time <div id="primary">server</div> and <div id="primary">device</div> status</div>
+        <div id="secondary">Real-time <div id="primary">server</div> status</div>
     </h3>
     <br>
 
@@ -90,17 +90,6 @@
                     <div id="secondary">Active Alerts</div><br>
                     <div id="alert-status">Checking...</div>
                 </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Location Status -->
-    <div id="center" data-aos="fade-up">
-        <div class="text-box-legal">
-            <div id="primaryTitleBold">Location Status</div>
-            <br><br>
-            <div id="location-status-container">
-                <div id="secondary">Loading location data...</div>
             </div>
         </div>
     </div>
@@ -159,42 +148,6 @@
                 opacity: 0.6;
                 transform: scale(0.8);
             }
-        }
-
-        .location-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 15px;
-            margin: 10px 0;
-            background-color: rgba(255, 255, 255, 0.05);
-            border-radius: 15px;
-        }
-
-        .location-name {
-            font-weight: bold;
-            color: var(--light-color);
-        }
-
-        .location-count {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .location-status {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background-color: var(--gray-color);
-        }
-
-        .location-status.up {
-            background-color: #4CAF50;
-        }
-
-        .location-status.down {
-            background-color: #f44336;
         }
 
         .auto-refresh {
@@ -273,50 +226,11 @@
             }
         }
 
-        // Function to get location status
-        async function getLocationStatus() {
-            try {
-                const response = await fetch('/api/get_all_location_data_with_extra');
-                const data = await response.json();
-                
-                const container = document.getElementById('location-status-container');
-                
-                if (data.locations && data.locations.length > 0) {
-                    let html = '';
-                    data.locations.forEach(location => {
-                        const statusClass = location.location_comparison === 'up' ? 'up' : 
-                                          location.location_comparison === 'down' ? 'down' : '';
-                        const arrow = location.location_comparison === 'up' ? '↑' : 
-                                     location.location_comparison === 'down' ? '↓' : '';
-                        
-                        html += `
-                            <div class="location-item">
-                                <span class="location-name">${location.location_name}</span>
-                                <div class="location-count">
-                                    <span class="location-status ${statusClass}"></span>
-                                    <span>${location.location_current_count} ${arrow}</span>
-                                    ${location.location_overcrowding_count !== 'N/A' ? 
-                                      `<span id="secondary">/ ${location.location_overcrowding_count}</span>` : ''}
-                                </div>
-                            </div>
-                        `;
-                    });
-                    container.innerHTML = html;
-                } else {
-                    container.innerHTML = '<div id="secondary">No location data available</div>';
-                }
-            } catch (error) {
-                document.getElementById('location-status-container').innerHTML = 
-                    '<div id="secondary">Error loading location data</div>';
-            }
-        }
-
         // Refresh all data
         async function refreshAllData() {
             await checkAPIHealth();
             await getTotalCount();
             await checkAlerts();
-            await getLocationStatus();
         }
 
         // Initial load
