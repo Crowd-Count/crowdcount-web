@@ -105,61 +105,6 @@
         </div>
     </div>
 
-    <!-- Device Statistics -->
-    <div id="center" data-aos="fade-up">
-        <div class="text-box-legal">
-            <div id="primaryTitleBold">Device Statistics</div>
-            <br><br>
-            <div class="status-grid">
-                <div class="status-item">
-                    <div id="secondary">Total Devices</div><br>
-                    <div id="total-devices" class="big-number">--</div>
-                </div>
-                <div class="status-item">
-                    <div id="secondary">Online Devices</div><br>
-                    <div id="online-devices" class="big-number" style="color: var(--accent-color);">--</div>
-                </div>
-                <div class="status-item">
-                    <div id="secondary">Offline Devices</div><br>
-                    <div id="offline-devices" class="big-number">--</div>
-                </div>
-                <div class="status-item">
-                    <div id="secondary">Active Users</div><br>
-                    <div id="active-users" class="big-number">--</div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Detailed Device List -->
-    <div id="center" data-aos="fade-up">
-        <div class="text-box-legal">
-            <div id="primaryTitleBold">Device Details</div>
-            <br><br>
-            <div class="auth-section">
-                <input type="password" id="admin-password" placeholder="Admin Password" />
-                <button id="auth-button" class="ripple">Authenticate</button>
-            </div>
-            <div id="device-list-container" style="display: none;">
-                <div class="table-wrapper">
-                    <table class="table">
-                        <thead>
-                            <tr>
-                                <th>Device ID</th>
-                                <th>Status</th>
-                                <th>Current Count</th>
-                                <th>Location</th>
-                            </tr>
-                        </thead>
-                        <tbody id="device-list">
-                            <tr><td colspan="4">Authenticate to view device details</td></tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <div id="bottom-note">© 2025 CrowdCount LLC. All rights reserved. | <a href="legal/privacy-policy.html" id="bottom-color">Privacy Policy</a> | <a href="legal/terms-of-use.html" id="bottom-color">Terms of Use</a></div>
 
     <style>
@@ -216,38 +161,6 @@
             }
         }
 
-        .big-number {
-            font-size: 2.5rem;
-            font-weight: bold;
-            color: var(--light-color);
-        }
-
-        .auth-section {
-            display: flex;
-            gap: 10px;
-            justify-content: center;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-        }
-
-        .auth-section input {
-            width: 300px;
-        }
-
-        .auth-section button {
-            padding: 20px 40px;
-            border: none;
-            border-radius: 25px;
-            background-color: var(--accent-color);
-            color: var(--light-color);
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-        }
-
-        .auth-section button:hover {
-            background-color: #f56363;
-        }
-
         .location-item {
             display: flex;
             justify-content: space-between;
@@ -295,20 +208,6 @@
                 grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
                 gap: 15px;
             }
-
-            .big-number {
-                font-size: 2rem;
-            }
-
-            .auth-section {
-                flex-direction: column;
-                align-items: center;
-            }
-
-            .auth-section input {
-                width: 100%;
-                max-width: 300px;
-            }
         }
     </style>
 
@@ -320,7 +219,6 @@
 
         // Auto-refresh interval
         let refreshInterval;
-        let isAuthenticated = false;
 
         // Function to check API health
         async function checkAPIHealth() {
@@ -375,45 +273,6 @@
             }
         }
 
-        // Function to get device statistics
-        async function getDeviceStats(password = null) {
-            try {
-                // Public endpoints
-                const totalResponse = await fetch('/api/totalcount');
-                const totalData = await totalResponse.json();
-                
-                // Try to get authenticated data if password provided
-                if (password) {
-                    const devicesResponse = await fetch(`/api/get_amount_of_devices?password=${password}`);
-                    const onlineResponse = await fetch(`/api/get_amount_of_devices?status=online&password=${password}`);
-                    const offlineResponse = await fetch(`/api/get_amount_of_devices?status=offline&password=${password}`);
-                    const activeResponse = await fetch(`/api/active_count?password=${password}`);
-                    
-                    if (devicesResponse.ok) {
-                        const devicesData = await devicesResponse.json();
-                        document.getElementById('total-devices').textContent = devicesData.amount;
-                    }
-                    
-                    if (onlineResponse.ok) {
-                        const onlineData = await onlineResponse.json();
-                        document.getElementById('online-devices').textContent = onlineData.amount;
-                    }
-                    
-                    if (offlineResponse.ok) {
-                        const offlineData = await offlineResponse.json();
-                        document.getElementById('offline-devices').textContent = offlineData.amount;
-                    }
-                    
-                    if (activeResponse.ok) {
-                        const activeData = await activeResponse.json();
-                        document.getElementById('active-users').textContent = activeData.active_count;
-                    }
-                }
-            } catch (error) {
-                console.error('Error fetching device stats:', error);
-            }
-        }
-
         // Function to get location status
         async function getLocationStatus() {
             try {
@@ -452,103 +311,12 @@
             }
         }
 
-        // Function to get device list (requires authentication)
-        async function getDeviceList(password) {
-            try {
-                const response = await fetch(`/api/get_all_devices?password=${password}`);
-                if (!response.ok) {
-                    throw new Error('Authentication failed');
-                }
-                
-                const data = await response.json();
-                const locations = await fetch('/api/get_all_location_data_with_extra').then(r => r.json());
-                
-                const deviceLocationMap = {};
-                if (locations.locations) {
-                    locations.locations.forEach(loc => {
-                        deviceLocationMap[loc.location_device] = loc.location_name;
-                    });
-                }
-                
-                const tbody = document.getElementById('device-list');
-                let html = '';
-                
-                for (const [deviceId, status] of data.devices) {
-                    const statusDot = status === 'online' ? 
-                        '<span class="status-dot online" style="display: inline-block; margin-right: 5px;"></span>' : 
-                        '<span class="status-dot offline" style="display: inline-block; margin-right: 5px;"></span>';
-                    
-                    let currentCount = '--';
-                    try {
-                        const countResponse = await fetch(`/api/currentcount?user_id=${deviceId}`);
-                        if (countResponse.ok) {
-                            const countData = await countResponse.json();
-                            currentCount = countData.current_count;
-                        }
-                    } catch (e) {
-                        // Ignore individual device errors
-                    }
-                    
-                    const locationName = deviceLocationMap[deviceId] || '--';
-                    
-                    html += `
-                        <tr>
-                            <td>${deviceId}</td>
-                            <td>${statusDot}${status}</td>
-                            <td>${currentCount}</td>
-                            <td>${locationName}</td>
-                        </tr>
-                    `;
-                }
-                
-                tbody.innerHTML = html || '<tr><td colspan="4">No devices found</td></tr>';
-                document.getElementById('device-list-container').style.display = 'block';
-                
-            } catch (error) {
-                console.error('Error fetching device list:', error);
-                document.getElementById('device-list').innerHTML = 
-                    '<tr><td colspan="4">Authentication required or error loading data</td></tr>';
-            }
-        }
-
-        // Authentication handler
-        document.getElementById('auth-button').addEventListener('click', async () => {
-            const password = document.getElementById('admin-password').value;
-            
-            try {
-                const response = await fetch(`/api/check_admin_password?password=${password}`);
-                const data = await response.json();
-                
-                if (data.is_password_correct) {
-                    isAuthenticated = true;
-                    document.getElementById('auth-button').textContent = 'Authenticated';
-                    document.getElementById('auth-button').style.backgroundColor = '#4CAF50';
-                    
-                    // Load authenticated data
-                    await getDeviceStats(password);
-                    await getDeviceList(password);
-                } else {
-                    alert('Invalid password');
-                }
-            } catch (error) {
-                alert('Error authenticating');
-            }
-        });
-
         // Refresh all data
         async function refreshAllData() {
             await checkAPIHealth();
             await getTotalCount();
             await checkAlerts();
             await getLocationStatus();
-            
-            if (isAuthenticated) {
-                const password = document.getElementById('admin-password').value;
-                await getDeviceStats(password);
-                await getDeviceList(password);
-            } else {
-                await getDeviceStats();
-            }
         }
 
         // Initial load
