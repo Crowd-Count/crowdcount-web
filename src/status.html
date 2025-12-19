@@ -21,6 +21,10 @@
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/typewriter-effect@2.18.2/dist/core.js"></script>
 </head>
+<div id="alertBox" class="alert hidden">
+  <strong id="alertTitle"></strong>
+  <div id="alertBody"></div>
+</div>
 <body id="secondarypage">
     <nav id="sticky-nav" class="sticky-nav">
         <div class="sticky-nav-content">
@@ -169,6 +173,36 @@
     <script src="./scripts/script.js"></script>
     <script>
         AOS.init();
+
+        // Manual alert for power outage
+        document.addEventListener("DOMContentLoaded", function() {
+            showAlert("Service Outage", "Due to power outages in Boulder, Colorado, our servers are currently unavailable. We apologize for the inconvenience and are working to restore services as soon as possible.", "warning");
+        });
+
+        function showAlert(customTitle, customBody, customType) {
+            const alertBox = document.getElementById('alertBox');
+            const alertTitle = document.getElementById('alertTitle');
+            const alertBody = document.getElementById('alertBody');
+
+            alertTitle.textContent = customTitle;
+            alertBody.textContent = customBody;
+
+            if (customType === "warning") {
+                alertBox.style.backgroundColor = "#ff3a30";
+                alertBox.style.color = "black";
+            } else if (customType === "info") {
+                alertBox.style.backgroundColor = "#007bff";
+                alertBox.style.color = "white";
+            } else {
+                alertBox.style.backgroundColor = "#333";
+                alertBox.style.color = "white";
+            }
+
+            alertBox.classList.remove('hidden');
+            setTimeout(() => {
+                alertBox.classList.add('show');
+            }, 10);
+        }
 
         // Auto-refresh interval
         let refreshInterval;
