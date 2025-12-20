@@ -50,7 +50,7 @@ function toggleMobileNav() {
 
 function updatePeopleCounter(callback) {
     const counter = document.getElementById('peopleCounter');
-    const apiUrl = '/api/totalcount';  // Use relative path
+    const apiUrl = 'https://api.crowdcount.tech/totalcount';
 
     console.log('Fetching data from:', apiUrl); // Log the URL
 

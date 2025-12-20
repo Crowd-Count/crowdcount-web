@@ -117,7 +117,7 @@
         AOS.init();
 
         function fetchOptions() {
-            fetch('https://crowdcount.tech/api/get_all_location_names')
+            fetch('https://api.crowdcount.tech/get_all_location_names')
                 .then(response => response.json())
                 .then(data => {
                     const locationSelect = document.getElementById('location');
@@ -190,7 +190,7 @@
                 content: reportContent
             };
 
-            fetch('https://crowdcount.tech/api/submit_report', {
+            fetch('https://api.crowdcount.tech/submit_report', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
