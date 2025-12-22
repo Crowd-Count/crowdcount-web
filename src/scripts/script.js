@@ -863,11 +863,21 @@ async function fetchActiveAds() {
             throw new Error('Network response was not ok');
         }
         const data = await response.json();
+        console.log('Raw API response:', data);
+        console.log('Ads array:', data.ads);
+        if (data.ads && data.ads.length > 0) {
+            console.log('First ad structure:', JSON.stringify(data.ads[0], null, 2));
+        }
         return data.ads || [];
     } catch (error) {
         console.error('Error fetching active ads:', error);
         return [];
     }
+}
+
+// Helper to get ad field (handles both snake_case from API and camelCase from sample data)
+function getAdField(ad, camelCase, snakeCase) {
+    return ad[camelCase] !== undefined ? ad[camelCase] : ad[snakeCase];
 }
 
 // Function to calculate distance between two coordinates (Haversine formula)
@@ -901,8 +911,12 @@ function sortAdsByDistance(ads, userLat, userLon) {
 
     // Sort ads by distance
     return [...ads].sort((a, b) => {
-        const locA = deviceLocationMap.get(a.deviceId);
-        const locB = deviceLocationMap.get(b.deviceId);
+        // Handle both snake_case (API) and camelCase (sample data)
+        const deviceIdA = getAdField(a, 'deviceId', 'device_id');
+        const deviceIdB = getAdField(b, 'deviceId', 'device_id');
+
+        const locA = deviceLocationMap.get(deviceIdA);
+        const locB = deviceLocationMap.get(deviceIdB);
 
         if (!locA && !locB) return 0;
         if (!locA) return 1;
@@ -992,9 +1006,13 @@ function handleCtaClick(ad, event) {
     // Track the click
     trackAdClick(ad.id);
 
+    // Handle both snake_case (API) and camelCase (sample data)
+    const ctaLinkType = getAdField(ad, 'ctaLinkType', 'cta_link_type');
+    const ctaURL = getAdField(ad, 'ctaURL', 'cta_url');
+
     // Open the appropriate URL or modal
-    if (ad.ctaLinkType === 'custom' && ad.ctaURL) {
-        window.open(ad.ctaURL, '_blank');
+    if (ctaLinkType === 'custom' && ctaURL) {
+        window.open(ctaURL, '_blank');
     } else {
         // Default: open ad detail modal
         openAdModal(ad);
@@ -1013,8 +1031,12 @@ function generateReferenceNumber(adId) {
 }
 
 // Function to get ad location from deviceId
-function getAdLocation(deviceId) {
-    if (!allLocations || !allLocations.length) return null;
+function getAdLocation(ad) {
+    if (!allLocations || !allLocations.length || !ad) return null;
+
+    // Handle both snake_case (API) and camelCase (sample data)
+    const deviceId = getAdField(ad, 'deviceId', 'device_id');
+    if (!deviceId) return null;
 
     const location = allLocations.find(loc => loc.location_device === deviceId);
     if (location) {
@@ -1038,8 +1060,11 @@ function openAdModal(ad) {
     const directionsBtn = document.getElementById('ad-modal-directions');
     const reference = document.getElementById('ad-modal-reference');
 
+    // Handle both snake_case (API) and camelCase (sample data)
+    const imagePath = getAdField(ad, 'imagePath', 'image_path');
+
     // Set image
-    const imageUrl = getAdImageUrl(ad.imagePath);
+    const imageUrl = getAdImageUrl(imagePath);
     if (imageUrl) {
         imageContainer.innerHTML = `<img src="${escapeHtml(imageUrl)}" alt="${escapeHtml(ad.title)}" onerror="this.parentElement.innerHTML='<div class=\\'ad-modal-image-placeholder\\'>📍</div>'">`;
     } else {
@@ -1074,7 +1099,7 @@ function closeAdModal(event) {
 function openAdDirections() {
     if (!currentModalAd) return;
 
-    const location = getAdLocation(currentModalAd.deviceId);
+    const location = getAdLocation(currentModalAd);
 
     let mapsUrl;
     if (location) {
@@ -1109,9 +1134,17 @@ function getAdImageUrl(imagePath) {
 
 // Function to create ad card HTML
 function createAdCardHTML(ad) {
-    const imageUrl = getAdImageUrl(ad.imagePath);
-    const countdown = formatCountdown(ad.expirationDate);
-    const ctaText = ad.ctaText || 'View Details';
+    console.log('Creating card for ad:', ad);
+
+    // Handle both snake_case (API) and camelCase (sample data) field names
+    const imagePath = getAdField(ad, 'imagePath', 'image_path');
+    const expirationDate = getAdField(ad, 'expirationDate', 'expiration_date');
+    const ctaText = getAdField(ad, 'ctaText', 'cta_text') || 'View Details';
+
+    const imageUrl = getAdImageUrl(imagePath);
+    console.log('Image URL:', imageUrl);
+    const countdown = formatCountdown(expirationDate);
+    console.log('Countdown:', countdown);
 
     return `
         <div class="ad-card" data-ad-id="${escapeHtml(ad.id)}">
@@ -1126,7 +1159,7 @@ function createAdCardHTML(ad) {
                 <div class="ad-card-description">${escapeHtml(ad.description)}</div>
                 <div class="ad-card-actions">
                     <button class="ad-card-cta" onclick="handleCtaClick(activeAds.find(a => a.id === '${escapeHtml(ad.id)}'), event)">${escapeHtml(ctaText)}</button>
-                    <div class="ad-card-countdown ${countdown.isExpiringSoon ? 'expiring-soon' : ''}" data-expiration="${escapeHtml(ad.expirationDate)}">
+                    <div class="ad-card-countdown ${countdown.isExpiringSoon ? 'expiring-soon' : ''}" data-expiration="${escapeHtml(expirationDate)}">
                         <span class="ad-card-countdown-icon">⏱</span>
                         <span class="ad-card-countdown-time">${countdown.text}</span>
                     </div>
