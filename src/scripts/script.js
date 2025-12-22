@@ -1130,8 +1130,13 @@ function openAdModal(ad) {
     description.textContent = ad.description;
     reference.textContent = generateReferenceNumber(ad.id);
 
-    // Always show directions button (will search by business name if no exact location match)
-    directionsBtn.classList.remove('hidden');
+    // Only show directions button if we have coordinates
+    const location = getAdLocation(ad);
+    if (location && location.lat && location.lon) {
+        directionsBtn.style.display = '';
+    } else {
+        directionsBtn.style.display = 'none';
+    }
 
     // Show modal
     overlay.classList.add('visible');
