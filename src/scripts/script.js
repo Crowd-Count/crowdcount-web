@@ -757,6 +757,8 @@ function toggleLocationList() {
 
 // Function to escape HTML to prevent XSS
 function escapeHtml(text) {
+    if (text == null) return '';
+    const str = String(text);
     const map = {
         '&': '&amp;',
         '<': '&lt;',
@@ -764,7 +766,7 @@ function escapeHtml(text) {
         '"': '&quot;',
         "'": '&#039;'
     };
-    return text.replace(/[&<>"']/g, m => map[m]);
+    return str.replace(/[&<>"']/g, m => map[m]);
 }
 
 // Auto-refresh location list every 30 seconds
@@ -864,11 +866,36 @@ async function fetchActiveAds() {
         }
         const data = await response.json();
         console.log('Raw API response:', data);
-        console.log('Ads array:', data.ads);
-        if (data.ads && data.ads.length > 0) {
-            console.log('First ad structure:', JSON.stringify(data.ads[0], null, 2));
+
+        // Handle different API response structures
+        let ads = [];
+        if (Array.isArray(data)) {
+            // API returned array directly
+            ads = data;
+        } else if (data.ads && Array.isArray(data.ads)) {
+            // API returned { ads: [...] }
+            ads = data.ads;
+        } else if (data.data && Array.isArray(data.data)) {
+            // API returned { data: [...] }
+            ads = data.data;
         }
-        return data.ads || [];
+
+        console.log('Parsed ads array:', ads);
+
+        // Ensure each ad has an id (use device_id as fallback or generate one)
+        ads = ads.map((ad, index) => {
+            if (!ad.id) {
+                const deviceId = ad.device_id || ad.deviceId;
+                ad.id = deviceId ? `ad-${deviceId}` : `ad-${index}-${Date.now()}`;
+            }
+            return ad;
+        });
+
+        if (ads.length > 0) {
+            console.log('First ad structure:', JSON.stringify(ads[0], null, 2));
+        }
+
+        return ads;
     } catch (error) {
         console.error('Error fetching active ads:', error);
         return [];
@@ -999,9 +1026,15 @@ async function trackAdClick(adId) {
 // Current ad being viewed in modal
 let currentModalAd = null;
 
-// Function to handle CTA click
-function handleCtaClick(ad, event) {
+// Function to handle CTA click by index (more robust than finding by id)
+function handleCtaClickByIndex(index, event) {
     event.stopPropagation();
+
+    const ad = activeAds[index];
+    if (!ad) {
+        console.error('Ad not found at index:', index);
+        return;
+    }
 
     // Track the click
     trackAdClick(ad.id);
@@ -1015,6 +1048,25 @@ function handleCtaClick(ad, event) {
         window.open(ctaURL, '_blank');
     } else {
         // Default: open ad detail modal
+        openAdModal(ad);
+    }
+}
+
+// Legacy function for backwards compatibility
+function handleCtaClick(ad, event) {
+    if (!ad) {
+        console.error('handleCtaClick called with null ad');
+        return;
+    }
+    event.stopPropagation();
+    trackAdClick(ad.id);
+
+    const ctaLinkType = getAdField(ad, 'ctaLinkType', 'cta_link_type');
+    const ctaURL = getAdField(ad, 'ctaURL', 'cta_url');
+
+    if (ctaLinkType === 'custom' && ctaURL) {
+        window.open(ctaURL, '_blank');
+    } else {
         openAdModal(ad);
     }
 }
@@ -1133,49 +1185,71 @@ function getAdImageUrl(imagePath) {
 }
 
 // Function to create ad card HTML
-function createAdCardHTML(ad) {
-    console.log('Creating card for ad:', ad);
+function createAdCardHTML(ad, index) {
+    try {
+        console.log(`Creating card for ad ${index}:`, ad);
 
-    // Handle both snake_case (API) and camelCase (sample data) field names
-    const imagePath = getAdField(ad, 'imagePath', 'image_path');
-    const expirationDate = getAdField(ad, 'expirationDate', 'expiration_date');
-    const ctaText = getAdField(ad, 'ctaText', 'cta_text') || 'View Details';
+        // Handle both snake_case (API) and camelCase (sample data) field names
+        const imagePath = getAdField(ad, 'imagePath', 'image_path');
+        const expirationDate = getAdField(ad, 'expirationDate', 'expiration_date');
+        const ctaText = getAdField(ad, 'ctaText', 'cta_text') || 'View Details';
+        const title = ad.title || 'Sponsored';
+        const description = ad.description || '';
+        const adId = ad.id || `ad-${index}`;
 
-    const imageUrl = getAdImageUrl(imagePath);
-    console.log('Image URL:', imageUrl);
-    const countdown = formatCountdown(expirationDate);
-    console.log('Countdown:', countdown);
+        console.log(`Ad ${index} parsed:`, { title, description, imagePath, ctaText });
 
-    return `
-        <div class="ad-card" data-ad-id="${escapeHtml(ad.id)}">
-            <div class="ad-card-image">
-                ${imageUrl
-                    ? `<img src="${escapeHtml(imageUrl)}" alt="${escapeHtml(ad.title)}" onerror="this.parentElement.innerHTML='<div class=\\'ad-card-image-placeholder\\'>📍</div>'">`
-                    : '<div class="ad-card-image-placeholder">📍</div>'
-                }
-            </div>
-            <div class="ad-card-content">
-                <div class="ad-card-title">${escapeHtml(ad.title)}</div>
-                <div class="ad-card-description">${escapeHtml(ad.description)}</div>
-                <div class="ad-card-actions">
-                    <button class="ad-card-cta" onclick="handleCtaClick(activeAds.find(a => a.id === '${escapeHtml(ad.id)}'), event)">${escapeHtml(ctaText)}</button>
-                    <div class="ad-card-countdown ${countdown.isExpiringSoon ? 'expiring-soon' : ''}" data-expiration="${escapeHtml(expirationDate)}">
-                        <span class="ad-card-countdown-icon">⏱</span>
-                        <span class="ad-card-countdown-time">${countdown.text}</span>
-                    </div>
-                </div>
+        const imageUrl = getAdImageUrl(imagePath);
+        const countdown = formatCountdown(expirationDate);
+
+        // Escape HTML to prevent XSS
+        const safeAdId = escapeHtml(String(adId));
+        const safeTitle = escapeHtml(String(title));
+        const safeDescription = escapeHtml(String(description));
+        const safeCtaText = escapeHtml(String(ctaText));
+        const safeExpiration = escapeHtml(String(expirationDate || ''));
+
+        let imageHtml;
+        if (imageUrl) {
+            const safeImageUrl = escapeHtml(imageUrl);
+            imageHtml = `<img src="${safeImageUrl}" alt="${safeTitle}" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'"><div class="ad-card-image-placeholder" style="display:none">📍</div>`;
+        } else {
+            imageHtml = '<div class="ad-card-image-placeholder">📍</div>';
+        }
+
+        const html = `<div class="ad-card" data-ad-id="${safeAdId}" data-ad-index="${index}">
+    <div class="ad-card-image">${imageHtml}</div>
+    <div class="ad-card-content">
+        <div class="ad-card-title">${safeTitle}</div>
+        <div class="ad-card-description">${safeDescription}</div>
+        <div class="ad-card-actions">
+            <button class="ad-card-cta" onclick="handleCtaClickByIndex(${index}, event)">${safeCtaText}</button>
+            <div class="ad-card-countdown ${countdown.isExpiringSoon ? 'expiring-soon' : ''}" data-expiration="${safeExpiration}">
+                <span class="ad-card-countdown-icon">⏱</span>
+                <span class="ad-card-countdown-time">${countdown.text}</span>
             </div>
         </div>
-    `;
+    </div>
+</div>`;
+
+        return html;
+    } catch (error) {
+        console.error('Error creating ad card:', error, error.stack);
+        return `<div class="ad-card"><div class="ad-card-content"><div class="ad-card-title">Error</div><div class="ad-card-description">Failed to load ad</div></div></div>`;
+    }
 }
 
 // Function to render ad carousel
 function renderAdCarousel(ads) {
+    console.log('renderAdCarousel called with', ads?.length, 'ads');
     const container = document.getElementById('ad-carousel-container');
     const carousel = document.getElementById('ad-carousel');
     const dotsContainer = document.getElementById('ad-dots-container');
 
-    if (!container || !carousel) return;
+    if (!container || !carousel) {
+        console.log('Container or carousel not found');
+        return;
+    }
 
     // Clear existing countdown intervals
     adCountdownIntervals.forEach(interval => clearInterval(interval));
@@ -1183,13 +1257,19 @@ function renderAdCarousel(ads) {
 
     // Hide container if no ads
     if (!ads || ads.length === 0) {
+        console.log('No ads to display');
         container.style.display = 'none';
         return;
     }
 
     // Show container and render ads
     container.style.display = 'block';
-    carousel.innerHTML = ads.map(ad => createAdCardHTML(ad)).join('');
+    const htmlArray = ads.map((ad, index) => createAdCardHTML(ad, index));
+    console.log('Generated HTML for', htmlArray.length, 'ads');
+    const fullHtml = htmlArray.join('');
+    carousel.innerHTML = fullHtml;
+    console.log('Carousel innerHTML set, length:', carousel.innerHTML.length);
+    console.log('Number of ad-card elements:', carousel.querySelectorAll('.ad-card').length);
 
     // Create dots (using same .dot class as products page)
     if (dotsContainer) {
