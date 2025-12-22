@@ -1154,11 +1154,13 @@ function openAdDirections() {
     if (!currentModalAd) return;
 
     const location = getAdLocation(currentModalAd);
+    console.log('Opening directions for ad:', currentModalAd.title, 'Location found:', location);
 
     let mapsUrl;
-    if (location) {
-        // Exact location found - use coordinates
-        mapsUrl = `https://maps.apple.com/?q=${encodeURIComponent(location.name)}&ll=${location.lat},${location.lon}`;
+    if (location && location.lat && location.lon) {
+        // Exact coordinates found - use directions mode with coordinates
+        // daddr = destination address, dirflg=d for driving directions
+        mapsUrl = `https://maps.apple.com/?daddr=${location.lat},${location.lon}&dirflg=d&t=m`;
     } else {
         // Fallback - search by business name
         mapsUrl = `https://maps.apple.com/?q=${encodeURIComponent(currentModalAd.title)}`;

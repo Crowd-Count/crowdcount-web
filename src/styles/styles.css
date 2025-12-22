@@ -1333,44 +1333,44 @@ video {
     .ad-card {
         width: calc(100vw - 60px);
         max-width: 300px;
-        min-height: 100px;
-        padding: 10px;
-        gap: 10px;
+        min-height: 120px;
+        padding: 12px;
+        gap: 12px;
     }
 
     .ad-card-image {
-        flex: 0 0 70px;
-        width: 70px;
-        height: 70px;
+        flex: 0 0 85px;
+        width: 85px;
+        height: 85px;
         align-self: center;
     }
 
     .ad-card-title {
-        font-size: 0.7rem;
+        font-size: 0.75rem;
     }
 
     .ad-card-description {
-        font-size: 0.85rem;
+        font-size: 0.9rem;
         -webkit-line-clamp: 2;
     }
 
     .ad-card-cta {
-        padding: 5px 8px !important;
-        font-size: 0.75rem;
+        padding: 6px 10px !important;
+        font-size: 0.8rem;
     }
 
     .ad-card-countdown {
-        font-size: 0.7rem;
-        padding: 3px 5px;
+        font-size: 0.75rem;
+        padding: 4px 6px;
     }
 
     .ad-card-countdown-icon {
-        font-size: 0.65rem;
+        font-size: 0.7rem;
     }
 
     .ad-card-actions {
         flex-wrap: nowrap;
-        gap: 4px;
+        gap: 6px;
     }
 }
 
