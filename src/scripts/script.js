@@ -1286,15 +1286,26 @@ function renderAdCarousel(ads) {
 
     adRenderInProgress = false;
 
-    // Create dots (using same .dot class as products page)
+    // Create dots (using same .dot class as products page) - only if more than 1 ad
     if (dotsContainer) {
-        dotsContainer.innerHTML = ads.map((_, index) =>
-            `<span class="dot ${index === 0 ? 'active' : ''}"></span>`
-        ).join('');
+        if (ads.length > 1) {
+            dotsContainer.innerHTML = ads.map((_, index) =>
+                `<span class="dot ${index === 0 ? 'active' : ''}"></span>`
+            ).join('');
+        } else {
+            dotsContainer.innerHTML = '';
+        }
     }
 
-    // Initialize gallery controls (same pattern as products page)
-    initAdGalleryControls();
+    // Initialize gallery controls (same pattern as products page) - only if more than 1 ad
+    const galleryControls = document.getElementById('ad-gallery-controls');
+    if (galleryControls) {
+        galleryControls.style.display = ads.length > 1 ? 'flex' : 'none';
+    }
+
+    if (ads.length > 1) {
+        initAdGalleryControls();
+    }
 
     // Start countdown timers
     startCountdownTimers();

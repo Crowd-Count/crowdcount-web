@@ -1178,7 +1178,7 @@ video {
 .ad-card-image {
     flex: 0 0 100px;
     width: 100px;
-    align-self: stretch;
+    height: 100px;
     border-radius: 12px;
     overflow: hidden;
     background: rgba(255, 255, 255, 0.1);
@@ -1238,14 +1238,16 @@ video {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 10px;
+    gap: 8px;
+    flex-wrap: nowrap;
+    overflow: hidden;
 }
 
 .ad-card-cta {
     background: var(--accent-color);
     color: var(--light-color);
     border: none;
-    padding: 8px 16px !important;
+    padding: 8px 14px !important;
     margin: 0 !important;
     border-radius: 12px;
     font-size: 0.85rem;
@@ -1253,6 +1255,10 @@ video {
     cursor: pointer;
     transition: background-color 0.3s ease;
     white-space: nowrap;
+    flex-shrink: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .ad-card-cta:hover {
@@ -1262,9 +1268,11 @@ video {
 .ad-card-countdown {
     display: flex;
     align-items: center;
-    gap: 5px;
+    gap: 4px;
     color: var(--gray-color);
     font-size: 0.8rem;
+    white-space: nowrap;
+    flex-shrink: 0;
 }
 
 .ad-card-countdown.expiring-soon {
@@ -1283,13 +1291,16 @@ video {
 /* Responsive adjustments for ad carousel */
 @media (max-width: 768px) {
     .ad-card {
-        width: 280px;
+        width: calc(100vw - 80px);
+        max-width: 320px;
         min-height: 120px;
     }
 
     .ad-card-image {
         flex: 0 0 80px;
         width: 80px;
+        height: 80px;
+        align-self: center;
     }
 
     .ad-card-description {
@@ -1297,29 +1308,62 @@ video {
     }
 
     .ad-card-cta {
-        padding: 6px 12px;
-        font-size: 0.8rem;
+        padding: 6px 10px !important;
+        font-size: 0.75rem;
+    }
+
+    .ad-card-countdown {
+        font-size: 0.7rem;
+        padding: 4px 6px;
+    }
+
+    .ad-card-actions {
+        gap: 5px;
     }
 }
 
 @media (max-width: 480px) {
     .ad-card {
-        width: 260px;
-        min-height: 110px;
-        padding: 12px;
+        width: calc(100vw - 60px);
+        max-width: 300px;
+        min-height: 100px;
+        padding: 10px;
+        gap: 10px;
     }
 
     .ad-card-image {
         flex: 0 0 70px;
         width: 70px;
+        height: 70px;
+        align-self: center;
     }
 
     .ad-card-title {
-        font-size: 0.7rem;
+        font-size: 0.65rem;
     }
 
     .ad-card-description {
-        font-size: 0.85rem;
+        font-size: 0.8rem;
+        -webkit-line-clamp: 2;
+    }
+
+    .ad-card-cta {
+        padding: 5px 8px !important;
+        font-size: 0.7rem;
+    }
+
+    .ad-card-countdown {
+        font-size: 0.65rem;
+        padding: 3px 5px;
+    }
+
+    .ad-card-countdown-icon {
+        font-size: 0.6rem;
+    }
+
+    .ad-card-actions {
+        flex-wrap: nowrap;
+        gap: 4px;
     }
 }
 
