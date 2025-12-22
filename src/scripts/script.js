@@ -1300,7 +1300,7 @@ function renderAdCarousel(ads) {
     // Initialize gallery controls (same pattern as products page) - only if more than 1 ad
     const galleryControls = document.getElementById('ad-gallery-controls');
     if (galleryControls) {
-        galleryControls.style.display = ads.length > 1 ? 'flex' : 'none';
+        galleryControls.style.display = ads.length > 1 ? '' : 'none';
     }
 
     if (ads.length > 1) {

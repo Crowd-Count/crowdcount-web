@@ -1159,7 +1159,7 @@ video {
 
 .ad-card {
     flex: 0 0 auto;
-    width: 320px;
+    width: 350px;
     min-height: 130px;
     background: rgba(255, 255, 255, 0.08);
     border-radius: 20px;
@@ -1288,6 +1288,13 @@ video {
     padding: 10px 20px 15px 20px !important;
 }
 
+/* Ad gallery controls centering */
+#ad-gallery-controls {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+}
+
 /* Responsive adjustments for ad carousel */
 @media (max-width: 768px) {
     .ad-card {
@@ -1339,26 +1346,26 @@ video {
     }
 
     .ad-card-title {
-        font-size: 0.65rem;
+        font-size: 0.7rem;
     }
 
     .ad-card-description {
-        font-size: 0.8rem;
+        font-size: 0.85rem;
         -webkit-line-clamp: 2;
     }
 
     .ad-card-cta {
         padding: 5px 8px !important;
-        font-size: 0.7rem;
+        font-size: 0.75rem;
     }
 
     .ad-card-countdown {
-        font-size: 0.65rem;
+        font-size: 0.7rem;
         padding: 3px 5px;
     }
 
     .ad-card-countdown-icon {
-        font-size: 0.6rem;
+        font-size: 0.65rem;
     }
 
     .ad-card-actions {
