@@ -748,10 +748,10 @@ function toggleLocationList() {
     
     if (listVisible) {
         listContent.style.display = 'block';
-        toggleBtn.textContent = 'Hide List';
+        toggleBtn.textContent = 'Hide';
     } else {
         listContent.style.display = 'none';
-        toggleBtn.textContent = 'Show List';
+        toggleBtn.textContent = 'Show';
     }
 }
 
@@ -788,3 +788,556 @@ document.addEventListener('keydown', (e) => {
         }
     }
 });
+
+// ============================================
+// AD CAROUSEL FUNCTIONALITY
+// ============================================
+
+// Global variables for ads
+let activeAds = [];
+let adCountdownIntervals = [];
+let userLocationForAds = null;
+
+// Sample ads for testing - REMOVE THIS WHEN READY FOR PRODUCTION
+const SAMPLE_ADS = [
+    {
+        id: 'test-ad-1',
+        title: 'Joe\'s Coffee Shop',
+        description: 'Get 20% off your first order! Fresh brewed coffee and pastries daily.',
+        imagePath: null,
+        deviceId: 'demo-device-1',
+        ctaText: 'Get Offer',
+        ctaLinkType: 'custom',
+        ctaURL: 'https://example.com/joes-coffee',
+        expirationDate: new Date(Date.now() + 2 * 60 * 60 * 1000).toISOString() // 2 hours from now
+    },
+    {
+        id: 'test-ad-2',
+        title: 'Downtown Gym',
+        description: 'New Year Special: First month FREE! State-of-the-art equipment.',
+        imagePath: null,
+        deviceId: 'demo-device-2',
+        ctaText: 'Sign Up',
+        ctaLinkType: 'default',
+        ctaURL: null,
+        expirationDate: new Date(Date.now() + 45 * 60 * 1000).toISOString() // 45 mins (expiring soon)
+    },
+    {
+        id: 'test-ad-3',
+        title: 'Pizza Palace',
+        description: 'Buy one pizza, get one free! Valid for dine-in and takeout.',
+        imagePath: null,
+        deviceId: 'demo-device-3',
+        ctaText: 'Order Now',
+        ctaLinkType: 'custom',
+        ctaURL: 'https://example.com/pizza-palace',
+        expirationDate: new Date(Date.now() + 5 * 60 * 60 * 1000).toISOString() // 5 hours from now
+    },
+    {
+        id: 'test-ad-4',
+        title: 'Tech Store',
+        description: 'Holiday clearance sale! Up to 50% off electronics and accessories.',
+        imagePath: null,
+        deviceId: 'demo-device-4',
+        ctaText: 'Shop Now',
+        ctaLinkType: 'custom',
+        ctaURL: 'https://example.com/tech-store',
+        expirationDate: new Date(Date.now() + 12 * 60 * 60 * 1000).toISOString() // 12 hours from now
+    }
+];
+
+// Set to true to use sample ads for testing
+const USE_SAMPLE_ADS = false;
+
+// Function to fetch active ads
+async function fetchActiveAds() {
+    // Return sample ads for testing
+    if (USE_SAMPLE_ADS) {
+        console.log('Using sample ads for testing');
+        return SAMPLE_ADS;
+    }
+
+    try {
+        const response = await fetch('https://api.crowdcount.tech/get-active-ads');
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        const data = await response.json();
+        return data.ads || [];
+    } catch (error) {
+        console.error('Error fetching active ads:', error);
+        return [];
+    }
+}
+
+// Function to calculate distance between two coordinates (Haversine formula)
+function calculateDistance(lat1, lon1, lat2, lon2) {
+    const R = 6371; // Earth's radius in km
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+    const dLon = (lon2 - lon1) * Math.PI / 180;
+    const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+              Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+              Math.sin(dLon / 2) * Math.sin(dLon / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return R * c;
+}
+
+// Function to sort ads by distance from user
+function sortAdsByDistance(ads, userLat, userLon) {
+    if (!userLat || !userLon || !allLocations.length) {
+        return ads;
+    }
+
+    // Create a map of deviceId to location coordinates
+    const deviceLocationMap = new Map();
+    allLocations.forEach(location => {
+        if (location.location_device) {
+            deviceLocationMap.set(location.location_device, {
+                lat: location.location_latitude,
+                lon: location.location_longitude
+            });
+        }
+    });
+
+    // Sort ads by distance
+    return [...ads].sort((a, b) => {
+        const locA = deviceLocationMap.get(a.deviceId);
+        const locB = deviceLocationMap.get(b.deviceId);
+
+        if (!locA && !locB) return 0;
+        if (!locA) return 1;
+        if (!locB) return -1;
+
+        const distA = calculateDistance(userLat, userLon, locA.lat, locA.lon);
+        const distB = calculateDistance(userLat, userLon, locB.lat, locB.lon);
+
+        return distA - distB;
+    });
+}
+
+// Function to parse expiration date (handles multiple formats like iOS)
+function parseExpirationDate(dateString) {
+    if (!dateString) return null;
+
+    // Try ISO 8601 with fractional seconds
+    let date = new Date(dateString);
+    if (!isNaN(date.getTime())) {
+        return date;
+    }
+
+    // Try without fractional seconds
+    const withoutFraction = dateString.replace(/\.\d+/, '');
+    date = new Date(withoutFraction);
+    if (!isNaN(date.getTime())) {
+        return date;
+    }
+
+    return null;
+}
+
+// Function to format countdown time
+function formatCountdown(expirationDate) {
+    const now = new Date();
+    const expDate = parseExpirationDate(expirationDate);
+
+    if (!expDate) return { text: 'N/A', isExpiringSoon: false };
+
+    const diff = expDate - now;
+
+    if (diff <= 0) {
+        return { text: 'Expired', isExpiringSoon: true };
+    }
+
+    const hours = Math.floor(diff / (1000 * 60 * 60));
+    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+    const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+    const isExpiringSoon = hours < 1;
+
+    if (hours >= 1) {
+        return {
+            text: `${hours}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`,
+            isExpiringSoon: false
+        };
+    } else {
+        return {
+            text: `${minutes}:${seconds.toString().padStart(2, '0')}`,
+            isExpiringSoon: true
+        };
+    }
+}
+
+// Function to track ad click
+async function trackAdClick(adId) {
+    try {
+        await fetch('https://api.crowdcount.tech/track-ad-click', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ adId: adId })
+        });
+    } catch (error) {
+        console.error('Error tracking ad click:', error);
+    }
+}
+
+// Current ad being viewed in modal
+let currentModalAd = null;
+
+// Function to handle CTA click
+function handleCtaClick(ad, event) {
+    event.stopPropagation();
+
+    // Track the click
+    trackAdClick(ad.id);
+
+    // Open the appropriate URL or modal
+    if (ad.ctaLinkType === 'custom' && ad.ctaURL) {
+        window.open(ad.ctaURL, '_blank');
+    } else {
+        // Default: open ad detail modal
+        openAdModal(ad);
+    }
+}
+
+// Function to generate reference number from ad ID (like iOS)
+function generateReferenceNumber(adId) {
+    let hash = 0;
+    for (let i = 0; i < adId.length; i++) {
+        const char = adId.charCodeAt(i);
+        hash = ((hash << 5) - hash) + char;
+        hash = hash & hash; // Convert to 32-bit integer
+    }
+    return 'REF-' + Math.abs(hash).toString().slice(0, 8).padStart(8, '0');
+}
+
+// Function to get ad location from deviceId
+function getAdLocation(deviceId) {
+    if (!allLocations || !allLocations.length) return null;
+
+    const location = allLocations.find(loc => loc.location_device === deviceId);
+    if (location) {
+        return {
+            name: location.location_name,
+            lat: location.location_latitude,
+            lon: location.location_longitude
+        };
+    }
+    return null;
+}
+
+// Function to open ad detail modal
+function openAdModal(ad) {
+    currentModalAd = ad;
+
+    const overlay = document.getElementById('ad-modal-overlay');
+    const imageContainer = document.getElementById('ad-modal-image');
+    const title = document.getElementById('ad-modal-title');
+    const description = document.getElementById('ad-modal-description');
+    const directionsBtn = document.getElementById('ad-modal-directions');
+    const reference = document.getElementById('ad-modal-reference');
+
+    // Set image
+    const imageUrl = getAdImageUrl(ad.imagePath);
+    if (imageUrl) {
+        imageContainer.innerHTML = `<img src="${escapeHtml(imageUrl)}" alt="${escapeHtml(ad.title)}" onerror="this.parentElement.innerHTML='<div class=\\'ad-modal-image-placeholder\\'>📍</div>'">`;
+    } else {
+        imageContainer.innerHTML = '<div class="ad-modal-image-placeholder">📍</div>';
+    }
+
+    // Set content
+    title.textContent = ad.title;
+    description.textContent = ad.description;
+    reference.textContent = generateReferenceNumber(ad.id);
+
+    // Always show directions button (will search by business name if no exact location match)
+    directionsBtn.classList.remove('hidden');
+
+    // Show modal
+    overlay.classList.add('visible');
+    document.body.style.overflow = 'hidden'; // Prevent background scroll
+}
+
+// Function to close ad detail modal
+function closeAdModal(event) {
+    // If called from overlay click, only close if clicking the overlay itself
+    if (event && event.target !== event.currentTarget) return;
+
+    const overlay = document.getElementById('ad-modal-overlay');
+    overlay.classList.remove('visible');
+    document.body.style.overflow = ''; // Restore scrolling
+    currentModalAd = null;
+}
+
+// Function to open directions to ad location
+function openAdDirections() {
+    if (!currentModalAd) return;
+
+    const location = getAdLocation(currentModalAd.deviceId);
+
+    let mapsUrl;
+    if (location) {
+        // Exact location found - use coordinates
+        mapsUrl = `https://maps.apple.com/?q=${encodeURIComponent(location.name)}&ll=${location.lat},${location.lon}`;
+    } else {
+        // Fallback - search by business name
+        mapsUrl = `https://maps.apple.com/?q=${encodeURIComponent(currentModalAd.title)}`;
+    }
+
+    window.open(mapsUrl, '_blank');
+}
+
+// Close modal on Escape key
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+        const overlay = document.getElementById('ad-modal-overlay');
+        if (overlay && overlay.classList.contains('visible')) {
+            closeAdModal();
+        }
+    }
+});
+
+// Function to build image URL
+function getAdImageUrl(imagePath) {
+    if (!imagePath) return null;
+
+    // Extract filename from path
+    const filename = imagePath.split('/').pop();
+    return `https://api.crowdcount.tech/ad-images/${filename}`;
+}
+
+// Function to create ad card HTML
+function createAdCardHTML(ad) {
+    const imageUrl = getAdImageUrl(ad.imagePath);
+    const countdown = formatCountdown(ad.expirationDate);
+    const ctaText = ad.ctaText || 'View Details';
+
+    return `
+        <div class="ad-card" data-ad-id="${escapeHtml(ad.id)}">
+            <div class="ad-card-image">
+                ${imageUrl
+                    ? `<img src="${escapeHtml(imageUrl)}" alt="${escapeHtml(ad.title)}" onerror="this.parentElement.innerHTML='<div class=\\'ad-card-image-placeholder\\'>📍</div>'">`
+                    : '<div class="ad-card-image-placeholder">📍</div>'
+                }
+            </div>
+            <div class="ad-card-content">
+                <div class="ad-card-title">${escapeHtml(ad.title)}</div>
+                <div class="ad-card-description">${escapeHtml(ad.description)}</div>
+                <div class="ad-card-actions">
+                    <button class="ad-card-cta" onclick="handleCtaClick(activeAds.find(a => a.id === '${escapeHtml(ad.id)}'), event)">${escapeHtml(ctaText)}</button>
+                    <div class="ad-card-countdown ${countdown.isExpiringSoon ? 'expiring-soon' : ''}" data-expiration="${escapeHtml(ad.expirationDate)}">
+                        <span class="ad-card-countdown-icon">⏱</span>
+                        <span class="ad-card-countdown-time">${countdown.text}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+// Function to render ad carousel
+function renderAdCarousel(ads) {
+    const container = document.getElementById('ad-carousel-container');
+    const carousel = document.getElementById('ad-carousel');
+    const dotsContainer = document.getElementById('ad-dots-container');
+
+    if (!container || !carousel) return;
+
+    // Clear existing countdown intervals
+    adCountdownIntervals.forEach(interval => clearInterval(interval));
+    adCountdownIntervals = [];
+
+    // Hide container if no ads
+    if (!ads || ads.length === 0) {
+        container.style.display = 'none';
+        return;
+    }
+
+    // Show container and render ads
+    container.style.display = 'block';
+    carousel.innerHTML = ads.map(ad => createAdCardHTML(ad)).join('');
+
+    // Create dots (using same .dot class as products page)
+    if (dotsContainer) {
+        dotsContainer.innerHTML = ads.map((_, index) =>
+            `<span class="dot ${index === 0 ? 'active' : ''}"></span>`
+        ).join('');
+    }
+
+    // Initialize gallery controls (same pattern as products page)
+    initAdGalleryControls();
+
+    // Start countdown timers
+    startCountdownTimers();
+}
+
+// Function to initialize ad gallery controls (matches products page pattern)
+function initAdGalleryControls() {
+    const container = document.getElementById('ad-carousel-container');
+    if (!container) return;
+
+    const gallery = document.getElementById('ad-carousel');
+    const dots = container.querySelectorAll('.dots-container .dot');
+    const prevButton = container.querySelector('.prev-button');
+    const nextButton = container.querySelector('.next-button');
+
+    if (!gallery || dots.length === 0) return;
+
+    let scrollInterval = null;
+
+    function updateDots() {
+        const total = gallery.scrollWidth - gallery.clientWidth;
+        const fraction = total > 0 ? (gallery.scrollLeft / total) : 0;
+        const active = Math.round(fraction * (dots.length - 1));
+        dots.forEach((dot, i) => dot.classList.toggle('active', i === active));
+    }
+
+    function moveGallery(direction) {
+        const total = gallery.scrollWidth - gallery.clientWidth;
+        const step = (dots.length > 1) ? total / (dots.length - 1) : total;
+        gallery.scrollBy({ left: direction * step, behavior: 'smooth' });
+    }
+
+    function startScrolling(direction) {
+        if (scrollInterval) return;
+        scrollInterval = setInterval(() => moveGallery(direction), 100);
+    }
+
+    function stopScrolling() {
+        if (scrollInterval) {
+            clearInterval(scrollInterval);
+            scrollInterval = null;
+        }
+    }
+
+    // Events
+    gallery.addEventListener('scroll', updateDots);
+
+    if (prevButton && nextButton) {
+        prevButton.addEventListener('click', () => moveGallery(-1));
+        nextButton.addEventListener('click', () => moveGallery(1));
+
+        prevButton.addEventListener('mousedown', () => startScrolling(-1));
+        nextButton.addEventListener('mousedown', () => startScrolling(1));
+        prevButton.addEventListener('mouseup', stopScrolling);
+        nextButton.addEventListener('mouseup', stopScrolling);
+        prevButton.addEventListener('mouseleave', stopScrolling);
+        nextButton.addEventListener('mouseleave', stopScrolling);
+        prevButton.addEventListener('touchend', stopScrolling);
+        nextButton.addEventListener('touchend', stopScrolling);
+    }
+
+    dots.forEach((dot, index) => {
+        dot.addEventListener('click', () => {
+            const total = gallery.scrollWidth - gallery.clientWidth;
+            const pos = (dots.length > 1) ? (total / (dots.length - 1)) * index : 0;
+            gallery.scrollTo({ left: pos, behavior: 'smooth' });
+        });
+    });
+
+    // Initialize dot state
+    updateDots();
+}
+
+// Function to update countdown timers
+function startCountdownTimers() {
+    const countdownElements = document.querySelectorAll('.ad-card-countdown');
+
+    countdownElements.forEach(element => {
+        const expirationDate = element.dataset.expiration;
+
+        const interval = setInterval(() => {
+            const countdown = formatCountdown(expirationDate);
+            const timeElement = element.querySelector('.ad-card-countdown-time');
+
+            if (timeElement) {
+                timeElement.textContent = countdown.text;
+            }
+
+            if (countdown.isExpiringSoon) {
+                element.classList.add('expiring-soon');
+            } else {
+                element.classList.remove('expiring-soon');
+            }
+
+            // Stop interval if expired
+            if (countdown.text === 'Expired') {
+                clearInterval(interval);
+            }
+        }, 1000);
+
+        adCountdownIntervals.push(interval);
+    });
+}
+
+// Function to initialize ad carousel
+async function initAdCarousel() {
+    // Only run on map page - check if ad carousel container exists
+    const container = document.getElementById('ad-carousel-container');
+    if (!container) {
+        console.log('Ad carousel container not found - not on map page');
+        return;
+    }
+
+    console.log('Initializing ad carousel...');
+
+    // Fetch ads
+    activeAds = await fetchActiveAds();
+
+    if (activeAds.length === 0) {
+        return;
+    }
+
+    // Try to get user location for sorting
+    try {
+        const position = await new Promise((resolve, reject) => {
+            navigator.geolocation.getCurrentPosition(resolve, reject, {
+                enableHighAccuracy: false,
+                timeout: 3000,
+                maximumAge: 300000 // Cache for 5 minutes
+            });
+        });
+        userLocationForAds = {
+            lat: position.coords.latitude,
+            lon: position.coords.longitude
+        };
+    } catch (error) {
+        console.log('Could not get user location for ad sorting');
+    }
+
+    // Sort ads by distance if we have user location
+    if (userLocationForAds && allLocations.length > 0) {
+        activeAds = sortAdsByDistance(activeAds, userLocationForAds.lat, userLocationForAds.lon);
+    }
+
+    // Render the carousel
+    renderAdCarousel(activeAds);
+}
+
+// Function to refresh ads (called when location data is updated)
+async function refreshAds() {
+    activeAds = await fetchActiveAds();
+
+    if (userLocationForAds && allLocations.length > 0) {
+        activeAds = sortAdsByDistance(activeAds, userLocationForAds.lat, userLocationForAds.lon);
+    }
+
+    renderAdCarousel(activeAds);
+}
+
+// Also refresh location list
+function refreshLocationList() {
+    populateLocationList();
+}
+
+// Initialize ad carousel when DOM is ready and locations are loaded
+document.addEventListener('DOMContentLoaded', () => {
+    // Wait a bit for locations to load, then init ads
+    setTimeout(() => {
+        initAdCarousel();
+    }, 1500);
+});
+
+// Refresh ads along with location list every 30 seconds
+setInterval(refreshAds, 30000);
