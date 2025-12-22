@@ -799,6 +799,8 @@ document.addEventListener('keydown', (e) => {
 let activeAds = [];
 let adCountdownIntervals = [];
 let userLocationForAds = null;
+let adCarouselInitialized = false;
+let adRenderInProgress = false;
 
 // Sample ads for testing - REMOVE THIS WHEN READY FOR PRODUCTION
 const SAMPLE_ADS = [
@@ -1241,6 +1243,13 @@ function createAdCardHTML(ad, index) {
 
 // Function to render ad carousel
 function renderAdCarousel(ads) {
+    // Prevent concurrent renders
+    if (adRenderInProgress) {
+        console.log('Render already in progress, skipping');
+        return;
+    }
+    adRenderInProgress = true;
+
     console.log('renderAdCarousel called with', ads?.length, 'ads');
     const container = document.getElementById('ad-carousel-container');
     const carousel = document.getElementById('ad-carousel');
@@ -1248,6 +1257,7 @@ function renderAdCarousel(ads) {
 
     if (!container || !carousel) {
         console.log('Container or carousel not found');
+        adRenderInProgress = false;
         return;
     }
 
@@ -1259,10 +1269,13 @@ function renderAdCarousel(ads) {
     if (!ads || ads.length === 0) {
         console.log('No ads to display');
         container.style.display = 'none';
+        adRenderInProgress = false;
         return;
     }
 
-    // Show container and render ads
+    // Show container and render ads - first clear completely
+    carousel.innerHTML = '';
+
     container.style.display = 'block';
     const htmlArray = ads.map((ad, index) => createAdCardHTML(ad, index));
     console.log('Generated HTML for', htmlArray.length, 'ads');
@@ -1270,6 +1283,8 @@ function renderAdCarousel(ads) {
     carousel.innerHTML = fullHtml;
     console.log('Carousel innerHTML set, length:', carousel.innerHTML.length);
     console.log('Number of ad-card elements:', carousel.querySelectorAll('.ad-card').length);
+
+    adRenderInProgress = false;
 
     // Create dots (using same .dot class as products page)
     if (dotsContainer) {
@@ -1386,6 +1401,12 @@ function startCountdownTimers() {
 
 // Function to initialize ad carousel
 async function initAdCarousel() {
+    // Prevent double initialization
+    if (adCarouselInitialized) {
+        console.log('Ad carousel already initialized, skipping');
+        return;
+    }
+
     // Only run on map page - check if ad carousel container exists
     const container = document.getElementById('ad-carousel-container');
     if (!container) {
@@ -1393,6 +1414,7 @@ async function initAdCarousel() {
         return;
     }
 
+    adCarouselInitialized = true;
     console.log('Initializing ad carousel...');
 
     // Fetch ads
