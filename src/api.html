@@ -105,47 +105,47 @@
                     </tr>
                     <tr>
                         <td><code>GET /check_user</code></td>
-                        <td>Checks if a user exists and returns their online status.</td>
+                        <td>Checks if a device exists and returns its online status.</td>
                         <td>
                             <ul>
-                                <li><code>user_id</code> (required)</li>
+                                <li><code>device_id</code> (required)</li>
                             </ul>
                         </td>
                     </tr>
                     <tr>
                         <td><code>GET /connection_status</code></td>
-                        <td>Returns the connection status of a specified user.</td>
+                        <td>Returns the connection status of a specified device.</td>
                         <td>
                             <ul>
-                                <li><code>user_id</code> (required)</li>
+                                <li><code>device_id</code> (required)</li>
                             </ul>
                         </td>
                     </tr>
                     <tr>
-                        <td><code>GET /check_password</code></td>
-                        <td>Checks if the provided password for a specified user is correct.</td>
+                        <td><code>POST /check_password</code></td>
+                        <td>Checks if the provided password for a specified device is correct. <div id="secondary">Prefer POST with JSON body for security.</div></td>
                         <td>
                             <ul>
-                                <li><code>user_id</code> (required)</li>
+                                <li><code>device_id</code> (required)</li>
                                 <li><code>password</code> (required)</li>
                             </ul>
                         </td>
                     </tr>
                     <tr>
                         <td><code>GET /currentcount</code></td>
-                        <td>Returns the current count for a specified user.</td>
+                        <td>Returns the current count for a specified device.</td>
                         <td>
                             <ul>
-                                <li><code>user_id</code> (required)</li>
+                                <li><code>device_id</code> (required)</li>
                             </ul>
                         </td>
                     </tr>
                     <tr>
                         <td><code>POST /currentcount</code></td>
-                        <td>Updates the current count for a specified user.</td>
+                        <td>Updates the current count for a specified device.</td>
                         <td>
                             <ul>
-                                <li><code>user_id</code> (required)</li>
+                                <li><code>device_id</code> (required)</li>
                                 <li><code>password</code> (required)</li>
                                 <li><code>new_count</code> (required)</li>
                             </ul>
@@ -153,20 +153,20 @@
                     </tr>
                     <tr>
                         <td><code>GET /get_user_days</code></td>
-                        <td>Returns a list of days for which the user has count data.</td>
+                        <td>Returns a list of days for which the device has count data.</td>
                         <td>
                             <ul>
-                                <li><code>user_id</code> (required)</li>
+                                <li><code>device_id</code> (required)</li>
                                 <li><code>password</code> (required)</li>
                             </ul>
                         </td>
                     </tr>
                     <tr>
                         <td><code>GET /check_if_user_has_day</code></td>
-                        <td>Checks if the user has data for a specific day.</td>
+                        <td>Checks if the device has data for a specific day.</td>
                         <td>
                             <ul>
-                                <li><code>user_id</code> (required)</li>
+                                <li><code>device_id</code> (required)</li>
                                 <li><code>password</code> (required)</li>
                                 <li><code>date</code> (required)</li>
                             </ul>
@@ -174,10 +174,10 @@
                     </tr>
                     <tr>
                         <td><code>GET /get_day_data</code></td>
-                        <td>Returns data for a specific day for the user. <div id="secondary">An example of this api call is provided below.</div></td>
+                        <td>Returns data for a specific day for the device. <div id="secondary">An example of this api call is provided below.</div></td>
                         <td>
                             <ul>
-                                <li><code>user_id</code> (required)</li>
+                                <li><code>device_id</code> (required)</li>
                                 <li><code>password</code> (required)</li>
                                 <li><code>date</code> (required)</li>
                             </ul>
@@ -185,10 +185,10 @@
                     </tr>
                     <tr>
                         <td><code>GET /get_average_day_data</code></td>
-                        <td>Returns the average data for a specific day for the user. <div id="secondary">The average is calculated based on data from the same weekday over the previous 8 weeks, provided there is enough data. A minimum of 2 weeks of data is required.</div></td>
+                        <td>Returns the average data for a specific day for the device. <div id="secondary">The average is calculated based on data from the same weekday over the previous 8 weeks, provided there is enough data. A minimum of 2 weeks of data is required.</div></td>
                         <td>
                             <ul>
-                                <li><code>user_id</code> (required)</li>
+                                <li><code>device_id</code> (required)</li>
                                 <li><code>password</code> (required)</li>
                                 <li><code>date</code> (required)</li>
                             </ul>
@@ -196,10 +196,10 @@
                     </tr>
                     <tr>
                         <td><code>GET /check_if_user_has_week</code></td>
-                        <td>Checks if the user has data for a specific week.</td>
+                        <td>Checks if the device has data for a specific week.</td>
                         <td>
                             <ul>
-                                <li><code>user_id</code> (required)</li>
+                                <li><code>device_id</code> (required)</li>
                                 <li><code>password</code> (required)</li>
                                 <li><code>start_date</code> (required)</li>
                             </ul>
@@ -207,10 +207,10 @@
                     </tr>
                     <tr>
                         <td><code>GET /get_week_data</code></td>
-                        <td>Returns data for a specific week for the user. <div id="secondary">To select a week, input any day of that week and it will provide the data from the previous Monday to the next Sunday</div></td>
+                        <td>Returns data for a specific week for the device. <div id="secondary">To select a week, input any day of that week and it will provide the data from the previous Monday to the next Sunday</div></td>
                         <td>
                             <ul>
-                                <li><code>user_id</code> (required)</li>
+                                <li><code>device_id</code> (required)</li>
                                 <li><code>password</code> (required)</li>
                                 <li><code>date</code> (required)</li>
                             </ul>
@@ -218,10 +218,10 @@
                     </tr>
                     <tr>
                         <td><code>GET /get_average_week_data</code></td>
-                        <td>Returns the average data for a specific week for the user. <div id="secondary">The average is calculated based on weekly weekday data over the previous 4 weeks, provided there is enough data.</div></td>
+                        <td>Returns the average data for a specific week for the device. <div id="secondary">The average is calculated based on weekly weekday data over the previous 4 weeks, provided there is enough data.</div></td>
                         <td>
                             <ul>
-                                <li><code>user_id</code> (required)</li>
+                                <li><code>device_id</code> (required)</li>
                                 <li><code>password</code> (required)</li>
                                 <li><code>date</code> (required)</li>
                             </ul>
@@ -229,10 +229,10 @@
                     </tr>
                     <tr>
                         <td><code>GET /check_if_user_has_month</code></td>
-                        <td>Checks if the user has data for a specific month.</td>
+                        <td>Checks if the device has data for a specific month.</td>
                         <td>
                             <ul>
-                                <li><code>user_id</code> (required)</li>
+                                <li><code>device_id</code> (required)</li>
                                 <li><code>password</code> (required)</li>
                                 <li><code>date</code> (required)</li>
                             </ul>
@@ -240,10 +240,10 @@
                     </tr>
                     <tr>
                         <td><code>GET /get_month_data</code></td>
-                        <td>Returns data for a specific month for the user. <div id="secondary">Returns daily averages for each day of the month that has data.</div></td>
+                        <td>Returns data for a specific month for the device. <div id="secondary">Returns daily averages for each day of the month that has data.</div></td>
                         <td>
                             <ul>
-                                <li><code>user_id</code> (required)</li>
+                                <li><code>device_id</code> (required)</li>
                                 <li><code>password</code> (required)</li>
                                 <li><code>date</code> (required)</li>
                             </ul>
@@ -251,10 +251,10 @@
                     </tr>
                     <tr>
                         <td><code>GET /get_average_month_data</code></td>
-                        <td>Returns the average data for a specific month for the user. <div id="secondary">The average is calculated based on data from the same month over the previous 5 months, provided there is enough data. A minimum of 2 months of data is required. Returns "N/A" if insufficient data.</div></td>
+                        <td>Returns the average data for a specific month for the device. <div id="secondary">The average is calculated based on data from the same month over the previous 5 months, provided there is enough data. A minimum of 2 months of data is required. Returns "N/A" if insufficient data.</div></td>
                         <td>
                             <ul>
-                                <li><code>user_id</code> (required)</li>
+                                <li><code>device_id</code> (required)</li>
                                 <li><code>password</code> (required)</li>
                                 <li><code>date</code> (required)</li>
                             </ul>
@@ -262,10 +262,10 @@
                     </tr>
                     <tr>
                         <td><code>GET /get_year_data</code></td>
-                        <td>Returns data for a specific year for the user. <div id="secondary">Returns monthly averages for each month of the year that has data.</div></td>
+                        <td>Returns data for a specific year for the device. <div id="secondary">Returns monthly averages for each month of the year that has data.</div></td>
                         <td>
                             <ul>
-                                <li><code>user_id</code> (required)</li>
+                                <li><code>device_id</code> (required)</li>
                                 <li><code>password</code> (required)</li>
                                 <li><code>year</code> (required)</li>
                             </ul>
@@ -273,10 +273,10 @@
                     </tr>
                     <tr>
                         <td><code>GET /get_average_year_data</code></td>
-                        <td>Returns the average data for a specific year for the user. <div id="secondary">The average is calculated based on data from the same month over the previous 3 years, provided there is enough data. A minimum of 2 years of data is required. Returns "N/A" if insufficient data.</div></td>
+                        <td>Returns the average data for a specific year for the device. <div id="secondary">The average is calculated based on data from the same month over the previous 3 years, provided there is enough data. A minimum of 2 years of data is required. Returns "N/A" if insufficient data.</div></td>
                         <td>
                             <ul>
-                                <li><code>user_id</code> (required)</li>
+                                <li><code>device_id</code> (required)</li>
                                 <li><code>password</code> (required)</li>
                                 <li><code>year</code> (required)</li>
                             </ul>
@@ -284,10 +284,10 @@
                     </tr>
                     <tr>
                         <td><code>GET /export_csv</code></td>
-                        <td>Exports CSV data for a specified user and date. <div id="secondary">If no date is provided, all data is exported in a zip file.</div></td>
+                        <td>Exports CSV data for a specified device and date. <div id="secondary">If no date is provided, all data is exported in a zip file.</div></td>
                         <td>
                             <ul>
-                                <li><code>user_id</code> (required)</li>
+                                <li><code>device_id</code> (required)</li>
                                 <li><code>password</code> (required)</li>
                                 <li><code>date</code> (optional) </li>
                             </ul>
@@ -302,8 +302,12 @@
     <h3 id="center">
         <div id="LargeHomeText"><div id="primary">Important Notes</div></div>
         <br><br>
-        <div id="secondary"><div id="primary">user_id and Device ID are synonymous</div> throughout the system, you can use your Device ID for user_id parameters.</div>
+        <div id="secondary"><div id="primary">device_id</div> is the preferred parameter name. <code>user_id</code> is still accepted for backwards compatibility.</div>
         <br>
+        <div id="secondary">For authenticated endpoints, <div id="primary">POST with JSON body</div> is recommended for security. Example:</div>
+        <br>
+        <code style="background: #1a1a1a; padding: 8px 12px; border-radius: 4px; display: inline-block;">{"device_id": "your_id", "password": "your_password"}</code>
+        <br><br>
         <div id="secondary">The date format used is <div id="primary">yyyy-mm-dd</div>.</div>
         <br>
         <div id="secondary">Server timezone is <div id="primary">UTC</div>, make sure to convert it to your desired timezone in your application.</div>
@@ -321,7 +325,7 @@
       target="_blank"
       rel="noopener"
     >
-      https://api.crowdcount.tech/get_day_data?user_id=Demo&password=password&date=YYYY-MM-DD
+      https://api.crowdcount.tech/get_day_data?device_id=Demo&password=password&date=YYYY-MM-DD
     </a>
     <button class="mobile-button" onclick="copyToClipboard()">Copy to Clipboard</button>
     </h3>
@@ -339,7 +343,7 @@
 
       // Update the example link's href and text
       const link = document.getElementById("example-link");
-      const url = `https://api.crowdcount.tech/get_day_data?user_id=Demo&password=password&date=${yesterday}`;
+      const url = `https://api.crowdcount.tech/get_day_data?device_id=Demo&password=password&date=${yesterday}`;
       link.href = url;
       link.textContent = url;
       
