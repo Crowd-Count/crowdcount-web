@@ -526,11 +526,14 @@ button:focus {
 }
 
 /* Updated #dots-container styles */
-#dots-container {
+#dots-container,
+.dots-container {
     display: flex;
     justify-content: center;
     margin-top: 10px;
     align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
 }
 
 /* New styles for arrow buttons within the dots container */
@@ -557,7 +560,6 @@ button:focus {
 .dot {
     height: 10px;
     width: 10px;
-    margin: 0 5px;
     background-color: #858585;
     border-radius: 50%;
     display: inline-block;
