@@ -940,9 +940,10 @@ function sortAdsByDistance(ads, userLat, userLon) {
 
     // Sort ads by distance
     return [...ads].sort((a, b) => {
-        // Handle both snake_case (API) and camelCase (sample data)
-        const deviceIdA = getAdField(a, 'deviceId', 'device_id');
-        const deviceIdB = getAdField(b, 'deviceId', 'device_id');
+        // Use primary_device for location matching (supports grouped devices)
+        // Fallback to device_id for backwards compatibility
+        const deviceIdA = getAdField(a, 'primaryDevice', 'primary_device') || getAdField(a, 'deviceId', 'device_id');
+        const deviceIdB = getAdField(b, 'primaryDevice', 'primary_device') || getAdField(b, 'deviceId', 'device_id');
 
         const locA = deviceLocationMap.get(deviceIdA);
         const locB = deviceLocationMap.get(deviceIdB);
@@ -1088,8 +1089,9 @@ function generateReferenceNumber(adId) {
 function getAdLocation(ad) {
     if (!allLocations || !allLocations.length || !ad) return null;
 
-    // Handle both snake_case (API) and camelCase (sample data)
-    const deviceId = getAdField(ad, 'deviceId', 'device_id');
+    // Use primary_device for location matching (supports grouped devices)
+    // Fallback to device_id for backwards compatibility
+    const deviceId = getAdField(ad, 'primaryDevice', 'primary_device') || getAdField(ad, 'deviceId', 'device_id');
     if (!deviceId) return null;
 
     const location = allLocations.find(loc => loc.location_device === deviceId);
