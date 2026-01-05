@@ -82,7 +82,7 @@ function updatePeopleCounter(callback) {
 function scaleCounterFont(counter, count) {
     const digits = count.toString().length;
     const viewportWidth = window.innerWidth;
-    const padding = 40; // Total horizontal padding (20px each side)
+    const padding = 24; // Total horizontal padding (12px each side)
     const availableWidth = viewportWidth - padding;
 
     // Each digit takes approximately 0.6em width for this font
