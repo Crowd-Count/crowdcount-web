@@ -79,6 +79,31 @@ function updatePeopleCounter(callback) {
     });
 }
 
+function scaleCounterFont(counter, count) {
+    const digits = count.toString().length;
+    // Base size for 1-5 digits, then scale down for longer numbers
+    // These values work with the CSS max of 15rem
+    let fontSize;
+    if (digits <= 5) {
+        fontSize = '15rem';
+    } else if (digits === 6) {
+        fontSize = '12rem';
+    } else if (digits === 7) {
+        fontSize = '10rem';
+    } else if (digits === 8) {
+        fontSize = '8.5rem';
+    } else if (digits === 9) {
+        fontSize = '7.5rem';
+    } else if (digits === 10) {
+        fontSize = '6.5rem';
+    } else {
+        // For very large numbers, continue scaling down
+        fontSize = Math.max(4, 15 - (digits - 5) * 1.2) + 'rem';
+    }
+    // Apply font size, but respect viewport width limit
+    counter.style.fontSize = `min(${fontSize}, 90vw)`;
+}
+
 function animateCounter(counter, targetCount, callback) {
     let currentCount = parseInt(counter.textContent) || 0;
     console.log('Starting animation from', currentCount, 'to', targetCount); // Log animation start
@@ -87,6 +112,9 @@ function animateCounter(counter, targetCount, callback) {
     const frameRate = 50; // Frame rate of the animation in milliseconds
     const totalFrames = duration / frameRate;
     let frame = 0;
+
+    // Scale font for target count at the start
+    scaleCounterFont(counter, targetCount);
 
     const interval = setInterval(() => {
         frame++;

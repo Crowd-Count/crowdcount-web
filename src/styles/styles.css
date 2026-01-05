@@ -1153,6 +1153,7 @@ video {
     scrollbar-width: none;
     gap: 15px;
     padding: 10px 0;
+    min-height: 130px; /* Ensure carousel doesn't collapse on Safari */
 }
 
 .ad-carousel::-webkit-scrollbar {
@@ -1288,6 +1289,7 @@ video {
 /* Ad carousel container padding override */
 #ad-carousel-container.text-box-legal {
     padding: 10px 20px 15px 20px !important;
+    overflow: visible; /* Override parent's overflow: hidden */
 }
 
 /* Ad gallery controls centering */
