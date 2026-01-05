@@ -81,27 +81,26 @@ function updatePeopleCounter(callback) {
 
 function scaleCounterFont(counter, count) {
     const digits = count.toString().length;
-    // Base size for 1-5 digits, then scale down for longer numbers
-    // These values work with the CSS max of 15rem
-    let fontSize;
-    if (digits <= 5) {
-        fontSize = '15rem';
-    } else if (digits === 6) {
-        fontSize = '12rem';
-    } else if (digits === 7) {
-        fontSize = '10rem';
-    } else if (digits === 8) {
-        fontSize = '8.5rem';
-    } else if (digits === 9) {
-        fontSize = '7.5rem';
-    } else if (digits === 10) {
-        fontSize = '6.5rem';
-    } else {
-        // For very large numbers, continue scaling down
-        fontSize = Math.max(4, 15 - (digits - 5) * 1.2) + 'rem';
-    }
-    // Apply font size, but respect viewport width limit
-    counter.style.fontSize = `min(${fontSize}, 90vw)`;
+    const viewportWidth = window.innerWidth;
+    const padding = 40; // Total horizontal padding (20px each side)
+    const availableWidth = viewportWidth - padding;
+
+    // Each digit takes approximately 0.6em width for this font
+    const charWidthRatio = 0.6;
+
+    // Calculate max font size that fits the available width
+    // fontSize * digits * charWidthRatio = availableWidth
+    // fontSize = availableWidth / (digits * charWidthRatio)
+    const maxFitSize = availableWidth / (digits * charWidthRatio);
+
+    // Cap at reasonable maximum (15rem = 240px at default font size)
+    const maxSize = 240;
+    const fontSize = Math.min(maxFitSize, maxSize);
+
+    // Set minimum size for readability
+    const finalSize = Math.max(fontSize, 24);
+
+    counter.style.fontSize = `${finalSize}px`;
 }
 
 function animateCounter(counter, targetCount, callback) {
@@ -146,6 +145,17 @@ function startContinuousUpdate() {
 document.addEventListener('DOMContentLoaded', () => {
     startContinuousUpdate();
     loadPartnerLogos();
+
+    // Recalculate counter font size on window resize
+    window.addEventListener('resize', () => {
+        const counter = document.getElementById('peopleCounter');
+        if (counter && counter.textContent) {
+            const count = parseInt(counter.textContent) || 0;
+            if (count > 0) {
+                scaleCounterFont(counter, count);
+            }
+        }
+    });
 
     // Typewriter animation
     const typewriterConfigurations = [
