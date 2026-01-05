@@ -1137,12 +1137,12 @@ function getAdLocation(ad) {
 function openAdModal(ad) {
     currentModalAd = ad;
 
-    const overlay = document.getElementById('ad-modal-overlay');
-    const imageContainer = document.getElementById('ad-modal-image');
-    const title = document.getElementById('ad-modal-title');
-    const description = document.getElementById('ad-modal-description');
-    const directionsBtn = document.getElementById('ad-modal-directions');
-    const reference = document.getElementById('ad-modal-reference');
+    const overlay = document.getElementById('promo-modal-overlay');
+    const imageContainer = document.getElementById('promo-modal-image');
+    const title = document.getElementById('promo-modal-title');
+    const description = document.getElementById('promo-modal-description');
+    const directionsBtn = document.getElementById('promo-modal-directions');
+    const reference = document.getElementById('promo-modal-reference');
 
     // Handle both snake_case (API) and camelCase (sample data)
     const imagePath = getAdField(ad, 'imagePath', 'image_path');
@@ -1150,9 +1150,9 @@ function openAdModal(ad) {
     // Set image
     const imageUrl = getAdImageUrl(imagePath);
     if (imageUrl) {
-        imageContainer.innerHTML = `<img src="${escapeHtml(imageUrl)}" alt="${escapeHtml(ad.title)}" onerror="this.parentElement.innerHTML='<div class=\\'ad-modal-image-placeholder\\'>📍</div>'">`;
+        imageContainer.innerHTML = `<img src="${escapeHtml(imageUrl)}" alt="${escapeHtml(ad.title)}" onerror="this.parentElement.innerHTML='<div class=\\'promo-modal-image-placeholder\\'>📍</div>'">`;
     } else {
-        imageContainer.innerHTML = '<div class="ad-modal-image-placeholder">📍</div>';
+        imageContainer.innerHTML = '<div class="promo-modal-image-placeholder">📍</div>';
     }
 
     // Set content
@@ -1178,7 +1178,7 @@ function closeAdModal(event) {
     // If called from overlay click, only close if clicking the overlay itself
     if (event && event.target !== event.currentTarget) return;
 
-    const overlay = document.getElementById('ad-modal-overlay');
+    const overlay = document.getElementById('promo-modal-overlay');
     overlay.classList.remove('visible');
     document.body.style.overflow = ''; // Restore scrolling
     currentModalAd = null;
@@ -1207,7 +1207,7 @@ function openAdDirections() {
 // Close modal on Escape key
 document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
-        const overlay = document.getElementById('ad-modal-overlay');
+        const overlay = document.getElementById('promo-modal-overlay');
         if (overlay && overlay.classList.contains('visible')) {
             closeAdModal();
         }
@@ -1251,21 +1251,21 @@ function createAdCardHTML(ad, index) {
         let imageHtml;
         if (imageUrl) {
             const safeImageUrl = escapeHtml(imageUrl);
-            imageHtml = `<img src="${safeImageUrl}" alt="${safeTitle}" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'"><div class="ad-card-image-placeholder" style="display:none">📍</div>`;
+            imageHtml = `<img src="${safeImageUrl}" alt="${safeTitle}" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'"><div class="promo-card-image-placeholder" style="display:none">📍</div>`;
         } else {
-            imageHtml = '<div class="ad-card-image-placeholder">📍</div>';
+            imageHtml = '<div class="promo-card-image-placeholder">📍</div>';
         }
 
-        const html = `<div class="ad-card" data-ad-id="${safeAdId}" data-ad-index="${index}">
-    <div class="ad-card-image">${imageHtml}</div>
-    <div class="ad-card-content">
-        <div class="ad-card-title">${safeTitle}</div>
-        <div class="ad-card-description">${safeDescription}</div>
-        <div class="ad-card-actions">
-            <button class="ad-card-cta" onclick="handleCtaClickByIndex(${index}, event)">${safeCtaText}</button>
-            <div class="ad-card-countdown ${countdown.isExpiringSoon ? 'expiring-soon' : ''}" data-expiration="${safeExpiration}">
-                <span class="ad-card-countdown-icon">⏱</span>
-                <span class="ad-card-countdown-time">${countdown.text}</span>
+        const html = `<div class="promo-card" data-promo-id="${safeAdId}" data-promo-index="${index}">
+    <div class="promo-card-image">${imageHtml}</div>
+    <div class="promo-card-content">
+        <div class="promo-card-title">${safeTitle}</div>
+        <div class="promo-card-description">${safeDescription}</div>
+        <div class="promo-card-actions">
+            <button class="promo-card-cta" onclick="handleCtaClickByIndex(${index}, event)">${safeCtaText}</button>
+            <div class="promo-card-countdown ${countdown.isExpiringSoon ? 'expiring-soon' : ''}" data-expiration="${safeExpiration}">
+                <span class="promo-card-countdown-icon">⏱</span>
+                <span class="promo-card-countdown-time">${countdown.text}</span>
             </div>
         </div>
     </div>
@@ -1274,7 +1274,7 @@ function createAdCardHTML(ad, index) {
         return html;
     } catch (error) {
         console.error('Error creating ad card:', error, error.stack);
-        return `<div class="ad-card"><div class="ad-card-content"><div class="ad-card-title">Error</div><div class="ad-card-description">Failed to load ad</div></div></div>`;
+        return `<div class="promo-card"><div class="promo-card-content"><div class="promo-card-title">Error</div><div class="promo-card-description">Failed to load ad</div></div></div>`;
     }
 }
 
@@ -1288,9 +1288,9 @@ function renderAdCarousel(ads) {
     adRenderInProgress = true;
 
     console.log('renderAdCarousel called with', ads?.length, 'ads');
-    const container = document.getElementById('ad-carousel-container');
-    const carousel = document.getElementById('ad-carousel');
-    const dotsContainer = document.getElementById('ad-dots-container');
+    const container = document.getElementById('promo-carousel-container');
+    const carousel = document.getElementById('promo-carousel');
+    const dotsContainer = document.getElementById('promo-dots-container');
 
     if (!container || !carousel) {
         console.log('Container or carousel not found');
@@ -1319,7 +1319,7 @@ function renderAdCarousel(ads) {
     const fullHtml = htmlArray.join('');
     carousel.innerHTML = fullHtml;
     console.log('Carousel innerHTML set, length:', carousel.innerHTML.length);
-    console.log('Number of ad-card elements:', carousel.querySelectorAll('.ad-card').length);
+    console.log('Number of promo-card elements:', carousel.querySelectorAll('.promo-card').length);
 
     adRenderInProgress = false;
 
@@ -1335,7 +1335,7 @@ function renderAdCarousel(ads) {
     }
 
     // Initialize gallery controls (same pattern as products page) - only if more than 1 ad
-    const galleryControls = document.getElementById('ad-gallery-controls');
+    const galleryControls = document.getElementById('promo-gallery-controls');
     if (galleryControls) {
         galleryControls.style.display = ads.length > 1 ? '' : 'none';
     }
@@ -1350,10 +1350,10 @@ function renderAdCarousel(ads) {
 
 // Function to initialize ad gallery controls (matches products page pattern)
 function initAdGalleryControls() {
-    const container = document.getElementById('ad-carousel-container');
+    const container = document.getElementById('promo-carousel-container');
     if (!container) return;
 
-    const gallery = document.getElementById('ad-carousel');
+    const gallery = document.getElementById('promo-carousel');
     const dots = container.querySelectorAll('.dots-container .dot');
     const prevButton = container.querySelector('.prev-button');
     const nextButton = container.querySelector('.next-button');
@@ -1418,14 +1418,14 @@ function initAdGalleryControls() {
 
 // Function to update countdown timers
 function startCountdownTimers() {
-    const countdownElements = document.querySelectorAll('.ad-card-countdown');
+    const countdownElements = document.querySelectorAll('.promo-card-countdown');
 
     countdownElements.forEach(element => {
         const expirationDate = element.dataset.expiration;
 
         const interval = setInterval(() => {
             const countdown = formatCountdown(expirationDate);
-            const timeElement = element.querySelector('.ad-card-countdown-time');
+            const timeElement = element.querySelector('.promo-card-countdown-time');
 
             if (timeElement) {
                 timeElement.textContent = countdown.text;
@@ -1456,7 +1456,7 @@ async function initAdCarousel() {
     }
 
     // Only run on map page - check if ad carousel container exists
-    const container = document.getElementById('ad-carousel-container');
+    const container = document.getElementById('promo-carousel-container');
     if (!container) {
         console.log('Ad carousel container not found - not on map page');
         return;

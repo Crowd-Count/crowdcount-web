@@ -77,17 +77,17 @@
 
     <!-- Ad Carousel - only shown when ads exist -->
     <h3 id="center">
-        <div id="ad-carousel-container" class="text-box-legal gallery-container" data-aos="fade-up" data-aos-delay="100" style="display: none;">
+        <div id="promo-carousel-container" class="text-box-legal gallery-container" data-aos="fade-up" data-aos-delay="100" style="display: none;">
             <div style="text-align: left;">
                 <div id="secondary" style="font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px;">Sponsored</div>
-                <div class="ad-carousel" id="ad-carousel">
+                <div class="promo-carousel" id="promo-carousel">
                     <!-- Ad cards will be populated by JavaScript -->
                 </div>
                 <div style="text-align: center;">
-                    <div class="dots-container" id="ad-dots-container" style="margin-top: 10px;"></div>
-                    <div class="gallery-controls" id="ad-gallery-controls">
-                        <button class="gallery-arrow prev-button" id="ad-prev-button" aria-label="Previous Ad" style="margin-top: 5px; padding-top: 0; padding-bottom: 0;">&lt;</button>
-                        <button class="gallery-arrow next-button" id="ad-next-button" aria-label="Next Ad" style="margin-top: 5px; padding-top: 0; padding-bottom: 0;">&gt;</button>
+                    <div class="dots-container" id="promo-dots-container" style="margin-top: 10px;"></div>
+                    <div class="gallery-controls" id="promo-gallery-controls">
+                        <button class="gallery-arrow prev-button" id="promo-prev-button" aria-label="Previous Promo" style="margin-top: 5px; padding-top: 0; padding-bottom: 0;">&lt;</button>
+                        <button class="gallery-arrow next-button" id="promo-next-button" aria-label="Next Promo" style="margin-top: 5px; padding-top: 0; padding-bottom: 0;">&gt;</button>
                     </div>
                 </div>
             </div>
@@ -152,22 +152,22 @@
     </h3>
     
     <!-- Ad Detail Modal -->
-    <div id="ad-modal-overlay" class="ad-modal-overlay" onclick="closeAdModal(event)">
-        <div class="ad-modal" onclick="event.stopPropagation()">
-            <button class="ad-modal-close" onclick="closeAdModal()">&times;</button>
-            <div class="ad-modal-content">
-                <div class="ad-modal-logos">
-                    <div class="ad-modal-logo no-bg">
+    <div id="promo-modal-overlay" class="promo-modal-overlay" onclick="closeAdModal(event)">
+        <div class="promo-modal" onclick="event.stopPropagation()">
+            <button class="promo-modal-close" onclick="closeAdModal()">&times;</button>
+            <div class="promo-modal-content">
+                <div class="promo-modal-logos">
+                    <div class="promo-modal-logo no-bg">
                         <img src="./assets/Logos/CrowdCount-Rounded-Logo.png" alt="CrowdCount">
                     </div>
-                    <div class="ad-modal-divider"></div>
-                    <div class="ad-modal-logo" id="ad-modal-image"></div>
+                    <div class="promo-modal-divider"></div>
+                    <div class="promo-modal-logo" id="promo-modal-image"></div>
                 </div>
-                <div class="ad-modal-label">Sponsored Content</div>
-                <div class="ad-modal-title" id="ad-modal-title"></div>
-                <div class="ad-modal-description" id="ad-modal-description"></div>
-                <button class="ad-modal-directions" id="ad-modal-directions" onclick="openAdDirections()">Get Directions</button>
-                <div class="ad-modal-reference" id="ad-modal-reference"></div>
+                <div class="promo-modal-label">Sponsored Content</div>
+                <div class="promo-modal-title" id="promo-modal-title"></div>
+                <div class="promo-modal-description" id="promo-modal-description"></div>
+                <button class="promo-modal-directions" id="promo-modal-directions" onclick="openAdDirections()">Get Directions</button>
+                <div class="promo-modal-reference" id="promo-modal-reference"></div>
             </div>
         </div>
     </div>

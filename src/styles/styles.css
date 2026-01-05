@@ -1144,7 +1144,7 @@ video {
    AD CAROUSEL STYLES
    ============================================ */
 
-.ad-carousel {
+.promo-carousel {
     display: flex;
     overflow-x: auto;
     scroll-snap-type: x mandatory;
@@ -1156,11 +1156,11 @@ video {
     min-height: 130px; /* Ensure carousel doesn't collapse on Safari */
 }
 
-.ad-carousel::-webkit-scrollbar {
+.promo-carousel::-webkit-scrollbar {
     display: none;
 }
 
-.ad-card {
+.promo-card {
     flex: 0 0 auto;
     width: 350px;
     min-height: 130px;
@@ -1174,11 +1174,11 @@ video {
     cursor: pointer;
 }
 
-.ad-card:hover {
+.promo-card:hover {
     background: rgba(255, 255, 255, 0.12);
 }
 
-.ad-card-image {
+.promo-card-image {
     flex: 0 0 100px;
     width: 100px;
     height: 100px;
@@ -1190,13 +1190,13 @@ video {
     justify-content: center;
 }
 
-.ad-card-image img {
+.promo-card-image img {
     width: 100%;
     height: 100%;
     object-fit: cover;
 }
 
-.ad-card-image-placeholder {
+.promo-card-image-placeholder {
     width: 100%;
     height: 100%;
     display: flex;
@@ -1206,7 +1206,7 @@ video {
     font-size: 1.5rem;
 }
 
-.ad-card-content {
+.promo-card-content {
     flex: 1;
     display: flex;
     flex-direction: column;
@@ -1214,7 +1214,7 @@ video {
     min-width: 0;
 }
 
-.ad-card-title {
+.promo-card-title {
     color: var(--gray-color);
     font-size: 0.75rem;
     text-transform: uppercase;
@@ -1225,7 +1225,7 @@ video {
     text-overflow: ellipsis;
 }
 
-.ad-card-description {
+.promo-card-description {
     color: var(--light-color);
     font-size: 0.95rem;
     font-weight: 500;
@@ -1237,7 +1237,7 @@ video {
     margin-bottom: 8px;
 }
 
-.ad-card-actions {
+.promo-card-actions {
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -1246,7 +1246,7 @@ video {
     overflow: hidden;
 }
 
-.ad-card-cta {
+.promo-card-cta {
     background: var(--accent-color);
     color: var(--light-color);
     border: none;
@@ -1264,11 +1264,11 @@ video {
     text-overflow: ellipsis;
 }
 
-.ad-card-cta:hover {
+.promo-card-cta:hover {
     background: #f56363;
 }
 
-.ad-card-countdown {
+.promo-card-countdown {
     display: flex;
     align-items: center;
     gap: 4px;
@@ -1278,22 +1278,22 @@ video {
     flex-shrink: 0;
 }
 
-.ad-card-countdown.expiring-soon {
+.promo-card-countdown.expiring-soon {
     color: var(--accent-color);
 }
 
-.ad-card-countdown-icon {
+.promo-card-countdown-icon {
     font-size: 0.9rem;
 }
 
 /* Ad carousel container padding override */
-#ad-carousel-container.text-box-legal {
+#promo-carousel-container.text-box-legal {
     padding: 10px 20px 15px 20px !important;
     overflow: visible; /* Override parent's overflow: hidden */
 }
 
 /* Ad gallery controls centering */
-#ad-gallery-controls {
+#promo-gallery-controls {
     display: flex;
     justify-content: center;
     gap: 10px;
@@ -1301,40 +1301,40 @@ video {
 
 /* Responsive adjustments for ad carousel */
 @media (max-width: 768px) {
-    .ad-card {
+    .promo-card {
         width: calc(100vw - 80px);
         max-width: 320px;
         min-height: 120px;
     }
 
-    .ad-card-image {
+    .promo-card-image {
         flex: 0 0 80px;
         width: 80px;
         height: 80px;
         align-self: center;
     }
 
-    .ad-card-description {
+    .promo-card-description {
         font-size: 0.9rem;
     }
 
-    .ad-card-cta {
+    .promo-card-cta {
         padding: 6px 10px !important;
         font-size: 0.75rem;
     }
 
-    .ad-card-countdown {
+    .promo-card-countdown {
         font-size: 0.7rem;
         padding: 4px 6px;
     }
 
-    .ad-card-actions {
+    .promo-card-actions {
         gap: 5px;
     }
 }
 
 @media (max-width: 480px) {
-    .ad-card {
+    .promo-card {
         width: calc(100vw - 60px);
         max-width: 300px;
         min-height: 120px;
@@ -1342,37 +1342,37 @@ video {
         gap: 12px;
     }
 
-    .ad-card-image {
+    .promo-card-image {
         flex: 0 0 85px;
         width: 85px;
         height: 85px;
         align-self: center;
     }
 
-    .ad-card-title {
+    .promo-card-title {
         font-size: 0.75rem;
     }
 
-    .ad-card-description {
+    .promo-card-description {
         font-size: 0.9rem;
         -webkit-line-clamp: 2;
     }
 
-    .ad-card-cta {
+    .promo-card-cta {
         padding: 6px 10px !important;
         font-size: 0.8rem;
     }
 
-    .ad-card-countdown {
+    .promo-card-countdown {
         font-size: 0.75rem;
         padding: 4px 6px;
     }
 
-    .ad-card-countdown-icon {
+    .promo-card-countdown-icon {
         font-size: 0.7rem;
     }
 
-    .ad-card-actions {
+    .promo-card-actions {
         flex-wrap: nowrap;
         gap: 6px;
     }
@@ -1382,7 +1382,7 @@ video {
    AD DETAIL MODAL STYLES
    ============================================ */
 
-.ad-modal-overlay {
+.promo-modal-overlay {
     display: none;
     position: fixed;
     top: 0;
@@ -1397,12 +1397,12 @@ video {
     transition: opacity 0.3s ease;
 }
 
-.ad-modal-overlay.visible {
+.promo-modal-overlay.visible {
     display: flex;
     opacity: 1;
 }
 
-.ad-modal {
+.promo-modal {
     background: var(--primary-color);
     border-radius: 30px;
     max-width: 450px;
@@ -1414,11 +1414,11 @@ video {
     transition: transform 0.3s ease;
 }
 
-.ad-modal-overlay.visible .ad-modal {
+.promo-modal-overlay.visible .promo-modal {
     transform: scale(1);
 }
 
-.ad-modal-close {
+.promo-modal-close {
     position: absolute;
     top: 15px;
     right: 20px;
@@ -1440,16 +1440,16 @@ video {
     line-height: 1;
 }
 
-.ad-modal-close:hover {
+.promo-modal-close:hover {
     background: rgba(255, 255, 255, 0.2);
 }
 
-.ad-modal-content {
+.promo-modal-content {
     padding: 25px;
     text-align: center;
 }
 
-.ad-modal-logos {
+.promo-modal-logos {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -1457,7 +1457,7 @@ video {
     margin-bottom: 20px;
 }
 
-.ad-modal-logo {
+.promo-modal-logo {
     width: 140px;
     height: 140px;
     border-radius: 28px;
@@ -1468,29 +1468,29 @@ video {
     justify-content: center;
 }
 
-.ad-modal-logo.no-bg {
+.promo-modal-logo.no-bg {
     background: none;
 }
 
-.ad-modal-logo img {
+.promo-modal-logo img {
     width: 100%;
     height: 100%;
     object-fit: cover;
 }
 
-.ad-modal-divider {
+.promo-modal-divider {
     width: 1px;
     height: 100px;
     background: var(--gray-color);
     opacity: 0.3;
 }
 
-.ad-modal-image-placeholder {
+.promo-modal-image-placeholder {
     font-size: 2rem;
     color: var(--gray-color);
 }
 
-.ad-modal-label {
+.promo-modal-label {
     color: var(--gray-color);
     font-size: 0.8rem;
     text-transform: uppercase;
@@ -1498,21 +1498,21 @@ video {
     margin-bottom: 10px;
 }
 
-.ad-modal-title {
+.promo-modal-title {
     color: var(--light-color);
     font-size: 2rem;
     font-weight: bold;
     margin-bottom: 15px;
 }
 
-.ad-modal-description {
+.promo-modal-description {
     color: var(--gray-color);
     font-size: 1.5rem;
     line-height: 1.5;
     margin-bottom: 25px;
 }
 
-.ad-modal-directions {
+.promo-modal-directions {
     background: rgba(0, 122, 255, 0.15);
     color: #007AFF;
     border: none;
@@ -1526,15 +1526,15 @@ video {
     display: inline-block;
 }
 
-.ad-modal-directions:hover {
+.promo-modal-directions:hover {
     background: rgba(0, 122, 255, 0.25);
 }
 
-.ad-modal-directions.hidden {
+.promo-modal-directions.hidden {
     display: none;
 }
 
-.ad-modal-reference {
+.promo-modal-reference {
     color: var(--dark-gray-color);
     font-size: 0.75rem;
     margin-top: 20px;
@@ -1542,34 +1542,34 @@ video {
 
 /* Responsive modal */
 @media (max-width: 480px) {
-    .ad-modal {
+    .promo-modal {
         width: 95%;
         border-radius: 25px;
     }
 
-    .ad-modal-content {
+    .promo-modal-content {
         padding: 20px;
     }
 
-    .ad-modal-logos {
+    .promo-modal-logos {
         gap: 20px;
     }
 
-    .ad-modal-logo {
+    .promo-modal-logo {
         width: 110px;
         height: 110px;
         border-radius: 22px;
     }
 
-    .ad-modal-divider {
+    .promo-modal-divider {
         height: 80px;
     }
 
-    .ad-modal-title {
+    .promo-modal-title {
         font-size: 1.6rem;
     }
 
-    .ad-modal-description {
+    .promo-modal-description {
         font-size: 1.2rem;
     }
 }
