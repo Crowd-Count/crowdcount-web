@@ -79,19 +79,26 @@ function updatePeopleCounter(callback) {
     });
 }
 
+function formatNumberWithCommas(num) {
+    return num.toLocaleString('en-US');
+}
+
 function scaleCounterFont(counter, count) {
-    const digits = count.toString().length;
+    // Use formatted string length (including commas) for sizing
+    const formattedCount = formatNumberWithCommas(count);
+    const charCount = formattedCount.length;
     const viewportWidth = window.innerWidth;
     const padding = 20; // Total horizontal padding (10px each side)
     const availableWidth = viewportWidth - padding;
 
-    // Each digit takes approximately 0.6em width for this font
-    const charWidthRatio = 0.6;
+    // Commas are narrower than digits, use weighted average
+    // Digits ~0.6em, commas ~0.3em
+    const digitCount = count.toString().length;
+    const commaCount = charCount - digitCount;
+    const effectiveWidth = (digitCount * 0.6) + (commaCount * 0.3);
 
     // Calculate max font size that fits the available width
-    // fontSize * digits * charWidthRatio = availableWidth
-    // fontSize = availableWidth / (digits * charWidthRatio)
-    const maxFitSize = availableWidth / (digits * charWidthRatio);
+    const maxFitSize = availableWidth / effectiveWidth;
 
     // Cap at reasonable maximum (15rem = 240px at default font size)
     const maxSize = 240;
@@ -104,7 +111,8 @@ function scaleCounterFont(counter, count) {
 }
 
 function animateCounter(counter, targetCount, callback) {
-    let currentCount = parseInt(counter.textContent) || 0;
+    // Parse current count, removing commas if present
+    let currentCount = parseInt(counter.textContent.replace(/,/g, '')) || 0;
     console.log('Starting animation from', currentCount, 'to', targetCount); // Log animation start
 
     const duration = 2000; // Duration of the animation in milliseconds
@@ -121,11 +129,11 @@ function animateCounter(counter, targetCount, callback) {
         currentCount = Math.round(currentCount + (targetCount - currentCount) * progress);
         console.log('Current count at frame', frame, ':', currentCount); // Log current count at each frame
 
-        counter.textContent = currentCount;
+        counter.textContent = formatNumberWithCommas(currentCount);
 
         if (frame >= totalFrames) {
             clearInterval(interval);
-            counter.textContent = targetCount;
+            counter.textContent = formatNumberWithCommas(targetCount);
             console.log('Animation completed with final count:', targetCount); // Log animation completion
             if (callback) callback();
         }
@@ -150,7 +158,7 @@ document.addEventListener('DOMContentLoaded', () => {
     window.addEventListener('resize', () => {
         const counter = document.getElementById('peopleCounter');
         if (counter && counter.textContent) {
-            const count = parseInt(counter.textContent) || 0;
+            const count = parseInt(counter.textContent.replace(/,/g, '')) || 0;
             if (count > 0) {
                 scaleCounterFont(counter, count);
             }
