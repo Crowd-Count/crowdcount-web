@@ -466,7 +466,19 @@ function getMarkerColor(colorName) {
 async function initMap() {
     const locations = await fetchLocations();
 
-    const mapLocations = locations.map(location => {
+    // Remove duplicates based on name and device (same as list view)
+    const uniqueLocations = [];
+    const seenKeys = new Set();
+
+    locations.forEach(location => {
+        const key = `${location.location_name}_${location.location_device}`;
+        if (!seenKeys.has(key)) {
+            seenKeys.add(key);
+            uniqueLocations.push(location);
+        }
+    });
+
+    const mapLocations = uniqueLocations.map(location => {
         // Parse the overcrowding count
         let overcrowding = null;
         if (location.location_overcrowding_count !== "N/A") {
