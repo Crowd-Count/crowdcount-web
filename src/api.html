@@ -317,16 +317,6 @@
         <div id="secondary">The API endpoint is <a href="https://api.crowdcount.tech" id="primary">api.crowdcount.tech</a></div>
         <br>
         <br><div id="secondary">Check our server status at <a id='primary' href="status.html">crowdcount.tech/status</a></div></div><br>
-        <br><div id="secondary">Here is an <div id="primary">example</div> of a working API call:</div><br><br>
-        <a
-      id="example-link"
-      class="desktop-link"
-      href="#"
-      target="_blank"
-      rel="noopener"
-    >
-      https://api.crowdcount.tech/get_day_data?device_id=Demo&password=password&date=YYYY-MM-DD
-    </a>
     <button class="mobile-button" onclick="copyToClipboard()">Copy to Clipboard</button>
     </h3>
     <br>
@@ -340,25 +330,6 @@
       const mm = String(d.getMonth() + 1).padStart(2, "0");
       const dd = String(d.getDate()).padStart(2, "0");
       const yesterday = `${yyyy}-${mm}-${dd}`;
-
-      // Update the example link's href and text
-      const link = document.getElementById("example-link");
-      const url = `https://api.crowdcount.tech/get_day_data?device_id=Demo&password=password&date=${yesterday}`;
-      link.href = url;
-      link.textContent = url;
-      
-      // Add copy to clipboard functionality
-      function copyToClipboard() {
-        const url = document.getElementById("example-link").href;
-        navigator.clipboard.writeText(url).then(() => {
-          const button = document.querySelector('.mobile-button');
-          const originalText = button.textContent;
-          button.textContent = 'Copied!';
-          setTimeout(() => {
-            button.textContent = originalText;
-          }, 2000);
-        });
-      }
     </script>
     <script src="./scripts/script.js"></script>
 </body>
