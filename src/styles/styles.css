@@ -517,7 +517,7 @@ button:focus {
 
 #photo-gallery img {
     margin: 6.5px; /* Add some space between the images */
-    border-radius: 40px; /* Rounded corners */
+    border-radius: 45px; /* Rounded corners */
     border: 6px solid black;
     width: 250px;
     height: auto; /* Maintain aspect ratio */
