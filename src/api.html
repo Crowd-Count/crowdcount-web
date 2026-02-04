@@ -293,6 +293,134 @@
                             </ul>
                         </td>
                     </tr>
+                    <!-- Entry Tracking Endpoints -->
+                    <tr>
+                        <td><code>GET /total_entries</code></td>
+                        <td>Returns the total count of entries ever detected by CrowdCount. <div id="secondary">Entries track how many people entered, vs population which tracks how many are present.</div></td>
+                        <td>
+                            <ul>
+                                <li>None</li>
+                            </ul>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><code>GET /current_entries</code></td>
+                        <td>Returns the current entry count for a specified device for this time segment.</td>
+                        <td>
+                            <ul>
+                                <li><code>device_id</code> (required)</li>
+                            </ul>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><code>GET /get_user_entry_days</code></td>
+                        <td>Returns a list of days for which the device has entry data.</td>
+                        <td>
+                            <ul>
+                                <li><code>device_id</code> (required)</li>
+                                <li><code>password</code> (required)</li>
+                            </ul>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><code>GET /get_entry_day_data</code></td>
+                        <td>Returns hourly entry totals for a specific day. <div id="secondary">Unlike population data which shows averages, entry data shows sums of people who entered each hour.</div></td>
+                        <td>
+                            <ul>
+                                <li><code>device_id</code> (required)</li>
+                                <li><code>password</code> (required)</li>
+                                <li><code>date</code> (required)</li>
+                            </ul>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><code>GET /get_average_entry_day_data</code></td>
+                        <td>Returns the average hourly entry totals for the same weekday. <div id="secondary">Calculated from historical data on matching weekdays. Requires at least 2 weeks of data.</div></td>
+                        <td>
+                            <ul>
+                                <li><code>device_id</code> (required)</li>
+                                <li><code>password</code> (required)</li>
+                                <li><code>date</code> (required)</li>
+                            </ul>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><code>GET /get_entry_week_data</code></td>
+                        <td>Returns daily entry totals for a specific week. <div id="secondary">Shows total entries per day from Monday to Sunday.</div></td>
+                        <td>
+                            <ul>
+                                <li><code>device_id</code> (required)</li>
+                                <li><code>password</code> (required)</li>
+                                <li><code>date</code> (required)</li>
+                            </ul>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><code>GET /get_entry_month_data</code></td>
+                        <td>Returns daily entry totals for a specific month. <div id="secondary">Shows total entries for each day of the month.</div></td>
+                        <td>
+                            <ul>
+                                <li><code>device_id</code> (required)</li>
+                                <li><code>password</code> (required)</li>
+                                <li><code>date</code> (required)</li>
+                            </ul>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><code>GET /get_entry_year_data</code></td>
+                        <td>Returns monthly entry totals for a specific year. <div id="secondary">Shows total entries for each month of the year.</div></td>
+                        <td>
+                            <ul>
+                                <li><code>device_id</code> (required)</li>
+                                <li><code>password</code> (required)</li>
+                                <li><code>year</code> (required)</li>
+                            </ul>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><code>GET /get_average_entry_week_data</code></td>
+                        <td>Returns the average entry totals for each weekday across all historical data. <div id="secondary">Calculated from historical data. Requires at least 2 weeks of data.</div></td>
+                        <td>
+                            <ul>
+                                <li><code>device_id</code> (required)</li>
+                                <li><code>password</code> (required)</li>
+                                <li><code>date</code> (required)</li>
+                            </ul>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><code>GET /get_average_entry_month_data</code></td>
+                        <td>Returns the average entry totals for each day-of-month across all historical data. <div id="secondary">Calculated from historical data. Requires at least 2 months of data.</div></td>
+                        <td>
+                            <ul>
+                                <li><code>device_id</code> (required)</li>
+                                <li><code>password</code> (required)</li>
+                                <li><code>date</code> (required)</li>
+                            </ul>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><code>GET /get_average_entry_year_data</code></td>
+                        <td>Returns the average entry totals for each month across all historical years. <div id="secondary">Calculated from historical data. Requires at least 2 years of data.</div></td>
+                        <td>
+                            <ul>
+                                <li><code>device_id</code> (required)</li>
+                                <li><code>password</code> (required)</li>
+                                <li><code>year</code> (required)</li>
+                            </ul>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><code>GET /export_entry_csv</code></td>
+                        <td>Exports entry CSV data for a specified device and date. <div id="secondary">If no date is provided, all entry data is exported in a zip file.</div></td>
+                        <td>
+                            <ul>
+                                <li><code>device_id</code> (required)</li>
+                                <li><code>password</code> (required)</li>
+                                <li><code>date</code> (optional)</li>
+                            </ul>
+                        </td>
+                    </tr>
                 </tbody>
             </table>
         </div>
