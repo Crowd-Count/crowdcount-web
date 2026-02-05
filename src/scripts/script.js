@@ -41,10 +41,12 @@ window.addEventListener('scroll', function() {
 function toggleMobileNav() {
     const mobileMenu = document.querySelector('.nav-menu-mobile');
     const navToggle = document.querySelector('.nav-toggle');
+    const stickyNav = document.getElementById('sticky-nav');
 
     if (mobileMenu && navToggle) {
         mobileMenu.classList.toggle('open');
         navToggle.classList.toggle('active');
+        if (stickyNav) stickyNav.classList.toggle('mobile-open');
     }
 }
 
