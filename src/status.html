@@ -94,8 +94,12 @@
                     <div id="total-count-status">--</div>
                 </div>
                 <div class="status-item">
-                    <div id="secondary">Active Alerts</div><br>
-                    <div id="alert-status">Checking...</div>
+                    <div id="secondary">AWS us-east-2</div><br>
+                        <div id="aws-status" class="status-indicator">
+                            <span class="status-dot" id="aws-status-dot"></span>
+                            <span id="aws-status-text">Checking...</span>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -265,11 +269,29 @@
             }
         }
 
+        // Function to check AWS us-east-2 status
+        async function checkAWSStatus() {
+            try {
+                const response = await fetch('https://api.crowdcount.tech/healthcheck');
+                if (response.ok) {
+                    document.getElementById('aws-status-dot').className = 'status-dot online';
+                    document.getElementById('aws-status-text').textContent = 'Operational';
+                } else {
+                    document.getElementById('aws-status-dot').className = 'status-dot offline';
+                    document.getElementById('aws-status-text').textContent = 'Down';
+                }
+            } catch (error) {
+                document.getElementById('aws-status-dot').className = 'status-dot offline';
+                document.getElementById('aws-status-text').textContent = 'Down';
+            }
+        }
+
         // Refresh all data
         async function refreshAllData() {
             await checkAPIHealth();
             await getTotalCount();
             await checkAlerts();
+            await checkAWSStatus();
         }
 
         // Initial load
