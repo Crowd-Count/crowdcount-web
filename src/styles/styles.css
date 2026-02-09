@@ -418,6 +418,14 @@ a:hover {
     overflow: hidden; /* Ensure the map respects the border radius */
 }
 
+/* Fix thin font on Apple MapKit annotation callouts */
+#map .mk-callout-title,
+#map .mk-callout-subtitle,
+#map .mk-standard-callout-title,
+#map .mk-standard-callout-subtitle {
+    font-weight: 600 !important;
+}
+
 #big-red-button {
     flex: 1;
     padding-left: 80px;
