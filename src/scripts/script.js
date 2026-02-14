@@ -468,35 +468,14 @@ function getMarkerColor(colorName) {
 async function initMap() {
     const locations = await fetchLocations();
 
-    // Remove duplicates based on name and device (same as list view)
-    const uniqueLocations = [];
-    const seenKeys = new Set();
-
-    locations.forEach(location => {
-        const key = `${location.location_name}_${location.location_device}`;
-        if (!seenKeys.has(key)) {
-            seenKeys.add(key);
-            uniqueLocations.push(location);
-        }
-    });
-
-    const mapLocations = uniqueLocations.map(location => {
-        // Parse the overcrowding count
-        let overcrowding = null;
-        if (location.location_overcrowding_count !== "N/A") {
-            overcrowding = parseInt(location.location_overcrowding_count);
-            if (isNaN(overcrowding)) {
-                overcrowding = null;
-            }
-        }
-
+    const mapLocations = locations.map(location => {
         return {
             coordinate: new mapkit.Coordinate(location.location_latitude, location.location_longitude),
             title: location.location_name,
-            currentCount: location.location_current_count,
+            currentCount: location.current_count,
             comparison: location.location_comparison,
             color: location.location_color,
-            overcrowding: overcrowding, // Include overcrowding count
+            overcrowding: location.overcrowding_limit ?? null,
         };
     });
 
@@ -623,9 +602,8 @@ async function populateLocationList() {
         
         // Store locations in map for quick lookup
         allLocations.forEach(location => {
-            const key = `${location.location_name}_${location.location_device}`;
-            if (!locationsMap.has(key)) {
-                locationsMap.set(key, location);
+            if (!locationsMap.has(location.location_id)) {
+                locationsMap.set(location.location_id, location);
             }
         });
         
@@ -659,41 +637,20 @@ function displayLocations(locations) {
         return;
     }
     
-    // Remove duplicates based on name and device
-    const uniqueLocations = [];
-    const seenKeys = new Set();
-    
-    locations.forEach(location => {
-        const key = `${location.location_name}_${location.location_device}`;
-        if (!seenKeys.has(key)) {
-            seenKeys.add(key);
-            uniqueLocations.push(location);
-        }
-    });
-    
     // Sort locations alphabetically by name
-    uniqueLocations.sort((a, b) => a.location_name.localeCompare(b.location_name));
-    
-    // In the displayLocations function, update the HTML generation:
-    const html = uniqueLocations.map(location => {
+    const sortedLocations = [...locations].sort((a, b) => a.location_name.localeCompare(b.location_name));
+
+    const html = sortedLocations.map(location => {
         const comparisonSymbol = getComparisonSymbol(location.location_comparison);
         const comparisonClass = getComparisonClass(location.location_comparison);
-        
-        // Parse overcrowding count
-        let overcrowding = null;
-        if (location.location_overcrowding_count && location.location_overcrowding_count !== 'N/A') {
-            overcrowding = parseInt(location.location_overcrowding_count);
-            if (isNaN(overcrowding)) {
-                overcrowding = null;
-            }
-        }
-        
+        const overcrowding = location.overcrowding_limit ?? null;
+
         return `
             <div class="location-item" onclick="centerMapOnLocation(${location.location_latitude}, ${location.location_longitude})">
                 <span class="location-name">${escapeHtml(location.location_name)}</span>
                 <div class="location-stats">
                     <span class="location-count-label">Count:</span>
-                    <span class="location-count-number">${location.location_current_count}</span>
+                    <span class="location-count-number">${location.current_count}</span>
                     ${overcrowding ? `<span class="location-overcrowding"> / ${overcrowding}</span>` : ''}
                     ${comparisonSymbol ? `<span class="${comparisonClass}">${comparisonSymbol}</span>` : ''}
                 </div>
@@ -990,10 +947,12 @@ function sortAdsByDistance(ads, userLat, userLon) {
     // Create a map of deviceId to location coordinates
     const deviceLocationMap = new Map();
     allLocations.forEach(location => {
-        if (location.location_device) {
-            deviceLocationMap.set(location.location_device, {
-                lat: location.location_latitude,
-                lon: location.location_longitude
+        if (location.devices && Array.isArray(location.devices)) {
+            location.devices.forEach(([deviceId]) => {
+                deviceLocationMap.set(deviceId, {
+                    lat: location.location_latitude,
+                    lon: location.location_longitude
+                });
             });
         }
     });
@@ -1154,7 +1113,10 @@ function getAdLocation(ad) {
     const deviceId = getAdField(ad, 'primaryDevice', 'primary_device') || getAdField(ad, 'deviceId', 'device_id');
     if (!deviceId) return null;
 
-    const location = allLocations.find(loc => loc.location_device === deviceId);
+    const location = allLocations.find(loc =>
+        loc.devices && Array.isArray(loc.devices) &&
+        loc.devices.some(([did]) => did === deviceId)
+    );
     if (location) {
         return {
             name: location.location_name,
