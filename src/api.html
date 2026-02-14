@@ -78,7 +78,7 @@
             <br>
             <div id="secondary">CrowdCount uses a <div id="primary">location-based</div> architecture. Each <div id="primary">location</div> has a unique ID and contains one or more <div id="primary">devices</div> (Crowd Counters). Counts, entries, and history are all tracked at the location level.</div>
             <br><br>
-            <div id="secondary">To authenticate, provide credentials from any device that belongs to the location. For endpoints that modify a location, you must provide credentials for <div id="primary">all</div> member devices.</div>
+            <div id="secondary">To authenticate, provide <div id="primary">credentials</div> for <div id="primary">all</div> devices that belong to the location.</div>
             <br><br>
             <div id="secondary">CrowdCount tracks two types of data:</div>
             <br>
@@ -122,14 +122,6 @@
                         <td><ul><li>None</li></ul></td>
                     </tr>
                     <tr>
-                        <td><code>POST /check_password</code></td>
-                        <td>Checks if a device password is correct.</td>
-                        <td><ul>
-                            <li><code>device_id</code> (required)</li>
-                            <li><code>password</code> (required)</li>
-                        </ul></td>
-                    </tr>
-                    <tr>
                         <td><code>GET /check_user</code></td>
                         <td>Checks if a device exists and returns its online/offline status.</td>
                         <td><ul><li><code>device_id</code> (required)</li></ul></td>
@@ -138,15 +130,6 @@
                         <td><code>GET /connection_status</code></td>
                         <td>Returns the connection status of a device.</td>
                         <td><ul><li><code>device_id</code> (required)</li></ul></td>
-                    </tr>
-                    <tr>
-                        <td><code>POST /set_password</code></td>
-                        <td>Changes a device's password.</td>
-                        <td><ul>
-                            <li><code>device_id</code> (required)</li>
-                            <li><code>current_password</code> (required)</li>
-                            <li><code>new_password</code> (required)</li>
-                        </ul></td>
                     </tr>
                     <tr>
                         <td><code>GET /get_all_map_locations</code></td>
@@ -161,150 +144,9 @@
                 </tbody>
             </table>
 
-            <!-- Location Management -->
-            <h2 class="mt-5 mb-3" style="color: white; text-align: center;">Location Management</h2>
-            <p style="color: #aaa; text-align: center;">Create, update, and query locations. Each location groups one or more Crowd Counter devices and is identified by a UUID <code>location_id</code>.</p>
-            <table class="table table-bordered">
-                <colgroup>
-                <col style="width: 30%;" />
-                <col style="width: 50%;" />
-                <col style="width: 20%;" />
-                </colgroup>
-                <thead class="thead-light">
-                    <tr>
-                        <th scope="col" class="center-text">Command</th>
-                        <th scope="col" class="center-text">Description</th>
-                        <th scope="col" class="center-text">Parameters</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td><code>GET /get_locations_for_device</code></td>
-                        <td>Returns all locations a device belongs to.</td>
-                        <td><ul>
-                            <li><code>device_id</code> (required)</li>
-                            <li><code>password</code> (required)</li>
-                        </ul></td>
-                    </tr>
-                    <tr>
-                        <td><code>GET /get_location</code></td>
-                        <td>Returns details for a specific location including current count and devices.</td>
-                        <td><ul>
-                            <li><code>location_id</code> (required)</li>
-                            <li><code>device_id</code> (required)</li>
-                            <li><code>password</code> (required)</li>
-                        </ul></td>
-                    </tr>
-                    <tr>
-                        <td><code>POST /create_location</code></td>
-                        <td>Creates a new location with one or more devices. <div id="secondary">Requires credentials for all devices in the location.</div></td>
-                        <td><ul>
-                            <li><code>name</code> (required)</li>
-                            <li><code>credentials</code> (required)</li>
-                            <li><code>overcrowding_limit</code> (optional)</li>
-                            <li><code>color</code> (optional)</li>
-                        </ul></td>
-                    </tr>
-                    <tr>
-                        <td><code>POST /update_location</code></td>
-                        <td>Updates a location's name, overcrowding limit, or color.</td>
-                        <td><ul>
-                            <li><code>location_id</code> (required)</li>
-                            <li><code>device_id</code> (required)</li>
-                            <li><code>password</code> (required)</li>
-                            <li><code>name</code> / <code>overcrowding_limit</code> / <code>color</code></li>
-                        </ul></td>
-                    </tr>
-                    <tr>
-                        <td><code>POST /replace_location</code></td>
-                        <td>Replaces a location's entire device set. <div id="secondary">All new devices must provide valid credentials.</div></td>
-                        <td><ul>
-                            <li><code>location_id</code> (required)</li>
-                            <li><code>credentials</code> (required)</li>
-                        </ul></td>
-                    </tr>
-                    <tr>
-                        <td><code>POST /delete_location</code></td>
-                        <td>Deletes a location. <div id="secondary">Requires admin authentication.</div></td>
-                        <td><ul>
-                            <li><code>location_id</code> (required)</li>
-                            <li><code>password</code> (required, admin)</li>
-                        </ul></td>
-                    </tr>
-                </tbody>
-            </table>
-
-            <!-- Location Counting -->
-            <h2 class="mt-5 mb-3" style="color: white; text-align: center;">Location Counting</h2>
-            <p style="color: #aaa; text-align: center;">Read and modify a location's live population count and entry count.</p>
-            <table class="table table-bordered">
-                <colgroup>
-                <col style="width: 30%;" />
-                <col style="width: 50%;" />
-                <col style="width: 20%;" />
-                </colgroup>
-                <thead class="thead-light">
-                    <tr>
-                        <th scope="col" class="center-text">Command</th>
-                        <th scope="col" class="center-text">Description</th>
-                        <th scope="col" class="center-text">Parameters</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td><code>POST /location/add_to_count</code></td>
-                        <td>Increments a location's population count.</td>
-                        <td><ul>
-                            <li><code>location_id</code> (required)</li>
-                            <li><code>credentials</code> (required)</li>
-                            <li><code>count_to_add</code> (required)</li>
-                        </ul></td>
-                    </tr>
-                    <tr>
-                        <td><code>POST /location/sub_from_count</code></td>
-                        <td>Decrements a location's population count. <div id="secondary">Count will not go below zero.</div></td>
-                        <td><ul>
-                            <li><code>location_id</code> (required)</li>
-                            <li><code>credentials</code> (required)</li>
-                            <li><code>count_to_sub</code> (required)</li>
-                        </ul></td>
-                    </tr>
-                    <tr>
-                        <td><code>POST /set_reset_schedule</code></td>
-                        <td>Sets a daily automatic reset time for a location's count.</td>
-                        <td><ul>
-                            <li><code>location_id</code> (required)</li>
-                            <li><code>device_id</code> (required)</li>
-                            <li><code>password</code> (required)</li>
-                            <li><code>reset_hour</code> (required, 0-23)</li>
-                            <li><code>reset_minute</code> (optional)</li>
-                            <li><code>timezone</code> (optional)</li>
-                        </ul></td>
-                    </tr>
-                    <tr>
-                        <td><code>GET /get_reset_schedule</code></td>
-                        <td>Returns the reset schedule for a location.</td>
-                        <td><ul>
-                            <li><code>location_id</code> (required)</li>
-                            <li><code>device_id</code> (required)</li>
-                            <li><code>password</code> (required)</li>
-                        </ul></td>
-                    </tr>
-                    <tr>
-                        <td><code>POST /delete_reset_schedule</code></td>
-                        <td>Removes the reset schedule for a location.</td>
-                        <td><ul>
-                            <li><code>location_id</code> (required)</li>
-                            <li><code>device_id</code> (required)</li>
-                            <li><code>password</code> (required)</li>
-                        </ul></td>
-                    </tr>
-                </tbody>
-            </table>
-
             <!-- Location History -->
             <h2 class="mt-5 mb-3" style="color: white; text-align: center;">Location History</h2>
-            <p style="color: #aaa; text-align: center;">Retrieve historical population and entry data for a location. All endpoints require <code>location_id</code> plus <code>device_id</code> and <code>password</code> from a member device. <br>Each endpoint also has an <code>average</code> variant that returns the historical average for the same period.</p>
+            <p style="color: #aaa; text-align: center;">Retrieve historical population and entry data for a location. All endpoints require <code>location_id</code> plus <code>credentials</code> for all member devices. <br>Each endpoint also has an <code>average</code> variant that returns the historical average for the same period.</p>
             <table class="table table-bordered">
                 <colgroup>
                 <col style="width: 30%;" />
@@ -325,8 +167,7 @@
                         <td>Hourly population data for a specific day.</td>
                         <td><ul>
                             <li><code>location_id</code></li>
-                            <li><code>device_id</code></li>
-                            <li><code>password</code></li>
+                            <li><code>credentials</code></li>
                             <li><code>date</code></li>
                         </ul></td>
                     </tr>
@@ -335,8 +176,7 @@
                         <td>Average hourly population for the same weekday. <div id="secondary">Calculated from historical data on matching weekdays.</div></td>
                         <td><ul>
                             <li><code>location_id</code></li>
-                            <li><code>device_id</code></li>
-                            <li><code>password</code></li>
+                            <li><code>credentials</code></li>
                             <li><code>date</code></li>
                         </ul></td>
                     </tr>
@@ -345,8 +185,7 @@
                         <td>Daily population data for a specific week. <div id="secondary">Input any day of the week to get Monday through Sunday.</div></td>
                         <td><ul>
                             <li><code>location_id</code></li>
-                            <li><code>device_id</code></li>
-                            <li><code>password</code></li>
+                            <li><code>credentials</code></li>
                             <li><code>date</code></li>
                         </ul></td>
                     </tr>
@@ -355,8 +194,7 @@
                         <td>Average daily population for a week.</td>
                         <td><ul>
                             <li><code>location_id</code></li>
-                            <li><code>device_id</code></li>
-                            <li><code>password</code></li>
+                            <li><code>credentials</code></li>
                             <li><code>date</code></li>
                         </ul></td>
                     </tr>
@@ -365,8 +203,7 @@
                         <td>Daily population data for a specific month.</td>
                         <td><ul>
                             <li><code>location_id</code></li>
-                            <li><code>device_id</code></li>
-                            <li><code>password</code></li>
+                            <li><code>credentials</code></li>
                             <li><code>date</code></li>
                         </ul></td>
                     </tr>
@@ -375,8 +212,7 @@
                         <td>Average daily population for a month.</td>
                         <td><ul>
                             <li><code>location_id</code></li>
-                            <li><code>device_id</code></li>
-                            <li><code>password</code></li>
+                            <li><code>credentials</code></li>
                             <li><code>date</code></li>
                         </ul></td>
                     </tr>
@@ -385,8 +221,7 @@
                         <td>Monthly population data for a specific year.</td>
                         <td><ul>
                             <li><code>location_id</code></li>
-                            <li><code>device_id</code></li>
-                            <li><code>password</code></li>
+                            <li><code>credentials</code></li>
                             <li><code>year</code></li>
                         </ul></td>
                     </tr>
@@ -395,8 +230,7 @@
                         <td>Average monthly population for a year.</td>
                         <td><ul>
                             <li><code>location_id</code></li>
-                            <li><code>device_id</code></li>
-                            <li><code>password</code></li>
+                            <li><code>credentials</code></li>
                             <li><code>year</code></li>
                         </ul></td>
                     </tr>
@@ -406,8 +240,7 @@
                         <td>Hourly entry data for a specific day.</td>
                         <td><ul>
                             <li><code>location_id</code></li>
-                            <li><code>device_id</code></li>
-                            <li><code>password</code></li>
+                            <li><code>credentials</code></li>
                             <li><code>date</code></li>
                         </ul></td>
                     </tr>
@@ -416,8 +249,7 @@
                         <td>Average hourly entry data for the same weekday.</td>
                         <td><ul>
                             <li><code>location_id</code></li>
-                            <li><code>device_id</code></li>
-                            <li><code>password</code></li>
+                            <li><code>credentials</code></li>
                             <li><code>date</code></li>
                         </ul></td>
                     </tr>
@@ -426,8 +258,7 @@
                         <td>Daily entry data for a specific week.</td>
                         <td><ul>
                             <li><code>location_id</code></li>
-                            <li><code>device_id</code></li>
-                            <li><code>password</code></li>
+                            <li><code>credentials</code></li>
                             <li><code>date</code></li>
                         </ul></td>
                     </tr>
@@ -436,8 +267,7 @@
                         <td>Average daily entry data for a week.</td>
                         <td><ul>
                             <li><code>location_id</code></li>
-                            <li><code>device_id</code></li>
-                            <li><code>password</code></li>
+                            <li><code>credentials</code></li>
                             <li><code>date</code></li>
                         </ul></td>
                     </tr>
@@ -446,8 +276,7 @@
                         <td>Daily entry data for a specific month.</td>
                         <td><ul>
                             <li><code>location_id</code></li>
-                            <li><code>device_id</code></li>
-                            <li><code>password</code></li>
+                            <li><code>credentials</code></li>
                             <li><code>date</code></li>
                         </ul></td>
                     </tr>
@@ -456,8 +285,7 @@
                         <td>Average daily entry data for a month.</td>
                         <td><ul>
                             <li><code>location_id</code></li>
-                            <li><code>device_id</code></li>
-                            <li><code>password</code></li>
+                            <li><code>credentials</code></li>
                             <li><code>date</code></li>
                         </ul></td>
                     </tr>
@@ -466,8 +294,7 @@
                         <td>Monthly entry data for a specific year.</td>
                         <td><ul>
                             <li><code>location_id</code></li>
-                            <li><code>device_id</code></li>
-                            <li><code>password</code></li>
+                            <li><code>credentials</code></li>
                             <li><code>year</code></li>
                         </ul></td>
                     </tr>
@@ -476,8 +303,7 @@
                         <td>Average monthly entry data for a year.</td>
                         <td><ul>
                             <li><code>location_id</code></li>
-                            <li><code>device_id</code></li>
-                            <li><code>password</code></li>
+                            <li><code>credentials</code></li>
                             <li><code>year</code></li>
                         </ul></td>
                     </tr>
@@ -509,13 +335,11 @@
     <h3 id="center">
         <div id="LargeHomeText"><div id="primary">Important Notes</div></div>
         <br><br>
-        <div id="secondary">The <div id="primary">credentials</div> parameter is a JSON array of <code>[device_id, password]</code> pairs for all devices in the location:</div>
+        <div id="secondary">The <div id="primary">credentials</div> parameter is a JSON array of <code>{"device_id", "password"}</code> objects for all devices in the location:</div>
         <br>
-        <code style="background: #1a1a1a; padding: 8px 12px; border-radius: 4px; display: inline-block;">"credentials": [["T1234", "pass1"], ["T5678", "pass2"]]</code>
+        <code style="background: #1a1a1a; padding: 8px 12px; border-radius: 4px; display: inline-block;">"credentials": [{"device_id": "T1234", "password": "pass1"}, {"device_id": "T5678", "password": "pass2"}]</code>
         <br><br>
-        <div id="secondary">For single-device authentication, use <div id="primary">POST with JSON body</div>:</div>
-        <br>
-        <code style="background: #1a1a1a; padding: 8px 12px; border-radius: 4px; display: inline-block;">{"device_id": "T1234", "password": "your_password"}</code>
+        <div id="secondary">For locations with a single device, the array will have one entry.</div>
         <br><br>
         <div id="secondary">All parameters listed as <div id="primary">required</div> in history endpoints above. The date format is <div id="primary">yyyy-mm-dd</div>. For year-based endpoints use a 4-digit year like <div id="primary">2026</div>.</div>
         <br><br>
