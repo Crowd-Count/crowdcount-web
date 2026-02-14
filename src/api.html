@@ -424,6 +424,438 @@
                             </ul>
                         </td>
                     </tr>
+                    <!-- Count Modification Endpoints -->
+                    <tr>
+                        <td><code>POST /add_to_count</code></td>
+                        <td>Increments the current count for a device by a specified amount.</td>
+                        <td>
+                            <ul>
+                                <li><code>device_id</code> (required)</li>
+                                <li><code>password</code> (required)</li>
+                                <li><code>count_to_add</code> (required)</li>
+                            </ul>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><code>POST /sub_from_count</code></td>
+                        <td>Decrements the current count for a device by a specified amount.</td>
+                        <td>
+                            <ul>
+                                <li><code>device_id</code> (required)</li>
+                                <li><code>password</code> (required)</li>
+                                <li><code>count_to_sub</code> (required)</li>
+                            </ul>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><code>POST /add_entry</code></td>
+                        <td>Adds an entry count for a device. <div id="secondary">Defaults to 1 if count is not specified.</div></td>
+                        <td>
+                            <ul>
+                                <li><code>device_id</code> (required)</li>
+                                <li><code>password</code> (required)</li>
+                                <li><code>count</code> (optional, default 1)</li>
+                            </ul>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><code>POST /set_password</code></td>
+                        <td>Changes the password for a device.</td>
+                        <td>
+                            <ul>
+                                <li><code>device_id</code> (required)</li>
+                                <li><code>current_password</code> (required)</li>
+                                <li><code>new_password</code> (required)</li>
+                            </ul>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <!-- Location Endpoints -->
+            <h2 class="mt-5 mb-3" style="color: white; text-align: center;">Location Endpoints</h2>
+            <p style="color: #aaa; text-align: center;">Locations group one or more devices together. These endpoints let you manage and query location-level data.</p>
+            <table class="table table-bordered">
+                <colgroup>
+                <col style="width: 30%;" />
+                <col style="width: 50%;" />
+                <col style="width: 20%;" />
+                </colgroup>
+                <thead class="thead-light">
+                    <tr>
+                        <th scope="col" class="center-text">Command</th>
+                        <th scope="col" class="center-text">Description</th>
+                        <th scope="col" class="center-text">Parameters</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Public Location Reads -->
+                    <tr>
+                        <td><code>GET /get_all_map_locations</code></td>
+                        <td>Returns all public map locations with current counts, overcrowding limits, and comparison data.</td>
+                        <td>
+                            <ul>
+                                <li>None</li>
+                            </ul>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><code>GET /get_all_location_data_with_extra</code></td>
+                        <td>Returns all public locations with enriched data. <div id="secondary">Same as <code>/get_all_map_locations</code>.</div></td>
+                        <td>
+                            <ul>
+                                <li>None</li>
+                            </ul>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><code>GET /get_all_location_names</code></td>
+                        <td>Returns a list of names of all public map locations.</td>
+                        <td>
+                            <ul>
+                                <li>None</li>
+                            </ul>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><code>GET /get_locations_for_device</code></td>
+                        <td>Returns all locations that a device belongs to.</td>
+                        <td>
+                            <ul>
+                                <li><code>device_id</code> (required)</li>
+                                <li><code>password</code> (required)</li>
+                            </ul>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><code>GET /get_location</code></td>
+                        <td>Returns details for a specific location including current counts.</td>
+                        <td>
+                            <ul>
+                                <li><code>location_id</code> (required)</li>
+                                <li><code>device_id</code> (required)</li>
+                                <li><code>password</code> (required)</li>
+                            </ul>
+                        </td>
+                    </tr>
+                    <!-- Location CRUD -->
+                    <tr>
+                        <td><code>POST /create_location</code></td>
+                        <td>Creates a new location with one or more devices. <div id="secondary">Requires credentials for all devices in the location.</div></td>
+                        <td>
+                            <ul>
+                                <li><code>name</code> (required)</li>
+                                <li><code>credentials</code> (required, array of <code>[device_id, password]</code>)</li>
+                                <li><code>overcrowding_limit</code> (optional)</li>
+                                <li><code>color</code> (optional)</li>
+                            </ul>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><code>POST /update_location</code></td>
+                        <td>Updates a location's metadata (name, overcrowding limit, color).</td>
+                        <td>
+                            <ul>
+                                <li><code>location_id</code> (required)</li>
+                                <li><code>device_id</code> (required)</li>
+                                <li><code>password</code> (required)</li>
+                                <li><code>name</code> / <code>overcrowding_limit</code> / <code>color</code> (optional)</li>
+                            </ul>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><code>POST /replace_location</code></td>
+                        <td>Replaces a location's device set. <div id="secondary">All new devices must provide valid credentials.</div></td>
+                        <td>
+                            <ul>
+                                <li><code>location_id</code> (required)</li>
+                                <li><code>credentials</code> (required, array of <code>[device_id, password]</code>)</li>
+                            </ul>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><code>POST /delete_location</code></td>
+                        <td>Deletes a location. <div id="secondary">Requires admin authentication.</div></td>
+                        <td>
+                            <ul>
+                                <li><code>location_id</code> (required)</li>
+                                <li><code>password</code> (required, admin)</li>
+                            </ul>
+                        </td>
+                    </tr>
+                    <!-- Location Counting -->
+                    <tr>
+                        <td><code>POST /location/add_to_count</code></td>
+                        <td>Increments a location's aggregate count.</td>
+                        <td>
+                            <ul>
+                                <li><code>location_id</code> (required)</li>
+                                <li><code>credentials</code> (required)</li>
+                                <li><code>count_to_add</code> (required)</li>
+                            </ul>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><code>POST /location/sub_from_count</code></td>
+                        <td>Decrements a location's aggregate count. <div id="secondary">Count will not go below zero.</div></td>
+                        <td>
+                            <ul>
+                                <li><code>location_id</code> (required)</li>
+                                <li><code>credentials</code> (required)</li>
+                                <li><code>count_to_sub</code> (required)</li>
+                            </ul>
+                        </td>
+                    </tr>
+                    <!-- Location Reset -->
+                    <tr>
+                        <td><code>POST /set_reset_schedule</code></td>
+                        <td>Sets a daily automatic reset time for a location's count data.</td>
+                        <td>
+                            <ul>
+                                <li><code>location_id</code> (required)</li>
+                                <li><code>device_id</code> (required)</li>
+                                <li><code>password</code> (required)</li>
+                                <li><code>reset_hour</code> (required, 0-23)</li>
+                                <li><code>reset_minute</code> (optional, default 0)</li>
+                                <li><code>timezone</code> (optional)</li>
+                            </ul>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><code>GET /get_reset_schedule</code></td>
+                        <td>Returns the reset schedule for a location.</td>
+                        <td>
+                            <ul>
+                                <li><code>location_id</code> (required)</li>
+                                <li><code>device_id</code> (required)</li>
+                                <li><code>password</code> (required)</li>
+                            </ul>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><code>POST /delete_reset_schedule</code></td>
+                        <td>Removes the reset schedule for a location.</td>
+                        <td>
+                            <ul>
+                                <li><code>location_id</code> (required)</li>
+                                <li><code>device_id</code> (required)</li>
+                                <li><code>password</code> (required)</li>
+                            </ul>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <!-- Location History Endpoints -->
+            <h2 class="mt-5 mb-3" style="color: white; text-align: center;">Location History Endpoints</h2>
+            <p style="color: #aaa; text-align: center;">These work like the per-device history endpoints but return aggregated data across all devices in a location. <br>All require <code>location_id</code>, <code>device_id</code>, and <code>password</code> from a member device.</p>
+            <table class="table table-bordered">
+                <colgroup>
+                <col style="width: 30%;" />
+                <col style="width: 50%;" />
+                <col style="width: 20%;" />
+                </colgroup>
+                <thead class="thead-light">
+                    <tr>
+                        <th scope="col" class="center-text">Command</th>
+                        <th scope="col" class="center-text">Description</th>
+                        <th scope="col" class="center-text">Parameters</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>GET /get_location_day_data</code></td>
+                        <td>Returns hourly count data for a location on a specific day.</td>
+                        <td>
+                            <ul>
+                                <li><code>location_id</code> (required)</li>
+                                <li><code>device_id</code> (required)</li>
+                                <li><code>password</code> (required)</li>
+                                <li><code>date</code> (required)</li>
+                            </ul>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><code>GET /get_location_average_day_data</code></td>
+                        <td>Returns average hourly count data for the same weekday at a location.</td>
+                        <td>
+                            <ul>
+                                <li><code>location_id</code> (required)</li>
+                                <li><code>device_id</code> (required)</li>
+                                <li><code>password</code> (required)</li>
+                                <li><code>date</code> (required)</li>
+                            </ul>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><code>GET /get_location_week_data</code></td>
+                        <td>Returns daily count data for a specific week at a location.</td>
+                        <td>
+                            <ul>
+                                <li><code>location_id</code> (required)</li>
+                                <li><code>device_id</code> (required)</li>
+                                <li><code>password</code> (required)</li>
+                                <li><code>date</code> (required)</li>
+                            </ul>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><code>GET /get_location_average_week_data</code></td>
+                        <td>Returns average daily count data for a week at a location.</td>
+                        <td>
+                            <ul>
+                                <li><code>location_id</code> (required)</li>
+                                <li><code>device_id</code> (required)</li>
+                                <li><code>password</code> (required)</li>
+                                <li><code>date</code> (required)</li>
+                            </ul>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><code>GET /get_location_month_data</code></td>
+                        <td>Returns daily count data for a specific month at a location.</td>
+                        <td>
+                            <ul>
+                                <li><code>location_id</code> (required)</li>
+                                <li><code>device_id</code> (required)</li>
+                                <li><code>password</code> (required)</li>
+                                <li><code>date</code> (required)</li>
+                            </ul>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><code>GET /get_location_average_month_data</code></td>
+                        <td>Returns average daily count data for a month at a location.</td>
+                        <td>
+                            <ul>
+                                <li><code>location_id</code> (required)</li>
+                                <li><code>device_id</code> (required)</li>
+                                <li><code>password</code> (required)</li>
+                                <li><code>date</code> (required)</li>
+                            </ul>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><code>GET /get_location_year_data</code></td>
+                        <td>Returns monthly count data for a specific year at a location.</td>
+                        <td>
+                            <ul>
+                                <li><code>location_id</code> (required)</li>
+                                <li><code>device_id</code> (required)</li>
+                                <li><code>password</code> (required)</li>
+                                <li><code>year</code> (required)</li>
+                            </ul>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><code>GET /get_location_average_year_data</code></td>
+                        <td>Returns average monthly count data for a year at a location.</td>
+                        <td>
+                            <ul>
+                                <li><code>location_id</code> (required)</li>
+                                <li><code>device_id</code> (required)</li>
+                                <li><code>password</code> (required)</li>
+                                <li><code>year</code> (required)</li>
+                            </ul>
+                        </td>
+                    </tr>
+                    <!-- Location Entry History -->
+                    <tr>
+                        <td><code>GET /get_location_entry_day_data</code></td>
+                        <td>Returns hourly entry data for a location on a specific day.</td>
+                        <td>
+                            <ul>
+                                <li><code>location_id</code> (required)</li>
+                                <li><code>device_id</code> (required)</li>
+                                <li><code>password</code> (required)</li>
+                                <li><code>date</code> (required)</li>
+                            </ul>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><code>GET /get_location_average_entry_day_data</code></td>
+                        <td>Returns average hourly entry data for the same weekday at a location.</td>
+                        <td>
+                            <ul>
+                                <li><code>location_id</code> (required)</li>
+                                <li><code>device_id</code> (required)</li>
+                                <li><code>password</code> (required)</li>
+                                <li><code>date</code> (required)</li>
+                            </ul>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><code>GET /get_location_entry_week_data</code></td>
+                        <td>Returns daily entry data for a specific week at a location.</td>
+                        <td>
+                            <ul>
+                                <li><code>location_id</code> (required)</li>
+                                <li><code>device_id</code> (required)</li>
+                                <li><code>password</code> (required)</li>
+                                <li><code>date</code> (required)</li>
+                            </ul>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><code>GET /get_location_average_entry_week_data</code></td>
+                        <td>Returns average daily entry data for a week at a location.</td>
+                        <td>
+                            <ul>
+                                <li><code>location_id</code> (required)</li>
+                                <li><code>device_id</code> (required)</li>
+                                <li><code>password</code> (required)</li>
+                                <li><code>date</code> (required)</li>
+                            </ul>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><code>GET /get_location_entry_month_data</code></td>
+                        <td>Returns daily entry data for a specific month at a location.</td>
+                        <td>
+                            <ul>
+                                <li><code>location_id</code> (required)</li>
+                                <li><code>device_id</code> (required)</li>
+                                <li><code>password</code> (required)</li>
+                                <li><code>date</code> (required)</li>
+                            </ul>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><code>GET /get_location_average_entry_month_data</code></td>
+                        <td>Returns average daily entry data for a month at a location.</td>
+                        <td>
+                            <ul>
+                                <li><code>location_id</code> (required)</li>
+                                <li><code>device_id</code> (required)</li>
+                                <li><code>password</code> (required)</li>
+                                <li><code>date</code> (required)</li>
+                            </ul>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><code>GET /get_location_entry_year_data</code></td>
+                        <td>Returns monthly entry data for a specific year at a location.</td>
+                        <td>
+                            <ul>
+                                <li><code>location_id</code> (required)</li>
+                                <li><code>device_id</code> (required)</li>
+                                <li><code>password</code> (required)</li>
+                                <li><code>year</code> (required)</li>
+                            </ul>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><code>GET /get_location_average_entry_year_data</code></td>
+                        <td>Returns average monthly entry data for a year at a location.</td>
+                        <td>
+                            <ul>
+                                <li><code>location_id</code> (required)</li>
+                                <li><code>device_id</code> (required)</li>
+                                <li><code>password</code> (required)</li>
+                                <li><code>year</code> (required)</li>
+                            </ul>
+                        </td>
+                    </tr>
                 </tbody>
             </table>
         </div>
@@ -438,6 +870,10 @@
         <div id="secondary">For authenticated endpoints, <div id="primary">POST with JSON body</div> is recommended for security. Example:</div>
         <br>
         <code style="background: #1a1a1a; padding: 8px 12px; border-radius: 4px; display: inline-block;">{"device_id": "your_id", "password": "your_password"}</code>
+        <br><br>
+        <div id="secondary">Location endpoints use a <div id="primary">location_id</div> (UUID) and require credentials from a member device.</div>
+        <br>
+        <div id="secondary">The <div id="primary">credentials</div> parameter is an array of <code>[device_id, password]</code> pairs for all devices in the location.</div>
         <br><br>
         <div id="secondary">The date format used is <div id="primary">yyyy-mm-dd</div>.</div>
         <br>
