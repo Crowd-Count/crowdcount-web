@@ -742,7 +742,7 @@ function centerMapOnLocation(latitude, longitude) {
         const coordinate = new mapkit.Coordinate(latitude, longitude);
         const region = new mapkit.CoordinateRegion(
             coordinate,
-            new mapkit.CoordinateSpan(0.01, 0.01)
+            new mapkit.CoordinateSpan(0.003, 0.003)
         );
         map.setRegionAnimated(region);
         
