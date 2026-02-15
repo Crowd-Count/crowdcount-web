@@ -144,6 +144,42 @@
                 </tbody>
             </table>
 
+            <!-- Location Lookup -->
+            <h2 class="mt-5 mb-3" style="color: white; text-align: center;">Location Lookup</h2>
+            <p style="color: #aaa; text-align: center;">Find the location ID for a device. Use this to get the <code>location_id</code> needed for all history endpoints.</p>
+            <table class="table table-bordered">
+                <colgroup>
+                <col style="width: 30%;" />
+                <col style="width: 50%;" />
+                <col style="width: 20%;" />
+                </colgroup>
+                <thead class="thead-light">
+                    <tr>
+                        <th scope="col" class="center-text">Command</th>
+                        <th scope="col" class="center-text">Description</th>
+                        <th scope="col" class="center-text">Parameters</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>POST /get_locations_for_device</code></td>
+                        <td>Returns all locations that a device belongs to, including each location's <code>location_id</code>, name, current count, overcrowding limit, and member devices.</td>
+                        <td><ul>
+                            <li><code>device_id</code></li>
+                            <li><code>password</code></li>
+                        </ul></td>
+                    </tr>
+                    <tr>
+                        <td><code>POST /get_location</code></td>
+                        <td>Returns details for a single location by ID.</td>
+                        <td><ul>
+                            <li><code>location_id</code></li>
+                            <li><code>credentials</code></li>
+                        </ul></td>
+                    </tr>
+                </tbody>
+            </table>
+
             <!-- Location History -->
             <h2 class="mt-5 mb-3" style="color: white; text-align: center;">Location History</h2>
             <p style="color: #aaa; text-align: center;">Retrieve historical population and entry data for a location. All endpoints require <code>location_id</code> plus <code>credentials</code> for all member devices. <br>Each endpoint also has an <code>average</code> variant that returns the historical average for the same period.</p>
