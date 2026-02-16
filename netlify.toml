@@ -9,12 +9,6 @@
   force = true
 
 [[redirects]]
-  from = "/api/*"
-  to = "http://174.51.165.192:8080/api/:splat"
-  status = 200
-  force = true
-
-[[redirects]]
   from = "/linkedin"
   to = "https://www.linkedin.com/company/crowdcount/"
   status = 301
