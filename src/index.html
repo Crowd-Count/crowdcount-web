@@ -35,10 +35,6 @@
     }
     </script>
 </head>
-<div id="alertBox" class="alert hidden">
-  <strong id="alertTitle"></strong>
-  <div id="alertBody"></div>
-</div>
 <body id="home" data-aos-easing="ease" data-aos-duration="1000">
     <nav id="sticky-nav" class="sticky-nav">
         <div class="sticky-nav-content">
@@ -94,77 +90,6 @@
     <script>
       AOS.init();
 
-    // Manual alert for power outage
-    /*
-    document.addEventListener("DOMContentLoaded", function() {
-      showAlert("Service Outage", "Due to power outages in Boulder, Colorado, our servers are currently unavailable. We apologize for the inconvenience and are working to restore services as soon as possible.", "warning");
-    });
-    */
-
-    /*
-    document.addEventListener("DOMContentLoaded", function() {
-      checkForAlert();
-    });
-    */
-
-    function checkForAlert() {
-      fetch('https://api.crowdcount.tech/check_if_alert')
-          .then(response => response.json())
-          .then(data => {
-              if (data.is_alert) {
-                  fetchAlertDetails();
-              }
-          })
-          .catch(error => console.error('Error checking alert:', error));
-    }
-
-    function fetchAlertDetails() {
-      fetch('https://api.crowdcount.tech/get_active_alert')
-          .then(response => response.json())
-          .then(data => {
-              if (data.alert_info) {
-                  showAlert(data.alert_info);
-              }
-          })
-          .catch(error => console.error('Error fetching alert details:', error));
-    }
-
-    function showAlert(customTitle, customBody, customType) {
-      const alertBox = document.getElementById('alertBox');
-      const alertTitle = document.getElementById('alertTitle');
-      const alertBody = document.getElementById('alertBody');
-
-      alertTitle.textContent = customTitle;
-      alertBody.textContent = customBody;
-
-      if (customType === "warning") {
-          alertBox.style.backgroundColor = "#ff3a30";
-          alertBox.style.color = "black";
-      } else if (customType === "celebration") {
-          alertBox.style.backgroundColor = "#ffcc00";
-          alertBox.style.color = "black";
-      } else if (customType === "info") {
-          alertBox.style.backgroundColor = "#007bff";
-          alertBox.style.color = "white";
-      } else if (customType === "privacy") {
-          alertBox.style.backgroundColor = "#007bff";
-          alertBox.style.color = "white";
-      } else if (customType === "terms-of-use") {
-        alertBox.style.backgroundColor = "#ff9500";
-        alertBox.style.color = "black";
-      } else if (customType === "leaf") {
-          alertBox.style.backgroundColor = "#34c759";
-          alertBox.style.color = "black";
-      } else {
-          alertBox.style.backgroundColor = "#333";
-          alertBox.style.color = "white";
-      }
-
-      alertBox.classList.remove('hidden');
-      setTimeout(() => {
-          alertBox.classList.add('show');
-      }, 10);
-    }
     // Fetch login text
     fetch('https://api.crowdcount.tech/login-text')
         .then(response => response.json())
@@ -176,5 +101,6 @@
         .catch(error => console.error('Error fetching login text:', error));
     </script>
     <script src="./scripts/script.js"></script>
+    <script src="./scripts/alerts.js"></script>
 </body>
 </html>
