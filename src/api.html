@@ -199,7 +199,7 @@
                 <tbody>
                     <!-- Population History -->
                     <tr>
-                        <td><code>GET /get_location_day_data</code></td>
+                        <td><code>POST /get_location_day_data</code></td>
                         <td>Hourly population data for a specific day.</td>
                         <td><ul>
                             <li><code>location_id</code></li>
@@ -208,7 +208,7 @@
                         </ul></td>
                     </tr>
                     <tr>
-                        <td><code>GET /get_location_average_day_data</code></td>
+                        <td><code>POST /get_location_average_day_data</code></td>
                         <td>Average hourly population for the same weekday. <div id="secondary">Calculated from historical data on matching weekdays.</div></td>
                         <td><ul>
                             <li><code>location_id</code></li>
@@ -217,25 +217,27 @@
                         </ul></td>
                     </tr>
                     <tr>
-                        <td><code>GET /get_location_week_data</code></td>
-                        <td>Daily population data for a specific week. <div id="secondary">Input any day of the week to get Monday through Sunday.</div></td>
+                        <td><code>POST /get_location_week_data</code></td>
+                        <td>Daily population data for a specific week. <div id="secondary">Input any day of the week to get Monday through Sunday. Supports timezone correction via <code>tz_offset_minutes</code>.</div></td>
                         <td><ul>
                             <li><code>location_id</code></li>
                             <li><code>credentials</code></li>
                             <li><code>date</code></li>
+                            <li><code>tz_offset_minutes</code> (optional)</li>
                         </ul></td>
                     </tr>
                     <tr>
-                        <td><code>GET /get_location_average_week_data</code></td>
-                        <td>Average daily population for a week.</td>
+                        <td><code>POST /get_location_average_week_data</code></td>
+                        <td>Average daily population for a week. <div id="secondary">Supports timezone correction via <code>tz_offset_minutes</code>.</div></td>
                         <td><ul>
                             <li><code>location_id</code></li>
                             <li><code>credentials</code></li>
                             <li><code>date</code></li>
+                            <li><code>tz_offset_minutes</code> (optional)</li>
                         </ul></td>
                     </tr>
                     <tr>
-                        <td><code>GET /get_location_month_data</code></td>
+                        <td><code>POST /get_location_month_data</code></td>
                         <td>Daily population data for a specific month.</td>
                         <td><ul>
                             <li><code>location_id</code></li>
@@ -244,7 +246,7 @@
                         </ul></td>
                     </tr>
                     <tr>
-                        <td><code>GET /get_location_average_month_data</code></td>
+                        <td><code>POST /get_location_average_month_data</code></td>
                         <td>Average daily population for a month.</td>
                         <td><ul>
                             <li><code>location_id</code></li>
@@ -290,21 +292,23 @@
                         </ul></td>
                     </tr>
                     <tr>
-                        <td><code>GET /get_location_entry_week_data</code></td>
-                        <td>Daily entry data for a specific week.</td>
+                        <td><code>POST /get_location_entry_week_data</code></td>
+                        <td>Daily entry data for a specific week. <div id="secondary">Supports timezone correction via <code>tz_offset_minutes</code>.</div></td>
                         <td><ul>
                             <li><code>location_id</code></li>
                             <li><code>credentials</code></li>
                             <li><code>date</code></li>
+                            <li><code>tz_offset_minutes</code> (optional)</li>
                         </ul></td>
                     </tr>
                     <tr>
-                        <td><code>GET /get_location_average_entry_week_data</code></td>
-                        <td>Average daily entry data for a week.</td>
+                        <td><code>POST /get_location_average_entry_week_data</code></td>
+                        <td>Average daily entry data for a week. <div id="secondary">Supports timezone correction via <code>tz_offset_minutes</code>.</div></td>
                         <td><ul>
                             <li><code>location_id</code></li>
                             <li><code>credentials</code></li>
                             <li><code>date</code></li>
+                            <li><code>tz_offset_minutes</code> (optional)</li>
                         </ul></td>
                     </tr>
                     <tr>
@@ -343,6 +347,46 @@
                             <li><code>year</code></li>
                         </ul></td>
                     </tr>
+                    <!-- Detailed 15-Min Data -->
+                    <tr>
+                        <td><code>POST /get_location_day_data_detailed</code></td>
+                        <td>15-minute interval data for a specific day, with averages. <div id="secondary">Returns data in local time using <code>tz_offset_minutes</code>. Useful for detailed CSV exports. Keys are time labels like <code>"0:00"</code>, <code>"0:15"</code>, ..., <code>"23:45"</code> (96 intervals). Response includes both <code>data</code> and <code>average</code> dicts.</div></td>
+                        <td><ul>
+                            <li><code>location_id</code></li>
+                            <li><code>credentials</code></li>
+                            <li><code>date</code> (local date)</li>
+                            <li><code>tz_offset_minutes</code></li>
+                            <li><code>data_type</code> (<code>"count"</code> or <code>"entries"</code>)</li>
+                        </ul></td>
+                    </tr>
+                    <!-- Bundle Endpoints -->
+                    <tr>
+                        <td><code>POST /get_location_insights_bundle</code></td>
+                        <td>Returns all chart data (day, week, year) for both population and entries in a single response. <div id="secondary">Replaces up to 16 individual API calls. Includes averages, entry data, and optional second-day data for timezone spanning. Supports timezone-aware week data via <code>tz_offset_minutes</code>.</div></td>
+                        <td><ul>
+                            <li><code>location_id</code></li>
+                            <li><code>credentials</code></li>
+                            <li><code>date</code></li>
+                            <li><code>date2</code> (optional)</li>
+                            <li><code>week_date</code></li>
+                            <li><code>year</code></li>
+                            <li><code>tz_offset_minutes</code> (optional)</li>
+                        </ul></td>
+                    </tr>
+                    <tr>
+                        <td><code>POST /get_location_history_bundle</code></td>
+                        <td>Returns chart data (day, week, year) for a single data type in one response. <div id="secondary">Replaces up to 8 individual API calls. Use <code>data_type</code> to choose population or entries.</div></td>
+                        <td><ul>
+                            <li><code>location_id</code></li>
+                            <li><code>credentials</code></li>
+                            <li><code>date</code></li>
+                            <li><code>date2</code> (optional)</li>
+                            <li><code>week_date</code></li>
+                            <li><code>year</code></li>
+                            <li><code>data_type</code> (<code>"count"</code> or <code>"entries"</code>)</li>
+                            <li><code>tz_offset_minutes</code> (optional)</li>
+                        </ul></td>
+                    </tr>
                     <!-- CSV Export -->
                     <tr>
                         <td><code>GET /export_csv</code></td>
@@ -379,7 +423,11 @@
         <br><br>
         <div id="secondary">All parameters listed as <div id="primary">required</div> in history endpoints above. The date format is <div id="primary">yyyy-mm-dd</div>. For year-based endpoints use a 4-digit year like <div id="primary">2026</div>.</div>
         <br><br>
-        <div id="secondary">Server timezone is <div id="primary">UTC</div>. Convert to your local timezone in your application.</div>
+        <div id="secondary">Server stores data in <div id="primary">UTC</div>. For hourly day data, convert to your local timezone in your application. For <div id="primary">week endpoints</div>, you can pass <code>tz_offset_minutes</code> to get timezone-corrected daily totals directly from the server. The value is your UTC offset in minutes, positive east &mdash; e.g. <code>-420</code> for US Mountain (UTC-7), <code>60</code> for CET (UTC+1). In JavaScript: <code>new Date().getTimezoneOffset() * -1</code>.</div>
+        <br><br>
+        <div id="secondary">The <div id="primary">bundle endpoints</div> return all chart data in a single request (day, week, year, averages). Use these to minimize API calls. The <code>date2</code> parameter handles timezone day-boundary spanning for hourly data &mdash; pass the adjacent UTC date that overlaps your local day.</div>
+        <br><br>
+        <div id="secondary">The <div id="primary">detailed day data</div> endpoint returns 15-minute interval data (96 data points per day) already shifted to your local timezone. Pass your local date and <code>tz_offset_minutes</code> &mdash; the server handles the UTC conversion.</div>
         <br><br>
         <div id="secondary">The API endpoint is <a href="https://api.crowdcount.tech" id="primary">api.crowdcount.tech</a></div>
         <br>
