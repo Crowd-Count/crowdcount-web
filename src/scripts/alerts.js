@@ -4,6 +4,8 @@
 (function () {
   var API_BASE = "https://api.crowdcount.tech";
   var SEEN_KEY_PREFIX = "crowdcount_alert_seen_";
+  var isAlertVisible = false;
+  var isSecondaryPage = false;
 
   function hasSeenAlert(alertId) {
     try {
@@ -17,6 +19,33 @@
     try {
       localStorage.setItem(SEEN_KEY_PREFIX + alertId, "true");
     } catch (e) {}
+  }
+
+  function addBodyPadding() {
+    if (isSecondaryPage) {
+      document.body.style.transition = "padding-top 0.5s ease-in-out";
+      document.body.style.paddingTop = "44px";
+    }
+  }
+
+  function removeBodyPadding() {
+    if (isSecondaryPage) {
+      document.body.style.paddingTop = "";
+    }
+  }
+
+  function hideAlert(box, dismiss) {
+    if (!isAlertVisible) return;
+    isAlertVisible = false;
+    box.classList.remove("show");
+    removeBodyPadding();
+    setTimeout(function () {
+      box.classList.add("hidden");
+    }, 500);
+    if (dismiss) {
+      var alertId = box.getAttribute("data-alert-id");
+      if (alertId) markAlertSeen(alertId);
+    }
   }
 
   function ensureAlertBox() {
@@ -35,12 +64,7 @@
     document.body.insertBefore(box, document.body.firstChild);
 
     document.getElementById("alertDismiss").addEventListener("click", function () {
-      box.classList.remove("show");
-      setTimeout(function () {
-        box.classList.add("hidden");
-      }, 500);
-      var alertId = box.getAttribute("data-alert-id");
-      if (alertId) markAlertSeen(alertId);
+      hideAlert(box, true);
     });
 
     return box;
@@ -49,7 +73,7 @@
   function getAlertColors(type) {
     switch (type) {
       case "warning":
-        return { bg: "#ff3a30", color: "white" };
+        return { bg: "#ffcc00", color: "black" };
       case "celebration":
         return { bg: "#ffcc00", color: "black" };
       case "info":
@@ -81,7 +105,18 @@
     box.classList.remove("hidden");
     setTimeout(function () {
       box.classList.add("show");
+      isAlertVisible = true;
+      addBodyPadding();
     }, 10);
+
+    // Hide on scroll
+    var scrollHandler = function () {
+      if (window.scrollY > 50) {
+        hideAlert(box, false);
+        window.removeEventListener("scroll", scrollHandler);
+      }
+    };
+    window.addEventListener("scroll", scrollHandler);
   }
 
   function checkForAlert() {
@@ -119,9 +154,14 @@
   }
 
   // Run on DOM ready
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", checkForAlert);
-  } else {
+  function init() {
+    isSecondaryPage = document.body.id !== "home";
     checkForAlert();
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", init);
+  } else {
+    init();
   }
 })();
