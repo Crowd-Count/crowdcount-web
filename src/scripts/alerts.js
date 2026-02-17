@@ -9,7 +9,7 @@
 
   function hasSeenAlert(alertId) {
     try {
-      return localStorage.getItem(SEEN_KEY_PREFIX + alertId) === "true";
+      return sessionStorage.getItem(SEEN_KEY_PREFIX + alertId) === "true";
     } catch (e) {
       return false;
     }
@@ -17,7 +17,7 @@
 
   function markAlertSeen(alertId) {
     try {
-      localStorage.setItem(SEEN_KEY_PREFIX + alertId, "true");
+      sessionStorage.setItem(SEEN_KEY_PREFIX + alertId, "true");
     } catch (e) {}
   }
 
