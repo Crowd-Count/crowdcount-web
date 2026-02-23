@@ -673,6 +673,12 @@ function displayLocations(locations) {
     }).join('');
     
     container.innerHTML = html;
+
+    // Update sort footer
+    const footer = document.getElementById('location-sort-footer');
+    if (footer) {
+        footer.textContent = userLocationForList ? 'Sorted by distance' : 'Sorted alphabetically';
+    }
 }
 
 // Function to filter locations based on search input

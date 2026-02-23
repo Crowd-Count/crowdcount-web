@@ -926,6 +926,13 @@ video {
     margin-top: 20px;
 }
 
+.location-sort-footer {
+    text-align: center;
+    color: var(--gray-color);
+    font-size: 0.75rem;
+    padding: 8px 0 4px;
+}
+
 /* Updated Location List Styles */
 .location-item {
     display: flex;
