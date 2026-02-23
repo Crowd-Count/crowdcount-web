@@ -391,6 +391,12 @@ async function setInitialMapPosition(locations) {
         // Try to get user's location
         const userLocation = await getUserLocation();
         centerOnUserLocation(userLocation.latitude, userLocation.longitude);
+        // Store for sorting location list by distance
+        userLocationForList = { lat: userLocation.latitude, lon: userLocation.longitude };
+        // Re-display locations sorted by distance now that we have user location
+        if (allLocations.length > 0) {
+            displayLocations(allLocations);
+        }
         console.log('Map centered on user location');
     } catch (error) {
         // User denied location or error occurred, fit all markers
@@ -589,6 +595,7 @@ function loadPartnerLogos() {
 let allLocations = [];
 let locationsMap = new Map();
 let listVisible = true;
+let userLocationForList = null; // { lat, lon } if user granted location access
 
 // Function to populate the location list
 async function populateLocationList() {
@@ -637,8 +644,15 @@ function displayLocations(locations) {
         return;
     }
     
-    // Sort locations alphabetically by name
-    const sortedLocations = [...locations].sort((a, b) => a.location_name.localeCompare(b.location_name));
+    // Sort by distance if user location is available, otherwise alphabetically
+    const sortedLocations = [...locations].sort((a, b) => {
+        if (userLocationForList) {
+            const distA = calculateDistance(userLocationForList.lat, userLocationForList.lon, a.location_latitude, a.location_longitude);
+            const distB = calculateDistance(userLocationForList.lat, userLocationForList.lon, b.location_latitude, b.location_longitude);
+            return distA - distB;
+        }
+        return a.location_name.localeCompare(b.location_name);
+    });
 
     const html = sortedLocations.map(location => {
         const comparisonSymbol = getComparisonSymbol(location.location_comparison);
