@@ -105,6 +105,35 @@
         </div>
     </div>
 
+    <!-- Status History -->
+    <div id="center" data-aos="fade-up">
+        <div class="text-box-legal">
+            <div id="primaryTitleBold">Status History</div>
+            <br><br>
+            <div class="status-history-summary">
+                <div class="status-item">
+                    <div id="secondary">Uptime (24h)</div><br>
+                    <div id="uptime-percent">--</div>
+                </div>
+                <div class="status-item">
+                    <div id="secondary">Last Checked</div><br>
+                    <div id="last-checked">--</div>
+                </div>
+                <div class="status-item">
+                    <div id="secondary">Checks (24h)</div><br>
+                    <div id="check-count">--</div>
+                </div>
+            </div>
+            <br>
+            <div id="secondary" style="text-align: center; margin-bottom: 10px;">Recent checks</div>
+            <div id="history-bar" class="history-bar"></div>
+            <div class="history-bar-labels">
+                <span id="history-start"></span>
+                <span id="history-end"></span>
+            </div>
+        </div>
+    </div>
+
     <!-- iOS App Notice -->
     <div id="center" data-aos="fade-up">
         <div class="text-box-legal">
@@ -175,6 +204,46 @@
         .auto-refresh {
             text-align: center;
             margin: 20px 0;
+            color: var(--gray-color);
+        }
+
+        .status-history-summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 20px;
+            margin: 10px 0;
+        }
+
+        .history-bar {
+            display: flex;
+            gap: 2px;
+            align-items: flex-end;
+            height: 32px;
+            width: 100%;
+            padding: 0 4px;
+        }
+
+        .history-bar .bar-segment {
+            flex: 1;
+            min-width: 3px;
+            max-width: 8px;
+            height: 100%;
+            border-radius: 2px;
+        }
+
+        .history-bar .bar-segment.up {
+            background-color: #4CAF50;
+        }
+
+        .history-bar .bar-segment.down {
+            background-color: #f44336;
+        }
+
+        .history-bar-labels {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 4px;
+            font-size: 0.75rem;
             color: var(--gray-color);
         }
 
@@ -266,12 +335,58 @@
             }
         }
 
+        // Function to fetch and display status history
+        async function loadStatusHistory() {
+            try {
+                const response = await fetch('https://api.crowdcount.tech/status_history?hours=24');
+                const data = await response.json();
+                const checks = data.checks || [];
+
+                // Uptime percent
+                if (data.uptime_percent !== null && data.uptime_percent !== undefined) {
+                    const el = document.getElementById('uptime-percent');
+                    el.textContent = data.uptime_percent + '%';
+                    el.style.color = data.uptime_percent >= 99 ? '#4CAF50' : data.uptime_percent >= 95 ? '#FF9800' : '#f44336';
+                }
+
+                // Check count
+                document.getElementById('check-count').textContent = checks.length.toString();
+
+                // Last checked
+                if (checks.length > 0) {
+                    const last = checks[checks.length - 1];
+                    const ago = Math.floor((Date.now() - new Date(last.timestamp).getTime()) / 60000);
+                    document.getElementById('last-checked').textContent = ago < 1 ? 'Just now' : ago + 'm ago';
+                }
+
+                // Build bar visualization (last 100 checks)
+                const bar = document.getElementById('history-bar');
+                bar.innerHTML = '';
+                const visible = checks.slice(-100);
+                visible.forEach(function(check) {
+                    const seg = document.createElement('div');
+                    seg.className = 'bar-segment ' + check.status;
+                    seg.title = new Date(check.timestamp).toLocaleString() + ' — ' + check.status.toUpperCase() + ' (' + check.latency_ms + 'ms)';
+                    bar.appendChild(seg);
+                });
+
+                // Labels
+                if (visible.length > 0) {
+                    document.getElementById('history-start').textContent = new Date(visible[0].timestamp).toLocaleTimeString();
+                    document.getElementById('history-end').textContent = new Date(visible[visible.length - 1].timestamp).toLocaleTimeString();
+                }
+            } catch (error) {
+                document.getElementById('uptime-percent').textContent = 'Error';
+            }
+        }
+
         // Refresh all data
         async function refreshAllData() {
             await checkAPIHealth();
             await getTotalCount();
             await checkAlerts();
             await checkAWSStatus();
+            await loadStatusHistory();
         }
 
         // Initial load
