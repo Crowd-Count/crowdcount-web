@@ -231,8 +231,7 @@
 
         .history-bar .bar-segment {
             flex: 1;
-            min-width: 3px;
-            max-width: 8px;
+            min-width: 2px;
             height: 100%;
             border-radius: 2px;
         }
@@ -368,7 +367,7 @@
                 // Build bar visualization (last 100 checks)
                 const bar = document.getElementById('history-bar');
                 bar.innerHTML = '';
-                const visible = checks.slice(-100);
+                const visible = checks;
                 visible.forEach(function(check) {
                     const seg = document.createElement('div');
                     seg.className = 'bar-segment ' + check.status;
