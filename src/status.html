@@ -113,15 +113,15 @@
             <div class="status-history-summary">
                 <div class="status-item">
                     <div id="secondary">Uptime (24h)</div><br>
-                    <div id="uptime-percent">--</div>
+                    <div id="uptime-percent" class="status-value">--</div>
                 </div>
                 <div class="status-item">
                     <div id="secondary">Last Checked</div><br>
-                    <div id="last-checked">--</div>
+                    <div id="last-checked" class="status-value">--</div>
                 </div>
                 <div class="status-item">
                     <div id="secondary">Checks (24h)</div><br>
-                    <div id="check-count">--</div>
+                    <div id="check-count" class="status-value">--</div>
                 </div>
             </div>
             <br>
@@ -205,6 +205,12 @@
             text-align: center;
             margin: 20px 0;
             color: var(--gray-color);
+        }
+
+        .status-value {
+            font-size: 1.8rem;
+            font-weight: 600;
+            color: var(--light-color);
         }
 
         .status-history-summary {
