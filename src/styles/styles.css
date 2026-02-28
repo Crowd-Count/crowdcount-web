@@ -988,6 +988,11 @@ video {
     color: var(--gray-color);
 }
 
+.location-closed {
+    color: var(--gray-color);
+    font-weight: 500;
+}
+
 .comparison-up {
     color: #34C759;
     margin-left: 5px;

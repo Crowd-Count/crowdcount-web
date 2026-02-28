@@ -482,20 +482,24 @@ async function initMap() {
             comparison: location.location_comparison,
             color: location.location_color,
             overcrowding: location.overcrowding_limit ?? null,
+            isClosed: location.is_closed ?? false,
         };
     });
 
     // Add annotations to the map
     mapLocations.forEach((location) => {
-        const comparisonSymbol = getComparisonSymbol(location.comparison);
-
-        // Build the subtitle
-        let subtitle = `Count: ${location.currentCount}`;
-        if (location.overcrowding !== null) {
-            subtitle += ` / ${location.overcrowding}`;
-        }
-        if (comparisonSymbol) {
-            subtitle += ` ${comparisonSymbol}`;
+        let subtitle;
+        if (location.isClosed) {
+            subtitle = 'Closed';
+        } else {
+            const comparisonSymbol = getComparisonSymbol(location.comparison);
+            subtitle = `Count: ${location.currentCount}`;
+            if (location.overcrowding !== null) {
+                subtitle += ` / ${location.overcrowding}`;
+            }
+            if (comparisonSymbol) {
+                subtitle += ` ${comparisonSymbol}`;
+            }
         }
 
         // Set the marker color based on location color
@@ -659,14 +663,18 @@ function displayLocations(locations) {
         const comparisonClass = getComparisonClass(location.location_comparison);
         const overcrowding = location.overcrowding_limit ?? null;
 
+        const isClosed = location.is_closed ?? false;
+
         return `
             <div class="location-item" onclick="centerMapOnLocation(${location.location_latitude}, ${location.location_longitude})">
                 <span class="location-name">${escapeHtml(location.location_name)}</span>
                 <div class="location-stats">
+                    ${isClosed ? `<span class="location-closed">Closed</span>` : `
                     <span class="location-count-label">Count:</span>
                     <span class="location-count-number">${location.current_count}</span>
                     ${overcrowding ? `<span class="location-overcrowding"> / ${overcrowding}</span>` : ''}
                     ${comparisonSymbol ? `<span class="${comparisonClass}">${comparisonSymbol}</span>` : ''}
+                    `}
                 </div>
             </div>
         `;
