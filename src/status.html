@@ -125,7 +125,7 @@
                 </div>
             </div>
             <br>
-            <div id="secondary" style="text-align: center; margin-bottom: 10px;">Recent checks</div>
+            <div id="secondary" style="text-align: center; margin-bottom: 10px;">Recent checks (6h)</div>
             <div id="history-bar" class="history-bar"></div>
             <div class="history-bar-labels">
                 <span id="history-start"></span>
@@ -365,10 +365,13 @@
                     document.getElementById('last-checked').textContent = ago < 1 ? 'Just now' : ago + 'm ago';
                 }
 
-                // Build bar visualization (last 100 checks)
+                // Build bar visualization (last 6 hours)
                 const bar = document.getElementById('history-bar');
                 bar.innerHTML = '';
-                const visible = checks;
+                const sixHoursAgo = Date.now() - 6 * 60 * 60 * 1000;
+                const visible = checks.filter(function(check) {
+                    return new Date(check.timestamp).getTime() >= sixHoursAgo;
+                });
                 visible.forEach(function(check) {
                     const seg = document.createElement('div');
                     seg.className = 'bar-segment ' + check.status;
