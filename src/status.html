@@ -112,7 +112,7 @@
             <br><br>
             <div class="status-history-summary">
                 <div class="status-item">
-                    <div id="secondary">Uptime (24h)</div><br>
+                    <div id="secondary">Uptime (30d)</div><br>
                     <div id="uptime-percent" class="status-value">--</div>
                 </div>
                 <div class="status-item">
@@ -125,7 +125,7 @@
                 </div>
             </div>
             <br>
-            <div id="secondary" style="text-align: center; margin-bottom: 10px;">Recent checks (6h)</div>
+            <div id="secondary" style="text-align: center; margin-bottom: 10px;">Recent checks (12h)</div>
             <div id="history-bar" class="history-bar"></div>
             <div class="history-bar-labels">
                 <span id="history-start"></span>
@@ -344,7 +344,7 @@
         // Function to fetch and display status history
         async function loadStatusHistory() {
             try {
-                const response = await fetch('https://api.crowdcount.tech/status_history?hours=24');
+                const response = await fetch('https://api.crowdcount.tech/status_history?hours=720');
                 const data = await response.json();
                 const checks = data.checks || [];
 
@@ -365,12 +365,12 @@
                     document.getElementById('last-checked').textContent = ago < 1 ? 'Just now' : ago + 'm ago';
                 }
 
-                // Build bar visualization (last 6 hours)
+                // Build bar visualization (last 12 hours)
                 const bar = document.getElementById('history-bar');
                 bar.innerHTML = '';
-                const sixHoursAgo = Date.now() - 6 * 60 * 60 * 1000;
+                const twelveHoursAgo = Date.now() - 12 * 60 * 60 * 1000;
                 const visible = checks.filter(function(check) {
-                    return new Date(check.timestamp).getTime() >= sixHoursAgo;
+                    return new Date(check.timestamp).getTime() >= twelveHoursAgo;
                 });
                 visible.forEach(function(check) {
                     const seg = document.createElement('div');
