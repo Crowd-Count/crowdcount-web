@@ -665,8 +665,11 @@ function displayLocations(locations) {
 
         const isClosed = location.is_closed ?? false;
 
+        const dotColor = getMarkerColor(location.location_color || '');
+
         return `
             <div class="location-item" onclick="centerMapOnLocation(${location.location_latitude}, ${location.location_longitude})">
+                <span class="location-color-dot" style="background-color: ${dotColor};"></span>
                 <span class="location-name">${escapeHtml(location.location_name)}</span>
                 <div class="location-stats">
                     ${isClosed ? `<span class="location-closed">Closed</span>` : `
