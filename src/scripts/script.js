@@ -303,64 +303,11 @@ mapkit.init({
 });
 
 // Create a new map with dark mode (initial center will be updated based on user location or markers)
-// Hide store/business POIs so only roads, neighborhoods, and our own markers are visible
-const poiFilter = mapkit.PointOfInterestFilter.excluding([
-    mapkit.PointOfInterestCategory.Store,
-    mapkit.PointOfInterestCategory.Restaurant,
-    mapkit.PointOfInterestCategory.Cafe,
-    mapkit.PointOfInterestCategory.Bakery,
-    mapkit.PointOfInterestCategory.Nightlife,
-    mapkit.PointOfInterestCategory.FoodMarket,
-    mapkit.PointOfInterestCategory.GasStation,
-    mapkit.PointOfInterestCategory.EVCharger,
-    mapkit.PointOfInterestCategory.Pharmacy,
-    mapkit.PointOfInterestCategory.Hotel,
-    mapkit.PointOfInterestCategory.Laundry,
-    mapkit.PointOfInterestCategory.Bank,
-    mapkit.PointOfInterestCategory.ATM,
-    mapkit.PointOfInterestCategory.MovieTheater,
-    mapkit.PointOfInterestCategory.Museum,
-    mapkit.PointOfInterestCategory.Theater,
-    mapkit.PointOfInterestCategory.Gym,
-    mapkit.PointOfInterestCategory.Winery,
-    mapkit.PointOfInterestCategory.Brewery,
-    mapkit.PointOfInterestCategory.Parking,
-    mapkit.PointOfInterestCategory.CarRental,
-    mapkit.PointOfInterestCategory.AutoRepair,
-    mapkit.PointOfInterestCategory.Beauty,
-    mapkit.PointOfInterestCategory.AnimalService,
-    mapkit.PointOfInterestCategory.Playground,
-    mapkit.PointOfInterestCategory.Zoo,
-    mapkit.PointOfInterestCategory.Aquarium,
-    mapkit.PointOfInterestCategory.AmusementPark,
-    mapkit.PointOfInterestCategory.MiniGolf,
-    mapkit.PointOfInterestCategory.Bowling,
-    mapkit.PointOfInterestCategory.GoKart,
-    mapkit.PointOfInterestCategory.RockClimbing,
-    mapkit.PointOfInterestCategory.Skating,
-    mapkit.PointOfInterestCategory.Spa,
-    mapkit.PointOfInterestCategory.School,
-    mapkit.PointOfInterestCategory.University,
-    mapkit.PointOfInterestCategory.Library,
-    mapkit.PointOfInterestCategory.PostOffice,
-    mapkit.PointOfInterestCategory.Courthouse,
-    mapkit.PointOfInterestCategory.FireStation,
-    mapkit.PointOfInterestCategory.Police,
-    mapkit.PointOfInterestCategory.Hospital,
-    mapkit.PointOfInterestCategory.Marina,
-    mapkit.PointOfInterestCategory.Stadium,
-    mapkit.PointOfInterestCategory.RVPark,
-    mapkit.PointOfInterestCategory.Campground,
-    mapkit.PointOfInterestCategory.NationalPark,
-    mapkit.PointOfInterestCategory.Beach,
-    mapkit.PointOfInterestCategory.Surfing,
-    mapkit.PointOfInterestCategory.Hiking
-]);
-
+// Hide Apple's built-in POI labels; our custom CrowdCount annotations still show
 const map = new mapkit.Map("map", {
     center: new mapkit.Coordinate(39.8283, -98.5795), // Initial center on USA (will be updated)
     colorScheme: mapkit.Map.ColorSchemes.Dark, // Enable dark mode
-    pointOfInterestFilter: poiFilter
+    showsPointsOfInterest: false
 });
 
 // Track if initial position has been set
