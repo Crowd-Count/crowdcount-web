@@ -5,10 +5,10 @@
   "/products/page": "app/products/page.js",
   "/report/page": "app/report/page.js",
   "/status/page": "app/status/page.js",
-  "/legal/page": "app/legal/page.js",
-  "/about/page": "app/about/page.js",
   "/legal/privacy-policy/page": "app/legal/privacy-policy/page.js",
+  "/legal/page": "app/legal/page.js",
+  "/api/page": "app/api/page.js",
+  "/about/page": "app/about/page.js",
   "/report/info/page": "app/report/info/page.js",
-  "/legal/terms-of-use/page": "app/legal/terms-of-use/page.js",
-  "/api/page": "app/api/page.js"
+  "/legal/terms-of-use/page": "app/legal/terms-of-use/page.js"
 }

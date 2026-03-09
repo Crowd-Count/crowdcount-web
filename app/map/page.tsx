@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useCallback, useRef } from 'react';
+import { useEffect, useState, useCallback, useRef, useMemo } from 'react';
 import Script from 'next/script';
 import Link from 'next/link';
 import MenuLinks from '@/components/MenuLinks';
@@ -52,6 +52,12 @@ interface LocationData {
   overcrowding_limit: number | null;
   is_closed: boolean;
   devices?: [string, ...unknown[]][];
+}
+
+interface PopularTimeEntry {
+  day_of_week: number;
+  hour: number;
+  average_count: number;
 }
 
 interface Ad {
@@ -176,6 +182,11 @@ export default function MapPage() {
   const [userLocation, setUserLocation] = useState<{ lat: number; lon: number } | null>(null);
   const [ads, setAds] = useState<Ad[]>([]);
   const [modalAd, setModalAd] = useState<Ad | null>(null);
+  const [expandedLocationId, setExpandedLocationId] = useState<string | null>(null);
+  const [popularTimesData, setPopularTimesData] = useState<Record<string, PopularTimeEntry[]>>({});
+  const [popularTimesLoading, setPopularTimesLoading] = useState<Record<string, boolean>>({});
+  const popularTimesDataRef = useRef(popularTimesData);
+  popularTimesDataRef.current = popularTimesData;
 
   /* ---- Fetch locations ---- */
   const fetchLocations = useCallback(async (): Promise<LocationData[]> => {
@@ -206,6 +217,22 @@ export default function MapPage() {
       return adsList;
     } catch {
       return [];
+    }
+  }, []);
+
+  /* ---- Fetch popular times ---- */
+  const fetchPopularTimes = useCallback(async (locationId: string) => {
+    if (popularTimesDataRef.current[locationId]) return;
+    setPopularTimesLoading(prev => ({ ...prev, [locationId]: true }));
+    try {
+      const res = await fetch(`${API_BASE_URL}/get_popular_times?location_id=${locationId}`);
+      if (!res.ok) throw new Error('Failed');
+      const data = await res.json();
+      setPopularTimesData(prev => ({ ...prev, [locationId]: data.popular_times || [] }));
+    } catch {
+      setPopularTimesData(prev => ({ ...prev, [locationId]: [] }));
+    } finally {
+      setPopularTimesLoading(prev => ({ ...prev, [locationId]: false }));
     }
   }, []);
 
@@ -340,6 +367,16 @@ export default function MapPage() {
     document.getElementById('map-container')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
   }, []);
 
+  /* ---- Toggle location expansion ---- */
+  const handleLocationClick = useCallback((loc: LocationData) => {
+    centerMapOnLocation(loc.location_latitude, loc.location_longitude);
+    setExpandedLocationId(prev => {
+      if (prev === loc.location_id) return null;
+      fetchPopularTimes(loc.location_id);
+      return loc.location_id;
+    });
+  }, [fetchPopularTimes, centerMapOnLocation]);
+
   /* ---- Get ad location from allLocations ---- */
   const getAdLocation = useCallback((ad: Ad): { name: string; lat: number; lon: number } | null => {
     const deviceId = getAdField(ad, 'primaryDevice', 'primary_device') || getAdField(ad, 'deviceId', 'device_id');
@@ -385,7 +422,7 @@ export default function MapPage() {
       <header className="d-flex flex-column" data-aos="fade-down">
         <div className="text-center">
           <div id="MediumHomeTitle" className="d-inline-block">
-            <TypewriterText text="Map" id="CrowdCountMAP" />
+            <TypewriterText text="CrowdCount Map" id="CrowdCountMAP" />
           </div>
         </div>
         <MenuLinks />
@@ -438,31 +475,39 @@ export default function MapPage() {
                     </div>
                   ) : (
                     sortedLocations.map(loc => (
-                      <div
-                        key={loc.location_id}
-                        className="location-item"
-                        onClick={() => centerMapOnLocation(loc.location_latitude, loc.location_longitude)}
-                      >
-                        <span className="location-color-dot" style={{ backgroundColor: getMarkerColor(loc.location_color || '') }}></span>
-                        <span className="location-name">{loc.location_name}</span>
-                        <div className="location-stats">
-                          {loc.is_closed ? (
-                            <span className="location-closed">Closed</span>
-                          ) : (
-                            <>
-                              <span className="location-count-label">Count:</span>
-                              <span className="location-count-number">{loc.current_count}</span>
-                              {loc.overcrowding_limit != null && (
-                                <span className="location-overcrowding"> / {loc.overcrowding_limit}</span>
-                              )}
-                              {getComparisonSymbol(loc.location_comparison) && (
-                                <span className={getComparisonClass(loc.location_comparison)}>
-                                  {getComparisonSymbol(loc.location_comparison)}
-                                </span>
-                              )}
-                            </>
-                          )}
+                      <div key={loc.location_id} className="location-item-wrapper">
+                        <div
+                          className="location-item"
+                          onClick={() => handleLocationClick(loc)}
+                        >
+                          <span className="location-color-dot" style={{ backgroundColor: getMarkerColor(loc.location_color || '') }}></span>
+                          <span className="location-name">{loc.location_name}</span>
+                          <div className="location-stats">
+                            {loc.is_closed ? (
+                              <span className="location-closed">Closed</span>
+                            ) : (
+                              <>
+                                <span className="location-count-label">Count:</span>
+                                <span className="location-count-number">{loc.current_count}</span>
+                                {loc.overcrowding_limit != null && (
+                                  <span className="location-overcrowding"> / {loc.overcrowding_limit}</span>
+                                )}
+                                {getComparisonSymbol(loc.location_comparison) && (
+                                  <span className={getComparisonClass(loc.location_comparison)}>
+                                    {getComparisonSymbol(loc.location_comparison)}
+                                  </span>
+                                )}
+                              </>
+                            )}
+                          </div>
                         </div>
+                        {expandedLocationId === loc.location_id && (
+                          <PopularTimesPanel
+                            data={popularTimesData[loc.location_id]}
+                            loading={!!popularTimesLoading[loc.location_id]}
+                            currentCount={loc.current_count}
+                          />
+                        )}
                       </div>
                     ))
                   )}
@@ -509,6 +554,87 @@ export default function MapPage() {
         />
       )}
     </>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/*  Popular Times Panel                                                */
+/* ------------------------------------------------------------------ */
+const SKELETON_HEIGHTS = Array.from({ length: 24 }, () => 20 + Math.random() * 60);
+
+function PopularTimesPanel({ data, loading, currentCount }: {
+  data: PopularTimeEntry[] | undefined;
+  loading: boolean;
+  currentCount: number;
+}) {
+  if (loading || !data) {
+    return (
+      <div className="popular-times-panel">
+        <div className="popular-times-skeleton">
+          {SKELETON_HEIGHTS.map((h, i) => (
+            <div
+              key={i}
+              className="popular-times-skeleton-bar"
+              style={{ height: `${h}%`, animationDelay: `${i * 0.05}s` }}
+            />
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  const now = new Date();
+  const localDayOfWeek = now.getDay(); // 0 = Sunday
+  const localHour = now.getHours();
+  const offsetMinutes = -now.getTimezoneOffset();
+  const offsetHours = offsetMinutes / 60;
+
+  const todayData = data.filter(d => d.day_of_week === localDayOfWeek);
+
+  if (todayData.length === 0) {
+    return (
+      <div className="popular-times-panel">
+        <div className="popular-times-no-data">No popular times data available</div>
+      </div>
+    );
+  }
+
+  // Build 24-hour array with UTC → local conversion
+  const hourlyValues = new Array(24).fill(0);
+  todayData.forEach(entry => {
+    const localH = (entry.hour + offsetHours + 24) % 24;
+    hourlyValues[Math.floor(localH) % 24] = entry.average_count;
+  });
+
+  const maxValue = Math.max(...hourlyValues, 1);
+  const usualAtCurrentHour = hourlyValues[localHour];
+
+  const hourLabels = ['12a', '', '', '3a', '', '', '6a', '', '', '9a', '', '', '12p', '', '', '3p', '', '', '6p', '', '', '9p', '', ''];
+
+  return (
+    <div className="popular-times-panel">
+      <div className="popular-times-chart">
+        {hourlyValues.map((value, hour) => (
+          <div key={hour} className="popular-times-bar-wrapper">
+            <div
+              className={`popular-times-bar${hour === localHour ? ' current' : ''}`}
+              style={{ height: `${Math.max((value / maxValue) * 100, 2)}%` }}
+            />
+          </div>
+        ))}
+      </div>
+      <div className="popular-times-labels">
+        {hourLabels.map((label, i) => (
+          <div key={i} className="popular-times-label">{label}</div>
+        ))}
+      </div>
+      <div className="popular-times-comparison">
+        <strong>Currently: {currentCount}</strong>
+        {usualAtCurrentHour > 0 && (
+          <> &mdash; Usually: {Math.round(usualAtCurrentHour)} around this time</>
+        )}
+      </div>
+    </div>
   );
 }
 
