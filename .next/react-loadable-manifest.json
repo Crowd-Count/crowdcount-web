@@ -1,14 +1,14 @@
 {
   "components/BootstrapJs.tsx -> bootstrap/dist/js/bootstrap.bundle.min.js": {
-    "id": 1134,
+    "id": "components/BootstrapJs.tsx -> bootstrap/dist/js/bootstrap.bundle.min.js",
     "files": [
-      "static/chunks/134.ec8d83f0c011ff50.js"
+      "static/chunks/_app-pages-browser_node_modules_bootstrap_dist_js_bootstrap_bundle_min_js.js"
     ]
   },
   "components/TypewriterText.tsx -> typewriter-effect/dist/core": {
-    "id": 9886,
+    "id": "components/TypewriterText.tsx -> typewriter-effect/dist/core",
     "files": [
-      "static/chunks/886.9d11e9d15d12b0dd.js"
+      "static/chunks/_app-pages-browser_node_modules_typewriter-effect_dist_core_js.js"
     ]
   }
 }

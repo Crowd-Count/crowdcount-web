@@ -371,7 +371,7 @@ export default function ApiPage() {
         <br /><br />
         <div id="secondary">The <div id="primary">credentials</div> parameter is a JSON array of <code>{`{"device_id", "password"}`}</code> objects for all devices in the location:</div>
         <br />
-        <code style={{ background: '#1a1a1a', padding: '8px 12px', borderRadius: '4px', display: 'inline-block' }}>&quot;credentials&quot;: [{`{"device_id": "T1234", "password": "pass1"}`}, {`{"device_id": "T5678", "password": "pass2"}`}]</code>
+        <code style={{ background: '#1a1a1a', padding: '8px 12px', borderRadius: '4px', display: 'inline-block' }}>&quot;credentials&quot;: [{`{"device_id": "T1234", "password": "password"}`}, {`{"device_id": "T5678", "password": "password"}`}]</code>
         <br /><br />
         <div id="secondary">For locations with a single device, the array will have one entry.</div>
         <br /><br />

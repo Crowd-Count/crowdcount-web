@@ -6,12 +6,12 @@ import PhotoGallery from '@/components/PhotoGallery';
 import Link from 'next/link';
 
 const counterPhotos = [
-  { src: '/assets/CounterPhotos/gen-1.3-1.png', alt: 'Crowd Counter Gen 1.3 - Photo 1' },
-  { src: '/assets/CounterPhotos/gen-1.3-2.png', alt: 'Crowd Counter Gen 1.3 - Photo 2' },
-  { src: '/assets/CounterPhotos/gen-1.3-3.png', alt: 'Crowd Counter Gen 1.3 - Photo 3' },
-  { src: '/assets/CounterPhotos/gen-1.3-4.png', alt: 'Crowd Counter Gen 1.3 - Photo 4' },
-  { src: '/assets/CounterPhotos/gen-1.3-5.png', alt: 'Crowd Counter Gen 1.3 - Photo 5' },
-  { src: '/assets/CounterPhotos/gen-1.3-6.png', alt: 'Crowd Counter Gen 1.3 - Photo 6' },
+  { src: '/assets/CounterPhotos/gen-3-1.png', alt: 'Crowd Counter Gen 1.3 - Photo 1' },
+  { src: '/assets/CounterPhotos/gen-3-2.png', alt: 'Crowd Counter Gen 1.3 - Photo 2' },
+  { src: '/assets/CounterPhotos/gen-3-3.png', alt: 'Crowd Counter Gen 1.3 - Photo 3' },
+  { src: '/assets/CounterPhotos/gen-3-4.png', alt: 'Crowd Counter Gen 1.3 - Photo 4' },
+  { src: '/assets/CounterPhotos/gen-3-5.png', alt: 'Crowd Counter Gen 1.3 - Photo 5' },
+  { src: '/assets/CounterPhotos/gen-3-6.png', alt: 'Crowd Counter Gen 1.3 - Photo 6' },
 ];
 
 const appPhotos = [
