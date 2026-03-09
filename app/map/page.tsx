@@ -420,8 +420,6 @@ export default function MapPage() {
       <h3 id="center">
         <div className="text-box-legal" data-aos="fade-up" data-aos-delay="150">
           <div id="secondary">
-            <div id="primary">Location List</div>
-            <br />
             <div id="location-list-content">
               <input
                 type="text"
