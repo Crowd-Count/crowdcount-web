@@ -239,18 +239,15 @@ code {
     display: inline;
 }
 
-a, a:link, a:visited, a:hover, a:active {
+a, a:link, a:visited {
+    color: var(--gray-color) !important; /* Override Bootstrap blue */
     text-decoration: none !important; /* Override Bootstrap underline */
-}
-
-a {
-    color: var(--gray-color); /* Link color */
     transition: color 0.3s ease;
 }
 
-/* Hover state */
-a:hover {
-    color: var(--light-color);
+a:hover, a:active {
+    color: var(--light-color) !important;
+    text-decoration: none !important;
 }
 
 .scaled-image-hand {
