@@ -40,11 +40,10 @@ export default function PeopleCounter() {
 
     scaleCounterFont(counter, targetCount);
 
-    const startCount = currentCount;
     const interval = setInterval(() => {
       frame++;
       const progress = frame / totalFrames;
-      currentCount = Math.round(startCount + (targetCount - startCount) * progress);
+      currentCount = Math.round(currentCount + (targetCount - currentCount) * progress);
       counter.textContent = formatNumberWithCommas(currentCount);
       currentCountRef.current = currentCount;
 

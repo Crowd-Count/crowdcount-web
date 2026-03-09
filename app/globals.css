@@ -20,7 +20,7 @@ body {
     font-weight: 400;
     height: 100%;
     margin: 0;
-    color: var(--light-color); /* Ensure text is white */
+    color: var(--light-color) !important; /* Override Bootstrap dark text */
     /* cursor: url('Cursor/Cursor32.png'),auto; */
 
     /* transform: scale(var(--scale));
@@ -162,12 +162,17 @@ main {
 }
 
 .table {
-    background-color: rgba(255, 255, 255, 0.05);
-    color: var(--light-color);
+    background-color: rgba(255, 255, 255, 0.05) !important;
+    color: var(--light-color) !important;
     border-radius: 40px;
     display: block;
     overflow-x: auto;
     font-size: 1.25rem;
+    --bs-table-bg: transparent !important;
+    --bs-table-color: var(--light-color) !important;
+    --bs-table-border-color: rgba(255, 255, 255, 0.0) !important;
+    --bs-table-striped-bg: transparent !important;
+    --bs-table-hover-bg: rgba(255, 255, 255, 0.1) !important;
 }
 
 .table-wrapper {
@@ -177,12 +182,18 @@ main {
 
 .table th,
 .table td {
-    padding: 15px;
-    border: 1px solid rgba(255, 255, 255, 0.0);
+    padding: 15px !important;
+    border: 1px solid rgba(255, 255, 255, 0.0) !important;
+    background-color: transparent !important;
+    color: var(--light-color) !important;
 }
 
 .table thead {
-    background-color: rgba(255, 255, 255, 0.1);
+    background-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+.table thead th {
+    background-color: rgba(255, 255, 255, 0.1) !important;
 }
 
 /* Round the top-left and top-right header cells */
@@ -211,14 +222,18 @@ main {
 
 .table tbody tr:hover {
     transition: background-color 0.2s ease;
-    background-color: rgba(255, 255, 255, 0.1);
+    background-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+.table tbody tr:hover td {
+    background-color: rgba(255, 255, 255, 0.1) !important;
 }
 
 code {
-    background-color: var(--code-bg-color); /* Background color for code */
-    color: var(--code-text-color); /* Text color for code */
+    background-color: var(--code-bg-color) !important;
+    color: var(--code-text-color) !important;
     padding: 2px 4px;
-    border-radius: 4px; /* Optional: add rounded corners */
+    border-radius: 4px;
 }
 
 /* TypewriterJS cursor customization */
@@ -248,18 +263,21 @@ a {
     transition: color 0.3s ease;
 }
 
-/* Default link color when not inside a colored parent */
-#secondary a, #secondarySmall a {
-    color: var(--gray-color);
-}
-
-#primary a {
-    color: var(--light-color);
-}
-
-/* Hover state */
 a:hover {
-    color: var(--light-color);
+    color: var(--light-color) !important;
+}
+
+/* Bottom footer links stay dark gray, lighter on hover */
+#bottom-note a, #bottom-color {
+    color: var(--dark-gray-color) !important;
+}
+#bottom-note a:hover, #bottom-color:hover {
+    color: var(--gray-color) !important;
+}
+
+/* Button text always white */
+#big-red-button, #big-red-button a {
+    color: var(--light-color) !important;
 }
 
 .scaled-image-hand {
@@ -396,13 +414,7 @@ a:hover {
     padding-bottom: 10px;
 }
 
-#bottom-color {
-    color: var(--dark-gray-color);
-}
-
-#bottom-color:hover {
-    color: var(--gray-color);
-}
+/* bottom-color rules consolidated above */
 
 .ripple-effect {
     position: absolute;
