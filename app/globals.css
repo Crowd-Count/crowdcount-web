@@ -239,15 +239,27 @@ code {
     display: inline;
 }
 
-a, a:link, a:visited {
-    color: var(--gray-color) !important; /* Override Bootstrap blue */
+a, a:link, a:visited, a:hover, a:active {
     text-decoration: none !important; /* Override Bootstrap underline */
+}
+
+a {
+    color: inherit; /* Inherit from parent (#primary = white, #secondary = gray) */
     transition: color 0.3s ease;
 }
 
-a:hover, a:active {
-    color: var(--light-color) !important;
-    text-decoration: none !important;
+/* Default link color when not inside a colored parent */
+#secondary a, #secondarySmall a {
+    color: var(--gray-color);
+}
+
+#primary a {
+    color: var(--light-color);
+}
+
+/* Hover state */
+a:hover {
+    color: var(--light-color);
 }
 
 .scaled-image-hand {
