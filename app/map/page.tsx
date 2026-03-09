@@ -420,30 +420,16 @@ export default function MapPage() {
       <h3 id="center">
         <div className="text-box-legal" data-aos="fade-up" data-aos-delay="150">
           <div id="secondary">
-            <div style={{ display: 'flex', alignItems: 'center', position: 'relative' }}>
-              <div style={{ flex: 1 }}></div>
-              <div id="primary" style={{ flex: '0 0 auto' }}>Location List</div>
-              <div style={{ flex: 1, textAlign: 'right' }}>
-                <span
-                  onClick={() => setListVisible(!listVisible)}
-                  style={{ cursor: 'pointer', color: 'var(--gray-color)', transition: 'color 0.3s ease' }}
-                  onMouseOver={(e) => (e.currentTarget.style.color = 'var(--light-color)')}
-                  onMouseOut={(e) => (e.currentTarget.style.color = 'var(--gray-color)')}
-                >
-                  {listVisible ? 'Hide' : 'Show'}
-                </span>
-              </div>
-            </div>
+            <div id="primary">Location List</div>
             <br />
-            {listVisible && (
-              <div id="location-list-content">
-                <input
-                  type="text"
-                  id="location-search"
-                  placeholder="Search locations..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                />
+            <div id="location-list-content">
+              <input
+                type="text"
+                id="location-search"
+                placeholder="Search locations..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
                 <div className="location-list" id="locations-container">
                   {locations.length === 0 ? (
                     <div style={{ textAlign: 'center', color: 'var(--gray-color)' }}>Loading locations...</div>
@@ -483,11 +469,10 @@ export default function MapPage() {
                     ))
                   )}
                 </div>
-                <div className="location-sort-footer">
-                  {userLocation ? 'Sorted by distance' : 'Sorted alphabetically'}
-                </div>
+              <div className="location-sort-footer">
+                {userLocation ? 'Sorted by distance' : 'Sorted alphabetically'}
               </div>
-            )}
+            </div>
           </div>
         </div>
       </h3>

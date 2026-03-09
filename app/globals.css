@@ -54,24 +54,24 @@ header {
     padding-right: 10%;
 }
 
-#primary {
-    color: var(--light-color);
+#primary, a#primary {
+    color: var(--light-color) !important;
     display: inline;
 }
 
 #primaryBold {
-    color: var(--light-color);
+    color: var(--light-color) !important;
     display: inline;
     font-weight: bold;
 }
 
 #primaryRed {
-    color: var(--accent-color);
+    color: var(--accent-color) !important;
     display: inline;
 }
 
 #secondary {
-    color: var(--gray-color);
+    color: var(--gray-color) !important;
     display: inline;
 }
 
