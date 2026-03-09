@@ -259,7 +259,7 @@ a, a:link, a:visited, a:hover, a:active {
 }
 
 a {
-    color: inherit; /* Inherit from parent (#primary = white, #secondary = gray) */
+    color: inherit !important; /* Override Bootstrap blue, inherit from parent */
     transition: color 0.3s ease;
 }
 
