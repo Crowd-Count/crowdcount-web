@@ -174,42 +174,10 @@ async function trackAdClick(adId: string) {
   } catch { /* silent */ }
 }
 
-/* ---- Location icon SVG path mapping (SF Symbol → web) ---- */
-function getLocationIconPath(iconName?: string): string {
-  if (!iconName) return '';
-  const b = iconName.toLowerCase().replace(/\.fill$/, '').replace(/\.circle$/, '');
-  if (b.includes('flag')) return 'M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1zM4 22V15';
-  if (b.includes('tree') || b.includes('leaf')) return 'M12 3L5 13h4v8h6v-8h4z';
-  if (b.includes('fish')) return 'M6.5 12c3-5 11-5 14 0-3 5-11 5-14 0zM3 12l2-1.5M3 12l2 1.5';
-  if (b.includes('mug') || b.includes('cup')) return 'M17 8h1a4 4 0 0 1 0 8h-1M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V8z';
-  if (b.includes('building')) return 'M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18M10 6h4M10 10h4M10 14h4M10 18h4';
-  if (b.includes('house') || b.includes('home')) return 'M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2zM9 22V12h6v10';
-  if (b.includes('person') || b.includes('figure')) return 'M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2M12 3a4 4 0 1 0 0 8 4 4 0 0 0 0-8z';
-  if (b.includes('cart')) return 'M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6';
-  if (b.includes('fork') || b.includes('knife')) return 'M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2M7 2v20M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3v7';
-  if (b.includes('heart')) return 'M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z';
-  if (b.includes('star')) return 'M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z';
-  if (b.includes('music')) return 'M9 18V5l12-2v13M6 21a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM18 19a3 3 0 1 0 0-6 3 3 0 0 0 0 6z';
-  if (b.includes('book')) return 'M4 19.5A2.5 2.5 0 0 1 6.5 17H20M4 4.5A2.5 2.5 0 0 1 6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15z';
-  if (b.includes('bag')) return 'M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4zM3 6h18M16 10a4 4 0 0 1-8 0';
-  if (b.includes('car')) return 'M7 17a2 2 0 1 0 0-4 2 2 0 0 0 0 4zM17 17a2 2 0 1 0 0-4 2 2 0 0 0 0 4zM5 9l2-4h10l2 4M3 9h18v6H3z';
-  if (b.includes('graduationcap')) return 'M22 10L12 5 2 10l10 5zM6 12v5c3 3 9 3 12 0v-5';
-  if (b.includes('sportscourt') || b.includes('dumbbell')) return 'M6.5 6.5v8M17.5 6.5v8M6.5 10.5h11M4 6.5h2.5M4 14.5h2.5M17.5 6.5H20M17.5 14.5H20';
-  return '';
-}
-
-function LocationIcon({ iconName, color, size = 36 }: { iconName?: string; color: string; size?: number }) {
-  const s = size * 0.5;
-  const path = getLocationIconPath(iconName);
-  const isFilled = iconName?.includes('.fill') ?? false;
-  const defaultPin = 'M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0zM15 10a3 3 0 1 1-6 0 3 3 0 0 1 6 0z';
-
+/* ---- Location icon (colored circle — SF Symbol mapping deferred) ---- */
+function LocationIcon({ color, size = 36 }: { color: string; size?: number }) {
   return (
-    <div className="location-icon-circle" style={{ backgroundColor: color, width: size, height: size, minWidth: size }}>
-      <svg width={s} height={s} viewBox="0 0 24 24" fill={isFilled && path ? 'white' : 'none'} stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <path d={path || defaultPin} />
-      </svg>
-    </div>
+    <div className="location-icon-circle" style={{ backgroundColor: color, width: size, height: size, minWidth: size }} />
   );
 }
 
@@ -306,10 +274,11 @@ function extractDominantColor(imageUrl: string): Promise<string> {
 /* ------------------------------------------------------------------ */
 /*  Map Control Buttons (right-edge floating stack)                     */
 /* ------------------------------------------------------------------ */
-function MapControls({ onRefresh, onCenterUser, onToggleList }: {
+function MapControls({ onRefresh, onCenterUser, onToggleList, onToggleFilter }: {
   onRefresh: () => void;
   onCenterUser: () => void;
   onToggleList: () => void;
+  onToggleFilter: () => void;
 }) {
   return (
     <div className="map-controls">
@@ -331,7 +300,7 @@ function MapControls({ onRefresh, onCenterUser, onToggleList }: {
           <path d="M21 21l-4.35-4.35" />
         </svg>
       </button>
-      <button className="map-control-btn" aria-label="Filter" title="Filter">
+      <button className="map-control-btn" onClick={onToggleFilter} aria-label="Filter" title="Filter">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
           <path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01" />
         </svg>
@@ -364,6 +333,9 @@ export default function MapPage() {
   const [popularTimesLoading, setPopularTimesLoading] = useState<Record<string, boolean>>({});
   const popularTimesDataRef = useRef(popularTimesData);
   popularTimesDataRef.current = popularTimesData;
+  const [isMobile, setIsMobile] = useState(false);
+  const [filterOpen, setFilterOpen] = useState(false);
+  const [activeColorFilters, setActiveColorFilters] = useState<Set<string>>(new Set());
 
   // Derive selected location from live locations state (updates every 30s)
   const selectedLocation = selectedLocationId
@@ -521,8 +493,8 @@ export default function MapPage() {
             title: loc.location_name,
             subtitle,
             color: getMarkerColor(loc.location_color),
-            displayPriority: 750,
-            collisionMode: mapkit.Annotation.CollisionMode.Circle,
+            displayPriority: 1000,
+            collisionMode: mapkit.Annotation.CollisionMode.None,
           }
         );
         annotation.data = { locationId: loc.location_id };
@@ -573,6 +545,19 @@ export default function MapPage() {
     return () => clearInterval(interval);
   }, [fetchLocations]);
 
+  /* ---- Detect mobile + hide list by default on mobile ---- */
+  useEffect(() => {
+    const check = () => {
+      const mobile = window.innerWidth <= 768;
+      setIsMobile(mobile);
+    };
+    check();
+    // Hide list on mobile on initial load
+    if (window.innerWidth <= 768) setListVisible(false);
+    window.addEventListener('resize', check);
+    return () => window.removeEventListener('resize', check);
+  }, []);
+
   /* ---- Refresh: re-fetch locations + update map annotations ---- */
   const handleRefresh = useCallback(async () => {
     const locs = await fetchLocations();
@@ -596,8 +581,8 @@ export default function MapPage() {
             title: loc.location_name,
             subtitle,
             color: getMarkerColor(loc.location_color),
-            displayPriority: 750,
-            collisionMode: mapkit.Annotation.CollisionMode.Circle,
+            displayPriority: 1000,
+            collisionMode: mapkit.Annotation.CollisionMode.None,
           }
         );
         annotation.data = { locationId: loc.location_id };
@@ -690,10 +675,22 @@ export default function MapPage() {
     }
   }, []);
 
+  /* ---- Toggle color filter ---- */
+  const toggleColorFilter = useCallback((color: string) => {
+    setActiveColorFilters(prev => {
+      const next = new Set(prev);
+      if (next.has(color)) next.delete(color);
+      else next.add(color);
+      return next;
+    });
+  }, []);
+
+  const uniqueColors = [...new Set(locations.map(l => l.location_color).filter(Boolean))];
+
   /* ---- Filter & sort locations ---- */
-  const filteredLocations = searchTerm
-    ? locations.filter(l => l.location_name.toLowerCase().includes(searchTerm.toLowerCase()))
-    : locations;
+  const filteredLocations = locations
+    .filter(l => !searchTerm || l.location_name.toLowerCase().includes(searchTerm.toLowerCase()))
+    .filter(l => activeColorFilters.size === 0 || activeColorFilters.has(l.location_color));
 
   const sortedLocations = [...filteredLocations].sort((a, b) => {
     if (userLocation) {
@@ -801,8 +798,36 @@ export default function MapPage() {
         <MapControls
           onRefresh={handleRefresh}
           onCenterUser={handleCenterUser}
-          onToggleList={() => setListVisible(v => !v)}
+          onToggleList={() => { setListVisible(v => !v); setFilterOpen(false); }}
+          onToggleFilter={() => { setFilterOpen(v => !v); }}
         />
+
+        {/* Filter panel */}
+        {filterOpen && (
+          <div className="map-filter-panel">
+            <div className="map-filter-header">
+              <span className="map-filter-title">Filter by Category</span>
+              <button className="map-filter-close" onClick={() => setFilterOpen(false)}>&times;</button>
+            </div>
+            <div className="map-filter-options">
+              {uniqueColors.map(color => (
+                <button
+                  key={color}
+                  className={`map-filter-chip${activeColorFilters.size === 0 || activeColorFilters.has(color) ? ' active' : ''}`}
+                  onClick={() => toggleColorFilter(color)}
+                >
+                  <span className="location-color-dot" style={{ backgroundColor: getMarkerColor(color) }} />
+                  {color.charAt(0).toUpperCase() + color.slice(1)}
+                </button>
+              ))}
+            </div>
+            {activeColorFilters.size > 0 && (
+              <button className="map-filter-clear" onClick={() => setActiveColorFilters(new Set())}>
+                Show All
+              </button>
+            )}
+          </div>
+        )}
 
         {/* Detail card — overlays bottom of map */}
         {selectedLocation && (
@@ -815,8 +840,8 @@ export default function MapPage() {
           />
         )}
 
-        {/* Promotions — mutually exclusive with detail card (matches iOS) */}
-        {ads.length > 0 && !selectedLocation && (
+        {/* Promotions — hidden on mobile when list is open */}
+        {ads.length > 0 && !(isMobile && listVisible) && (
           <PromosPanel ads={ads} onCardClick={handleAdCtaClick} />
         )}
       </div>
@@ -850,7 +875,7 @@ function LocationDetailCard({ location, popularTimesData, popularTimesLoading, o
       {/* Header: icon + name + close */}
       <div className="location-detail-header">
         <div className="location-detail-title-row">
-          <LocationIcon iconName={location.location_icon} color={pinColor} />
+          <LocationIcon color={pinColor} />
           <span className="location-detail-name">{location.location_name}</span>
         </div>
         <button className="location-detail-close" onClick={onClose} aria-label="Close">

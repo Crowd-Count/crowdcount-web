@@ -719,6 +719,107 @@ body:has(.map-page) > .alert {
     flex-shrink: 0;
 }
 
+/* --- Filter panel (floating, next to controls) --- */
+.map-filter-panel {
+    position: absolute;
+    right: 68px;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 30;
+    background: rgba(20, 20, 20, 0.92);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-radius: 14px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    padding: 14px;
+    width: 200px;
+    animation: detail-card-slide-up 0.2s ease-out;
+}
+
+.map-filter-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+}
+
+.map-filter-title {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.map-filter-close {
+    background: none;
+    border: none;
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 1.1rem;
+    cursor: pointer;
+    padding: 0 !important;
+    margin: 0 !important;
+    line-height: 1;
+}
+
+.map-filter-options {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.map-filter-chip {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 10px;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.04);
+    border: none;
+    color: rgba(255, 255, 255, 0.4);
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: background-color 0.15s ease, color 0.15s ease;
+    text-align: left;
+}
+
+.map-filter-chip.active {
+    background: rgba(255, 255, 255, 0.1);
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.map-filter-chip:hover {
+    background: rgba(255, 255, 255, 0.12);
+}
+
+.map-filter-chip .location-color-dot {
+    width: 10px;
+    height: 10px;
+    flex-shrink: 0;
+}
+
+.map-filter-clear {
+    width: 100%;
+    margin-top: 8px;
+    padding: 6px 10px;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.08);
+    border: none;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 0.75rem;
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+}
+
+.map-filter-clear:hover {
+    background: rgba(255, 255, 255, 0.15);
+}
+
+@media (max-width: 768px) {
+    .map-filter-panel {
+        right: 56px;
+        width: 180px;
+    }
+}
+
 /* --- Promotions floating panel (bottom-right carousel) --- */
 .map-promos-panel {
     position: absolute;
@@ -820,11 +921,15 @@ body:has(.map-page) > .alert {
     }
 
     .map-sidebar.collapsed {
-        max-height: 52px;
+        max-height: 0;
+        padding: 0;
+        border: none;
+        pointer-events: none;
+        opacity: 0;
     }
 
     .map-sidebar-toggle {
-        transform: rotate(90deg);
+        display: none;
     }
 
     .map-body .location-detail-card {
@@ -837,10 +942,25 @@ body:has(.map-page) > .alert {
     }
 
     .map-promos-panel {
-        top: 12px;
-        bottom: auto;
+        bottom: 12px;
+        top: auto;
+        left: 12px;
         right: 12px;
-        width: 280px;
+        width: auto;
+        background: rgba(20, 20, 20, 0.7);
+    }
+
+    .map-promos-scroll .promo-card {
+        min-width: 260px;
+    }
+
+    .map-controls {
+        right: 8px;
+    }
+
+    .map-control-btn {
+        width: 40px;
+        height: 40px;
     }
 }
 
@@ -2392,14 +2512,5 @@ video {
     .location-detail-directions {
         padding: 8px 14px !important;
         font-size: 0.8rem;
-    }
-
-    .map-controls {
-        right: 8px;
-    }
-
-    .map-control-btn {
-        width: 40px;
-        height: 40px;
     }
 }
