@@ -12,66 +12,73 @@ interface PhotoGalleryProps {
 
 export default function PhotoGallery({ images, galleryId, imageClassName, speed = 60, phoneFrame }: PhotoGalleryProps) {
   const trackRef = useRef<HTMLDivElement>(null);
-  const animRef = useRef<number>(0);
-  const hovering = useRef(false);
-  const currentSpeed = useRef(0);
+  const stateRef = useRef({ hovering: false, velocity: 0 });
   const resumeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // 3x for seamless loop
   const tripled = [...images, ...images, ...images];
 
   useEffect(() => {
     const track = trackRef.current;
     if (!track) return;
 
-    // Need a frame to let layout settle before reading scrollWidth
-    requestAnimationFrame(() => {
-      const oneSet = track.scrollWidth / 3;
-      track.scrollLeft = oneSet;
-    });
+    let raf = 0;
+    let started = false;
+    const state = stateRef.current;
+    state.velocity = 0;
 
-    let prev = 0;
-    currentSpeed.current = 0;
+    // Ramp rate: px/s per second (reaches full speed in ~1.5s)
+    const rampUp = speed / 1.5;
+    const rampDown = speed / 1.0;
 
     const tick = (time: number) => {
-      if (prev) {
-        const dt = Math.min(time - prev, 50); // cap to avoid jumps on tab-switch
+      // Initialize scroll position on first frame after layout
+      if (!started) {
+        started = true;
+        const oneSet = track.scrollWidth / 3;
+        if (oneSet > 0) track.scrollLeft = oneSet;
+        raf = requestAnimationFrame(tick);
+        return;
+      }
 
-        // Smooth ease toward target (~1.5s to reach full speed or stop)
-        const target = hovering.current ? 0 : speed;
-        const factor = 1 - Math.pow(0.03, dt / 1000);
-        currentSpeed.current += (target - currentSpeed.current) * factor;
+      const dt = 1 / 60; // fixed timestep for consistency
 
-        // Avoid sub-pixel drift when nearly stopped
-        if (Math.abs(currentSpeed.current) > 0.5) {
-          track.scrollLeft += (currentSpeed.current * dt) / 1000;
-        }
+      // Linear ramp toward target
+      const target = state.hovering ? 0 : speed;
+      if (state.velocity < target) {
+        state.velocity = Math.min(state.velocity + rampUp * dt, target);
+      } else if (state.velocity > target) {
+        state.velocity = Math.max(state.velocity - rampDown * dt, target);
+      }
 
-        // Seamless loop reset
-        const setWidth = track.scrollWidth / 3;
+      if (state.velocity > 0.1) {
+        track.scrollLeft += state.velocity * dt;
+      }
+
+      // Seamless loop
+      const setWidth = track.scrollWidth / 3;
+      if (setWidth > 0) {
         if (track.scrollLeft >= setWidth * 2) {
           track.scrollLeft -= setWidth;
         } else if (track.scrollLeft <= 0) {
           track.scrollLeft += setWidth;
         }
       }
-      prev = time;
-      animRef.current = requestAnimationFrame(tick);
+
+      raf = requestAnimationFrame(tick);
     };
 
-    animRef.current = requestAnimationFrame(tick);
-
-    return () => cancelAnimationFrame(animRef.current);
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
   }, [speed]);
 
   const handleEnter = () => {
     if (resumeTimer.current) clearTimeout(resumeTimer.current);
-    hovering.current = true;
+    stateRef.current.hovering = true;
   };
 
   const handleLeave = () => {
     resumeTimer.current = setTimeout(() => {
-      hovering.current = false;
+      stateRef.current.hovering = false;
     }, 1000);
   };
 
