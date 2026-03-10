@@ -11,24 +11,29 @@ function formatNumberWithCommas(num: number): string {
 const DIGIT_SLOTS = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0];
 const SLOT_PERCENT = 100 / DIGIT_SLOTS.length; // ~9.09% per slot
 
-function OdometerDigit({ digit, fast }: { digit: number; fast: boolean }) {
-  const prevDigitRef = useRef(digit);
-  const columnRef = useRef<HTMLSpanElement>(null);
-  const [position, setPosition] = useState(digit);
-  const [animate, setAnimate] = useState(true);
+function OdometerDigit({ digit, firstLoad }: { digit: number; firstLoad: boolean }) {
+  const prevDigitRef = useRef(0);
+  const [position, setPosition] = useState(0); // always mount at 0
+  const [animate, setAnimate] = useState(false); // no transition on mount
 
   useEffect(() => {
     const prev = prevDigitRef.current;
     prevDigitRef.current = digit;
 
-    if (prev > digit) {
-      // Wrap case (e.g. 9→0): roll forward to slot 10 (the duplicate 0)
-      setAnimate(true);
-      setPosition(10);
-    } else {
-      setAnimate(true);
-      setPosition(digit);
-    }
+    // Use double rAF to ensure the browser paints position 0 first,
+    // then we animate to the target digit
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        if (prev > digit && prev !== 0) {
+          // Wrap case (e.g. 9→0): roll forward to slot 10 (the duplicate 0)
+          setAnimate(true);
+          setPosition(10);
+        } else {
+          setAnimate(true);
+          setPosition(digit);
+        }
+      });
+    });
   }, [digit]);
 
   // After wrapping to slot 10, silently snap back to slot 0
@@ -42,12 +47,11 @@ function OdometerDigit({ digit, fast }: { digit: number; fast: boolean }) {
   return (
     <span className="odometer-digit-wrapper">
       <span
-        ref={columnRef}
         className="odometer-digit-column"
         onTransitionEnd={handleTransitionEnd}
         style={{
           transform: `translateY(-${position * SLOT_PERCENT}%)`,
-          transitionDuration: animate ? (fast ? '0.4s' : '0.8s') : '0s',
+          transitionDuration: animate ? (firstLoad ? '1.2s' : '0.8s') : '0s',
         }}
       >
         {DIGIT_SLOTS.map((n, i) => (
@@ -97,7 +101,7 @@ export default function PeopleCounter() {
         setDisplayCount(target);
         if (isFirstLoadRef.current) {
           isFirstLoadRef.current = false;
-          setTimeout(() => setIsFirstLoad(false), 500);
+          setTimeout(() => setIsFirstLoad(false), 1500);
         }
         timeoutRef.current = setTimeout(updateCounter, 5000);
       })
@@ -135,7 +139,7 @@ export default function PeopleCounter() {
         char === ',' ? (
           <span key={`c-${i}`} className="odometer-comma">,</span>
         ) : (
-          <OdometerDigit key={`d-${i}`} digit={parseInt(char, 10)} fast={isFirstLoad} />
+          <OdometerDigit key={`d-${i}`} digit={parseInt(char, 10)} firstLoad={isFirstLoad} />
         )
       )}
     </div>
