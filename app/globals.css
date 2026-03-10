@@ -1284,30 +1284,28 @@ button:focus {
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
 }
 
-/* Phone frame wrapper — override default img styles inside */
-#photo-gallery .phone-frame-wrapper img {
-    margin: 0;
-    border: none;
-    border-radius: 0;
-    box-shadow: none;
-    width: auto;
-}
-
 /* ===== Phone Frame Overlay ===== */
 .phone-frame-wrapper {
     position: relative;
     display: inline-block;
     flex-shrink: 0;
     width: 250px;
-    height: auto;
     margin: 6.5px;
 }
 
+/* Reset default gallery img styles inside frame wrapper */
+.phone-frame-wrapper img {
+    margin: 0 !important;
+    border: none !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    width: 100% !important;
+    height: auto !important;
+}
+
 .phone-frame-wrapper .phone-frame-screenshot {
-    width: 100%;
-    height: auto;
     display: block;
-    border-radius: 38px;
+    border-radius: 38px !important;
     clip-path: inset(0 round 38px);
 }
 
@@ -1315,8 +1313,8 @@ button:focus {
     position: absolute;
     top: 0;
     left: 0;
-    width: 100%;
-    height: 100%;
+    width: 100% !important;
+    height: 100% !important;
     pointer-events: none;
     object-fit: fill;
 }
@@ -1387,17 +1385,16 @@ button:focus {
     background: radial-gradient(
         circle 120px at var(--card-mx, 50%) var(--card-my, 50%),
         var(--card-glow),
-        rgba(255, 255, 255, 0.05) 100%
+        transparent 100%
     );
     border: none;
     border-radius: 16px;
     padding: 18px 14px;
-    transition: 0.3s ease;
     cursor: default;
 }
 
 .feature-card.card-glow-active {
-    --card-glow: rgba(253, 64, 64, 0.12);
+    --card-glow: rgba(253, 64, 64, 0.15);
 }
 
 .feature-card-title {

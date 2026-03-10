@@ -10,11 +10,11 @@ interface PhotoGalleryProps {
   phoneFrame?: boolean;
 }
 
-export default function PhotoGallery({ images, galleryId, imageClassName, speed = 50, phoneFrame }: PhotoGalleryProps) {
+export default function PhotoGallery({ images, galleryId, imageClassName, speed = 60, phoneFrame }: PhotoGalleryProps) {
   const trackRef = useRef<HTMLDivElement>(null);
   const animRef = useRef<number>(0);
   const hovering = useRef(false);
-  const currentSpeed = useRef(speed);
+  const currentSpeed = useRef(0);
   const resumeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // 3x for seamless loop
@@ -24,28 +24,33 @@ export default function PhotoGallery({ images, galleryId, imageClassName, speed 
     const track = trackRef.current;
     if (!track) return;
 
-    // Start at the first copy
-    const oneSet = track.scrollWidth / 3;
-    track.scrollLeft = oneSet;
+    // Need a frame to let layout settle before reading scrollWidth
+    requestAnimationFrame(() => {
+      const oneSet = track.scrollWidth / 3;
+      track.scrollLeft = oneSet;
+    });
 
     let prev = 0;
+    currentSpeed.current = speed;
 
     const tick = (time: number) => {
       if (prev) {
-        const dt = time - prev;
+        const dt = Math.min(time - prev, 50); // cap to avoid jumps on tab-switch
 
-        // Ease current speed toward target
+        // Ease toward target
         const target = hovering.current ? 0 : speed;
-        currentSpeed.current += (target - currentSpeed.current) * 0.05;
+        currentSpeed.current += (target - currentSpeed.current) * 0.15;
 
-        const px = (currentSpeed.current * dt) / 1000;
-        track.scrollLeft += px;
+        // Avoid sub-pixel drift when nearly stopped
+        if (Math.abs(currentSpeed.current) > 0.5) {
+          track.scrollLeft += (currentSpeed.current * dt) / 1000;
+        }
 
-        // Seamless loop
+        // Seamless loop reset
         const setWidth = track.scrollWidth / 3;
         if (track.scrollLeft >= setWidth * 2) {
           track.scrollLeft -= setWidth;
-        } else if (track.scrollLeft < setWidth * 0.5) {
+        } else if (track.scrollLeft <= 0) {
           track.scrollLeft += setWidth;
         }
       }
@@ -64,7 +69,6 @@ export default function PhotoGallery({ images, galleryId, imageClassName, speed 
   };
 
   const handleLeave = () => {
-    // Wait 1s then ease back (the ease happens in the rAF loop)
     resumeTimer.current = setTimeout(() => {
       hovering.current = false;
     }, 1000);
