@@ -2,39 +2,68 @@
 
 import { useEffect } from 'react';
 
-const SELECTORS = [
+const SELECTOR = [
   '.text-box a',
   '.text-box-legal a:not(#big-red-button)',
   '#center a:not(#big-red-button)',
 ].join(', ');
 
+const RANGE = 80;
+
+function distToRect(x: number, y: number, rect: DOMRect): number {
+  const dx = Math.max(rect.left - x, 0, x - rect.right);
+  const dy = Math.max(rect.top - y, 0, y - rect.bottom);
+  return Math.sqrt(dx * dx + dy * dy);
+}
+
 export default function LinkHoverEffect() {
   useEffect(() => {
-    let activeEl: HTMLElement | null = null;
+    const activeEls = new Set<HTMLElement>();
+    let links: HTMLElement[] = [];
+    let linksStale = true;
+
+    const observer = new MutationObserver(() => { linksStale = true; });
+    observer.observe(document.body, { childList: true, subtree: true });
+
+    const refreshLinks = () => {
+      links = Array.from(document.querySelectorAll<HTMLElement>(SELECTOR));
+      linksStale = false;
+    };
 
     const handleMove = (e: MouseEvent) => {
-      const target = (e.target as HTMLElement).closest?.(SELECTORS) as HTMLElement | null;
+      if (linksStale) refreshLinks();
 
-      if (target) {
-        const rect = target.getBoundingClientRect();
-        target.style.setProperty('--mx', `${e.clientX - rect.left}px`);
-        target.style.setProperty('--my', `${e.clientY - rect.top}px`);
-        if (target !== activeEl) {
-          activeEl?.classList.remove('link-hover-active');
-          target.classList.add('link-hover-active');
-          activeEl = target;
+      const stillActive = new Set<HTMLElement>();
+
+      for (const link of links) {
+        const rect = link.getBoundingClientRect();
+        const dist = distToRect(e.clientX, e.clientY, rect);
+
+        if (dist <= RANGE) {
+          link.style.setProperty('--mx', `${e.clientX - rect.left}px`);
+          link.style.setProperty('--my', `${e.clientY - rect.top}px`);
+          if (!activeEls.has(link)) {
+            link.classList.add('link-hover-active');
+            activeEls.add(link);
+          }
+          stillActive.add(link);
         }
-      } else if (activeEl) {
-        activeEl.classList.remove('link-hover-active');
-        activeEl = null;
+      }
+
+      // Deactivate links that moved out of range
+      for (const el of activeEls) {
+        if (!stillActive.has(el)) {
+          el.classList.remove('link-hover-active');
+          activeEls.delete(el);
+        }
       }
     };
 
     const handleLeave = () => {
-      if (activeEl) {
-        activeEl.classList.remove('link-hover-active');
-        activeEl = null;
+      for (const el of activeEls) {
+        el.classList.remove('link-hover-active');
       }
+      activeEls.clear();
     };
 
     document.addEventListener('mousemove', handleMove, { passive: true });
@@ -43,7 +72,10 @@ export default function LinkHoverEffect() {
     return () => {
       document.removeEventListener('mousemove', handleMove);
       document.removeEventListener('mouseleave', handleLeave);
-      activeEl?.classList.remove('link-hover-active');
+      observer.disconnect();
+      for (const el of activeEls) {
+        el.classList.remove('link-hover-active');
+      }
     };
   }, []);
 
