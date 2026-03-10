@@ -491,6 +491,12 @@ body:has(.map-page) > .alert {
     width: auto;
 }
 
+.map-topbar-right {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
 .map-topbar-links {
     display: flex;
     gap: 4px;
@@ -507,6 +513,67 @@ body:has(.map-page) > .alert {
 
 .map-topbar-links a:hover {
     background: rgba(255, 255, 255, 0.1);
+    color: var(--light-color);
+}
+
+.map-topbar-hamburger {
+    display: none;
+    background: none;
+    border: none;
+    width: 28px;
+    height: 28px;
+    cursor: pointer;
+    padding: 0 !important;
+    margin: 0 !important;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 4px;
+}
+
+.map-topbar-hamburger span {
+    display: block;
+    width: 18px;
+    height: 2px;
+    background: rgba(255, 255, 255, 0.7);
+    border-radius: 1px;
+}
+
+.map-mobile-menu {
+    position: absolute;
+    top: 48px;
+    left: 0;
+    right: 0;
+    z-index: 99;
+    background: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    display: flex;
+    flex-direction: column;
+    padding: 8px 16px;
+    animation: mobile-menu-slide 0.2s ease-out;
+}
+
+@keyframes mobile-menu-slide {
+    from { opacity: 0; transform: translateY(-8px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.map-mobile-menu a {
+    color: rgba(255, 255, 255, 0.8);
+    text-decoration: none;
+    font-size: 0.9rem;
+    padding: 12px 8px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    transition: color 0.2s ease;
+}
+
+.map-mobile-menu a:last-child {
+    border-bottom: none;
+}
+
+.map-mobile-menu a:hover {
     color: var(--light-color);
 }
 
@@ -598,6 +665,27 @@ body:has(.map-page) > .alert {
 
 .map-sidebar.collapsed .map-sidebar-search {
     display: none;
+}
+
+.map-sidebar-close-mobile {
+    display: none;
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.08);
+    border: none;
+    color: rgba(255, 255, 255, 0.6);
+    cursor: pointer;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    padding: 0 !important;
+    margin: 0 !important;
+    transition: background-color 0.2s ease;
+}
+
+.map-sidebar-close-mobile:hover {
+    background: rgba(255, 255, 255, 0.15);
 }
 
 .map-sidebar-toggle {
@@ -980,8 +1068,16 @@ body:has(.map-page) > .alert {
 
 /* --- Mobile: sidebar becomes bottom sheet, panels stack --- */
 @media (max-width: 768px) {
-    .map-topbar-links a {
+    .map-topbar-links {
         display: none;
+    }
+
+    .map-topbar-hamburger {
+        display: flex;
+    }
+
+    .map-sidebar-close-mobile {
+        display: flex;
     }
 
     .map-sidebar {

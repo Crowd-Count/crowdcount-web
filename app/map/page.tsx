@@ -288,12 +288,13 @@ function extractDominantColor(imageUrl: string): Promise<string> {
 /* ------------------------------------------------------------------ */
 /*  Map Control Buttons (right-edge floating stack)                     */
 /* ------------------------------------------------------------------ */
-function MapControls({ onRefresh, onCenterUser, onToggleList, onToggleFilter, className }: {
+function MapControls({ onRefresh, onCenterUser, onToggleList, onToggleFilter, className, isTrackingUser }: {
   onRefresh: () => void;
   onCenterUser: () => void;
   onToggleList: () => void;
   onToggleFilter: () => void;
   className?: string;
+  isTrackingUser?: boolean;
 }) {
   return (
     <div className={`map-controls${className ? ' ' + className : ''}`}>
@@ -304,9 +305,15 @@ function MapControls({ onRefresh, onCenterUser, onToggleList, onToggleFilter, cl
         </svg>
       </button>
       <button className="map-control-btn" onClick={onCenterUser} aria-label="My Location" title="My Location">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" stroke="none">
-          <path d="M12 2L4.5 20.29l.71.71L12 18l6.79 3 .71-.71z" />
-        </svg>
+        {isTrackingUser ? (
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" stroke="none">
+            <path d="M12 2L4.5 20.29l.71.71L12 18l6.79 3 .71-.71z" />
+          </svg>
+        ) : (
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M12 2L4.5 20.29l.71.71L12 18l6.79 3 .71-.71z" />
+          </svg>
+        )}
       </button>
       <button className="map-control-btn" onClick={onToggleList} aria-label="Search" title="Search">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -354,6 +361,12 @@ export default function MapPage() {
   const userAnnotationRef = useRef<any>(null);
   const [detailCardClosing, setDetailCardClosing] = useState(false);
   const closingLocationRef = useRef<LocationData | null>(null);
+  const closeTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const detailCardClosingRef = useRef(false);
+  detailCardClosingRef.current = detailCardClosing;
+  const [isTrackingUser, setIsTrackingUser] = useState(false);
+  const programmaticMoveRef = useRef(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   // Derive selected location from live locations state (updates every 30s)
   const selectedLocation = selectedLocationId
@@ -517,9 +530,22 @@ export default function MapPage() {
         if (loc) handleLocationClickRef.current(loc, true);
       });
 
-      // Handle deselect → dismiss detail card
+      // Handle deselect → dismiss detail card (delay to let select fire first when switching pins)
       map.addEventListener('deselect', () => {
-        handleCloseDetailCardRef.current();
+        setTimeout(() => {
+          if (!mapRef.current?.selectedAnnotation && !detailCardClosingRef.current) {
+            handleCloseDetailCardRef.current();
+          }
+        }, 50);
+      });
+
+      // Track user-initiated map moves to toggle compass state
+      map.addEventListener('region-change-end', () => {
+        if (programmaticMoveRef.current) {
+          programmaticMoveRef.current = false;
+          return;
+        }
+        setIsTrackingUser(false);
       });
 
       // Try user location for map center + sorting
@@ -527,6 +553,7 @@ export default function MapPage() {
       try {
         userLoc = await getUserLocation();
         setUserLocation(userLoc);
+        programmaticMoveRef.current = true;
         map.setRegionAnimated(new mapkit.CoordinateRegion(
           new mapkit.Coordinate(userLoc.lat, userLoc.lon),
           new mapkit.CoordinateSpan(0.05, 0.05)
@@ -556,6 +583,13 @@ export default function MapPage() {
     })();
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  /* ---- If MapKit JS is already loaded (SPA navigation), init immediately ---- */
+  useEffect(() => {
+    if (typeof window !== 'undefined' && typeof mapkit !== 'undefined' && !mapInitializedRef.current) {
+      onMapkitLoad();
+    }
+  }, [onMapkitLoad]);
 
   /* ---- Auto-refresh locations every 30s ---- */
   useEffect(() => {
@@ -609,6 +643,8 @@ export default function MapPage() {
       const loc = await getUserLocation();
       setUserLocation(loc);
       if (mapRef.current) {
+        programmaticMoveRef.current = true;
+        setIsTrackingUser(true);
         mapRef.current.setRegionAnimated(new mapkit.CoordinateRegion(
           new mapkit.Coordinate(loc.lat, loc.lon),
           new mapkit.CoordinateSpan(0.005, 0.005)
@@ -648,6 +684,7 @@ export default function MapPage() {
     const currentSpan = 0.005;
     const lngOffset = currentSpan * offsetFraction * (mapWidth / viewableWidth);
 
+    programmaticMoveRef.current = true;
     map.setRegionAnimated(new mapkit.CoordinateRegion(
       new mapkit.Coordinate(lat, lon - lngOffset),
       new mapkit.CoordinateSpan(currentSpan, currentSpan)
@@ -656,6 +693,14 @@ export default function MapPage() {
 
   /* ---- Select location → show detail card + select map pin ---- */
   const handleLocationClick = useCallback((loc: LocationData, fromMap?: boolean) => {
+    // Cancel any pending close animation (e.g. when switching between pins)
+    if (closeTimeoutRef.current) {
+      clearTimeout(closeTimeoutRef.current);
+      closeTimeoutRef.current = null;
+      setDetailCardClosing(false);
+      closingLocationRef.current = null;
+    }
+    setIsTrackingUser(false);
     centerMapOnLocation(loc.location_latitude, loc.location_longitude);
     setSelectedLocationId(loc.location_id);
     fetchPopularTimes(loc.location_id);
@@ -684,10 +729,11 @@ export default function MapPage() {
       mapRef.current.selectedAnnotation = null;
     }
     // After animation completes, remove the card
-    setTimeout(() => {
+    closeTimeoutRef.current = setTimeout(() => {
       setSelectedLocationId(null);
       setDetailCardClosing(false);
       closingLocationRef.current = null;
+      closeTimeoutRef.current = null;
     }, 250);
   }, [selectedLocation]);
 
@@ -764,22 +810,39 @@ export default function MapPage() {
           <img src="/assets/Logos/TransparentLogoCropped.png" alt="" width={28} height={28} className="map-topbar-logo" />
           CrowdCount
         </Link>
-        <div className="map-topbar-links">
-          {NAV_LINKS.filter(l => l.href !== '/map').map(link =>
-            link.external ? (
-              <a key={link.href} href={link.href} target="_blank" rel="noopener noreferrer">{link.label}</a>
-            ) : (
-              <Link key={link.href} href={link.href}>{link.label}</Link>
-            )
-          )}
+        <div className="map-topbar-right">
+          <div className="map-topbar-links">
+            {NAV_LINKS.filter(l => l.href !== '/map').map(link =>
+              link.external ? (
+                <a key={link.href} href={link.href} target="_blank" rel="noopener noreferrer">{link.label}</a>
+              ) : (
+                <Link key={link.href} href={link.href}>{link.label}</Link>
+              )
+            )}
+          </div>
           <button className="map-topbar-info" onClick={() => setInfoOpen(true)} aria-label="Map Information" title="Map Information">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <circle cx="12" cy="12" r="10" />
               <path d="M12 16v-4M12 8h.01" />
             </svg>
           </button>
+          <button className="map-topbar-hamburger" onClick={() => setMobileMenuOpen(v => !v)} aria-label="Menu">
+            <span /><span /><span />
+          </button>
         </div>
       </nav>
+      {/* Mobile dropdown menu */}
+      {mobileMenuOpen && (
+        <div className="map-mobile-menu">
+          {NAV_LINKS.filter(l => l.href !== '/map').map(link =>
+            link.external ? (
+              <a key={link.href} href={link.href} target="_blank" rel="noopener noreferrer" onClick={() => setMobileMenuOpen(false)}>{link.label}</a>
+            ) : (
+              <Link key={link.href} href={link.href} onClick={() => setMobileMenuOpen(false)}>{link.label}</Link>
+            )
+          )}
+        </div>
+      )}
 
       {/* Full-screen map area */}
       <div className="map-body">
@@ -795,6 +858,15 @@ export default function MapPage() {
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
+            <button
+              className="map-sidebar-close-mobile"
+              onClick={() => setListVisible(false)}
+              aria-label="Close list"
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M18 6L6 18M6 6l12 12" />
+              </svg>
+            </button>
             <button
               className="map-sidebar-toggle"
               onClick={() => setListVisible(v => !v)}
@@ -856,6 +928,7 @@ export default function MapPage() {
           onToggleList={() => { setListVisible(v => !v); setFilterOpen(false); }}
           onToggleFilter={() => { setFilterOpen(v => !v); }}
           className={isMobile && listVisible ? 'shifted-up' : ''}
+          isTrackingUser={isTrackingUser}
         />
 
         {/* Filter panel */}
@@ -1203,8 +1276,12 @@ function PromoModal({ ad, adLocation, onClose }: {
   adLocation: { name: string; lat: number; lon: number } | null;
   onClose: () => void;
 }) {
+  const [isVisible, setIsVisible] = useState(false);
+
   useEffect(() => {
     document.body.style.overflow = 'hidden';
+    // Trigger entrance animation on next frame
+    requestAnimationFrame(() => requestAnimationFrame(() => setIsVisible(true)));
     const handleKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
     document.addEventListener('keydown', handleKey);
     return () => {
@@ -1225,7 +1302,7 @@ function PromoModal({ ad, adLocation, onClose }: {
   };
 
   return (
-    <div className="promo-modal-overlay visible" onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}>
+    <div className={`promo-modal-overlay${isVisible ? ' visible' : ''}`} onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}>
       <div className="promo-modal" onClick={(e) => e.stopPropagation()}>
         <button className="promo-modal-close" onClick={onClose}>&times;</button>
         <div className="promo-modal-content">
