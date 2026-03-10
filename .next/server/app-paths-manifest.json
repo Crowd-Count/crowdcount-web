@@ -1,15 +1,15 @@
 {
   "/_not-found/page": "app/_not-found/page.js",
   "/page": "app/page.js",
-  "/api/page": "app/api/page.js",
   "/legal/page": "app/legal/page.js",
-  "/legal/privacy-policy/page": "app/legal/privacy-policy/page.js",
   "/legal/terms-of-use/page": "app/legal/terms-of-use/page.js",
   "/about/page": "app/about/page.js",
-  "/products/page": "app/products/page.js",
-  "/status/page": "app/status/page.js",
+  "/legal/privacy-policy/page": "app/legal/privacy-policy/page.js",
+  "/api/page": "app/api/page.js",
   "/report/page": "app/report/page.js",
   "/map/page": "app/map/page.js",
+  "/products/page": "app/products/page.js",
+  "/icon.png/route": "app/icon.png/route.js",
   "/report/info/page": "app/report/info/page.js",
-  "/icon.png/route": "app/icon.png/route.js"
+  "/status/page": "app/status/page.js"
 }

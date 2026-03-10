@@ -3024,6 +3024,7 @@ video {
 @media (hover: hover) {
     #menu li a {
         transition: background-color 0.3s ease, transform 0.25s ease, box-shadow 0.3s ease;
+        margin: 0 4px;
     }
 
     #menu li a:hover {
@@ -3056,7 +3057,7 @@ video {
     height: 1em;
     overflow: hidden;
     line-height: 1;
-    vertical-align: baseline;
+    vertical-align: text-bottom;
 }
 
 .odometer-digit-column {
