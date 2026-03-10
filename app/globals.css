@@ -435,6 +435,13 @@ a:hover {
    FULL-SCREEN MAP PAGE LAYOUT
    ============================================ */
 
+/* Hide global nav/footer/alert on full-screen map page */
+body:has(.map-page) #sticky-nav,
+body:has(.map-page) #bottom-note,
+body:has(.map-page) > .alert {
+    display: none !important;
+}
+
 .map-page {
     display: flex;
     flex-direction: column;
@@ -458,6 +465,9 @@ a:hover {
 }
 
 .map-topbar-brand {
+    display: flex;
+    align-items: center;
+    gap: 8px;
     color: var(--light-color);
     font-weight: 700;
     font-size: 1.1rem;
@@ -468,6 +478,10 @@ a:hover {
 .map-topbar-brand:hover {
     color: var(--light-color);
     opacity: 0.8;
+}
+
+.map-topbar-logo {
+    border-radius: 6px;
 }
 
 .map-topbar-links {
@@ -616,9 +630,7 @@ a:hover {
 }
 
 .map-sidebar-item.selected {
-    background: rgba(255, 255, 255, 0.12);
-    border-left: 3px solid var(--accent-color);
-    padding-left: 9px;
+    background: rgba(255, 255, 255, 0.14);
 }
 
 .map-sidebar-item-name {
@@ -657,21 +669,39 @@ a:hover {
     flex-shrink: 0;
 }
 
-.map-sidebar-promos {
-    border-top: 1px solid rgba(255, 255, 255, 0.08);
-    padding: 12px;
-    flex-shrink: 0;
+/* --- Promotions floating panel (bottom-right) --- */
+.map-promos-panel {
+    position: absolute;
+    bottom: 12px;
+    right: 12px;
+    width: 320px;
+    max-height: 280px;
+    background: rgba(20, 20, 20, 0.88);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-radius: 16px;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    z-index: 15;
+    padding: 14px;
+    display: flex;
+    flex-direction: column;
 }
 
-.map-sidebar-promos-title {
+.map-promos-title {
     font-size: 0.7rem;
     text-transform: uppercase;
     letter-spacing: 1px;
     color: var(--gray-color);
     margin-bottom: 10px;
+    flex-shrink: 0;
 }
 
-.map-sidebar-promos .promo-card {
+.map-promos-scroll {
+    overflow-y: auto;
+    flex: 1;
+}
+
+.map-promos-scroll .promo-card {
     margin-bottom: 8px;
 }
 
@@ -686,7 +716,7 @@ a:hover {
     border: 1px solid rgba(255, 255, 255, 0.06);
 }
 
-/* --- Mobile: sidebar becomes bottom sheet, detail card full-width --- */
+/* --- Mobile: sidebar becomes bottom sheet, panels stack --- */
 @media (max-width: 768px) {
     .map-topbar-links {
         gap: 2px;
@@ -723,6 +753,14 @@ a:hover {
         max-width: none;
         border-radius: 20px 20px 0 0;
         border-bottom: none;
+    }
+
+    .map-promos-panel {
+        top: 12px;
+        bottom: auto;
+        right: 12px;
+        width: 260px;
+        max-height: 200px;
     }
 }
 
@@ -2196,14 +2234,15 @@ video {
 }
 
 .location-detail-count {
-    font-size: 1.5rem;
+    font-size: 2.2rem;
     font-weight: 700;
     color: var(--light-color);
+    line-height: 1;
 }
 
 .location-detail-overcrowding {
     color: var(--gray-color);
-    font-size: 1rem;
+    font-size: 1.3rem;
 }
 
 .location-detail-card .popular-times-panel {
@@ -2243,7 +2282,7 @@ video {
     }
 
     .location-detail-count {
-        font-size: 1.3rem;
+        font-size: 1.8rem;
     }
 
     .location-detail-directions {

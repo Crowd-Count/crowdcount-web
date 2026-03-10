@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback, useRef } from 'react';
 import Script from 'next/script';
 import Link from 'next/link';
+import Image from 'next/image';
 import { API_BASE_URL, MAPKIT_TOKEN, NAV_LINKS } from '@/lib/constants';
 
 /* ------------------------------------------------------------------ */
@@ -26,9 +27,11 @@ declare global {
       constructor(elementId: string, options?: any);
       addAnnotation(annotation: any): void;
       removeAnnotations(annotations: any[]): void;
+      selectAnnotation(annotation: any): void;
       setRegionAnimated(region: CoordinateRegion, animate?: boolean): void;
       addEventListener(type: string, handler: (e: any) => void): void;
       annotations: any[];
+      selectedAnnotation: any;
       static readonly ColorSchemes: { Dark: string; Light: string };
     }
     class MarkerAnnotation {
@@ -336,6 +339,11 @@ export default function MapPage() {
 
       // Handle annotation select → show detail card
       map.addEventListener('select', (e: any) => {
+        // Skip if this select was triggered programmatically from list click
+        if (selectingFromListRef.current) {
+          selectingFromListRef.current = false;
+          return;
+        }
         const annotation = e.annotation;
         if (!annotation?.data?.locationId) return;
         const loc = locMap.get(annotation.data.locationId);
@@ -387,11 +395,24 @@ export default function MapPage() {
     ));
   }, []);
 
-  /* ---- Select location → show detail card ---- */
+  /* ---- Select location → show detail card + select map pin ---- */
+  const selectingFromListRef = useRef(false);
+
   const handleLocationClick = useCallback((loc: LocationData) => {
     centerMapOnLocation(loc.location_latitude, loc.location_longitude);
     setSelectedLocationId(loc.location_id);
     fetchPopularTimes(loc.location_id);
+
+    // Programmatically select the annotation on the map
+    if (mapRef.current) {
+      const annotation = mapRef.current.annotations.find(
+        (a: any) => a.data?.locationId === loc.location_id
+      );
+      if (annotation && mapRef.current.selectedAnnotation !== annotation) {
+        selectingFromListRef.current = true;
+        mapRef.current.selectAnnotation(annotation);
+      }
+    }
   }, [fetchPopularTimes, centerMapOnLocation]);
 
   const handleLocationClickRef = useRef(handleLocationClick);
@@ -449,7 +470,10 @@ export default function MapPage() {
 
       {/* Top nav bar */}
       <nav className="map-topbar">
-        <Link href="/" className="map-topbar-brand">CrowdCount</Link>
+        <Link href="/" className="map-topbar-brand">
+          <Image src="/assets/Logos/CrowdCount-Rounded-Logo.png" alt="CrowdCount" width={28} height={28} className="map-topbar-logo" />
+          CrowdCount
+        </Link>
         <div className="map-topbar-links">
           {NAV_LINKS.filter(l => l.href !== '/map').map(link =>
             link.external ? (
@@ -525,16 +549,6 @@ export default function MapPage() {
               <div className="map-sidebar-sort-label">
                 {userLocation ? 'Sorted by distance' : 'Sorted alphabetically'}
               </div>
-
-              {/* Promos at bottom of sidebar */}
-              {ads.length > 0 && (
-                <div className="map-sidebar-promos">
-                  <div className="map-sidebar-promos-title">Promotions</div>
-                  {ads.map((ad, i) => (
-                    <PromoCard key={ad.id || i} ad={ad} index={i} onClick={() => handleAdCtaClick(ad)} />
-                  ))}
-                </div>
-              )}
             </div>
           )}
         </div>
@@ -548,6 +562,18 @@ export default function MapPage() {
             popularTimesLoading={!!popularTimesLoading[selectedLocation.location_id]}
             onClose={handleCloseDetailCard}
           />
+        )}
+
+        {/* Promotions — separate floating panel bottom-right */}
+        {ads.length > 0 && (
+          <div className="map-promos-panel">
+            <div className="map-promos-title">Promotions</div>
+            <div className="map-promos-scroll">
+              {ads.map((ad, i) => (
+                <PromoCard key={ad.id || i} ad={ad} index={i} onClick={() => handleAdCtaClick(ad)} />
+              ))}
+            </div>
+          </div>
         )}
       </div>
 

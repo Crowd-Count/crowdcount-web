@@ -1,6 +1,6 @@
 export const API_BASE_URL = 'https://api.crowdcount.tech';
 
-export const MAPKIT_TOKEN = 'eyJraWQiOiI3MjJWVVE3WUM1IiwidHlwIjoiSldUIiwiYWxnIjoiRVMyNTYifQ.eyJpc3MiOiI0NVQ1NlFCMlBZIiwiaWF0IjoxNzIxMzk5MzkzLCJvcmlnaW4iOiJjcm93ZGNvdW50LnRlY2gifQ.ObhQXdcjpuahFJ1ypktveapc5tRbVH6arp7I8sqwU_PKkyIN5jY-DvuLu2c-uo3eL4XnyBvFYazE7xmkkBsjbg';
+export const MAPKIT_TOKEN = 'eyJraWQiOiIyNkdDWk5EMkM5IiwidHlwIjoiSldUIiwiYWxnIjoiRVMyNTYifQ.eyJpc3MiOiI0NVQ1NlFCMlBZIiwiaWF0IjoxNzczMTAyODg3LCJvcmlnaW4iOiJ3ZWItc3RhZ2luZy5jcm93ZGNvdW50LnRlY2gifQ.TM0pP8ywLZOrQeLA1cZ_DdFoRz5EDDt3rFIlFn0OF6UOM5ayE75hQFO9iXJfDpDw6zLpA_Flmj-3bGyc-xTgiw';
 
 export const NAV_LINKS = [
   { href: '/', label: 'Home' },

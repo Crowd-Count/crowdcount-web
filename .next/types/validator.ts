@@ -149,3 +149,39 @@ type LayoutConfig<Route extends LayoutRoutes = LayoutRoutes> = {
   // @ts-ignore
   type __Unused = __Check
 }
+
+// Validate ../../app/map/layout.tsx
+{
+  type __IsExpected<Specific extends LayoutConfig<"/map">> = Specific
+  const handler = {} as typeof import("../../app/map/layout.js")
+  type __Check = __IsExpected<typeof handler>
+  // @ts-ignore
+  type __Unused = __Check
+}
+
+// Validate ../../app/products/layout.tsx
+{
+  type __IsExpected<Specific extends LayoutConfig<"/products">> = Specific
+  const handler = {} as typeof import("../../app/products/layout.js")
+  type __Check = __IsExpected<typeof handler>
+  // @ts-ignore
+  type __Unused = __Check
+}
+
+// Validate ../../app/report/layout.tsx
+{
+  type __IsExpected<Specific extends LayoutConfig<"/report">> = Specific
+  const handler = {} as typeof import("../../app/report/layout.js")
+  type __Check = __IsExpected<typeof handler>
+  // @ts-ignore
+  type __Unused = __Check
+}
+
+// Validate ../../app/status/layout.tsx
+{
+  type __IsExpected<Specific extends LayoutConfig<"/status">> = Specific
+  const handler = {} as typeof import("../../app/status/layout.js")
+  type __Check = __IsExpected<typeof handler>
+  // @ts-ignore
+  type __Unused = __Check
+}
