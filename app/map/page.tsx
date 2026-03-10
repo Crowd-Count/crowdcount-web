@@ -190,8 +190,11 @@ async function trackAdClick(adId: string) {
 
 /* ---- Location icon (colored circle — SF Symbol mapping deferred) ---- */
 function LocationIcon({ color, size = 36 }: { color: string; size?: number }) {
+  const iconSize = Math.round(size * 0.5);
   return (
-    <div className="location-icon-circle" style={{ backgroundColor: color, width: size, height: size, minWidth: size }} />
+    <div className="location-icon-circle" style={{ backgroundColor: color, width: size, height: size, minWidth: size }}>
+      <svg width={iconSize} height={iconSize} viewBox="0 0 24 24" fill="white"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5S10.62 6.5 12 6.5s2.5 1.12 2.5 2.5S13.38 11.5 12 11.5z" /></svg>
+    </div>
   );
 }
 
@@ -813,7 +816,7 @@ export default function MapPage() {
         <Link href="/" className="map-topbar-brand">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/assets/Logos/TransparentLogoCropped.png" alt="" width={28} height={28} className="map-topbar-logo" />
-          CrowdCount
+          CrowdCount Map
         </Link>
         <div className="map-topbar-right">
           <div className="map-topbar-links">
@@ -852,7 +855,6 @@ export default function MapPage() {
       {/* Full-screen map area */}
       <div className="map-body">
         <div id="map"></div>
-        <div className="map-title">CrowdCount Map</div>
 
         {/* Left sidebar */}
         <div className={`map-sidebar${listVisible ? '' : ' collapsed'}`}>
@@ -1283,7 +1285,7 @@ function PromosPanel({ ads, onCardClick }: { ads: Ad[]; onCardClick: (ad: Ad) =>
             disabled={activeIndex === 0}
             aria-label="Previous promotion"
           >
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z" /></svg>
+            <svg width="12" height="12" viewBox="0 0 24 24"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z" fill="white" /></svg>
           </button>
           <div className="map-promos-dots">
             {ads.map((_, i) => (
@@ -1300,7 +1302,7 @@ function PromosPanel({ ads, onCardClick }: { ads: Ad[]; onCardClick: (ad: Ad) =>
             disabled={activeIndex === ads.length - 1}
             aria-label="Next promotion"
           >
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M8.59 16.59L10 18l6-6-6-6-1.41 1.41L13.17 12z" /></svg>
+            <svg width="12" height="12" viewBox="0 0 24 24"><path d="M8.59 16.59L10 18l6-6-6-6-1.41 1.41L13.17 12z" fill="white" /></svg>
           </button>
         </div>
       )}

@@ -609,18 +609,6 @@ body:has(.map-page) > .alert {
     height: 100%;
 }
 
-.map-title {
-    position: absolute;
-    top: 20px;
-    left: 384px;
-    font-size: 18px;
-    font-weight: 700;
-    color: white;
-    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
-    pointer-events: none;
-    z-index: 5;
-}
-
 /* --- Left sidebar --- */
 .map-sidebar {
     position: absolute;
@@ -1186,11 +1174,6 @@ body:has(.map-page) > .alert {
         height: 40px;
     }
 
-    .map-title {
-        left: 16px;
-        top: 16px;
-        font-size: 16px;
-    }
 }
 
 
