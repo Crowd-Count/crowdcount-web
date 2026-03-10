@@ -81,7 +81,7 @@ export default function ProductsPage() {
               <table className="specs-table">
                 <tbody>
                   <tr><td className="specs-label">Accuracy</td><td className="specs-value"><span className="specs-highlight">Up to 99%</span></td></tr>
-                  <tr><td className="specs-label">Processing</td><td className="specs-value">Cloud (In-House NVIDIA GPU)</td></tr>
+                  <tr><td className="specs-label">Processing</td><td className="specs-value">Cloud (In-House NVIDIA Server)</td></tr>
                   <tr><td className="specs-label">Connectivity</td><td className="specs-value">Wi-Fi & Bluetooth</td></tr>
                   <tr><td className="specs-label">Setup Time</td><td className="specs-value"><span className="specs-highlight">~5 minutes</span></td></tr>
                   <tr><td className="specs-label">Entrances</td><td className="specs-value">Unlimited (1 per door)</td></tr>
@@ -95,7 +95,7 @@ export default function ProductsPage() {
             Check out our <div id="primary">beautiful design!</div>
             <div data-aos="fade-up">
               <div className="text-box-legal gallery-container" id="counter-gallery">
-                <PhotoGallery images={counterPhotos} speed={120} />
+                <PhotoGallery images={counterPhotos} />
               </div>
             </div>
             <br />While we are not yet shipping, <div id="primary">we are currently doing free installs in the Boulder/Denver area!</div> Send us an email at <a href="mailto:info@crowdcount.tech">info@crowdcount.tech</a> to learn more about it and potentially receive your own.
@@ -129,7 +129,7 @@ export default function ProductsPage() {
             <br />
             <div data-aos="fade-up">
               <div className="text-box-legal gallery-container" id="app-gallery">
-                <PhotoGallery images={appPhotos} galleryId="photo-gallery" speed={120} phoneFrame />
+                <PhotoGallery images={appPhotos} galleryId="photo-gallery" phoneFrame />
               </div>
             </div>
             Now available on the App Store!

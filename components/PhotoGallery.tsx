@@ -6,14 +6,15 @@ interface PhotoGalleryProps {
   images: { src: string; alt: string }[];
   galleryId?: string;
   imageClassName?: string;
-  speed?: number;
+  speed?: number; // px per second
   phoneFrame?: boolean;
 }
 
-export default function PhotoGallery({ images, galleryId, imageClassName, speed = 60, phoneFrame }: PhotoGalleryProps) {
+export default function PhotoGallery({ images, galleryId, imageClassName, speed = 50, phoneFrame }: PhotoGalleryProps) {
   const trackRef = useRef<HTMLDivElement>(null);
-  const mouseInside = useRef(false);
-  const mouseLeft = useRef(0); // timestamp when mouse last left
+  const velocityRef = useRef(0);
+  const targetRef = useRef(speed);
+  const resumeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const tripled = [...images, ...images, ...images];
 
@@ -22,47 +23,38 @@ export default function PhotoGallery({ images, galleryId, imageClassName, speed 
     if (!track) return;
 
     let raf = 0;
-    let started = false;
-    let velocity = 0;
+    let lastTime = 0;
+    let initialized = false;
+    velocityRef.current = 0;
+    targetRef.current = speed;
 
-    const RAMP_SECONDS = 2.0; // time to go from 0 to full speed
-    const rampRate = speed / RAMP_SECONDS;
-
-    const onEnter = () => { mouseInside.current = true; };
-    const onLeave = () => {
-      mouseInside.current = false;
-      mouseLeft.current = performance.now();
-    };
-
-    track.addEventListener('mouseenter', onEnter);
-    track.addEventListener('mouseleave', onLeave);
-
-    const tick = () => {
-      if (!started) {
-        started = true;
+    const tick = (now: number) => {
+      // First frame: set scroll position, record time
+      if (!initialized) {
+        initialized = true;
         const oneSet = track.scrollWidth / 3;
         if (oneSet > 0) track.scrollLeft = oneSet;
+        lastTime = now;
         raf = requestAnimationFrame(tick);
         return;
       }
 
-      const dt = 1 / 60;
+      const dt = (now - lastTime) / 1000;
+      lastTime = now;
 
-      // Determine target: 0 if hovering, also 0 during 1s pause after leaving
-      const pauseRemaining = mouseLeft.current ? performance.now() - mouseLeft.current : Infinity;
-      const shouldStop = mouseInside.current || (!mouseInside.current && pauseRemaining < 1000);
-      const target = shouldStop ? 0 : speed;
-
-      // Ramp velocity toward target
-      if (velocity < target) {
-        velocity = Math.min(velocity + rampRate * dt, target);
-      } else if (velocity > target) {
-        velocity = Math.max(velocity - rampRate * dt, target);
+      // Skip large gaps (tab switch etc)
+      if (dt > 0.1) {
+        raf = requestAnimationFrame(tick);
+        return;
       }
 
-      // Move
-      if (velocity > 0.1) {
-        track.scrollLeft += velocity * dt;
+      // Lerp velocity toward target (smooth over ~0.8s)
+      const lerp = 1 - Math.pow(0.1, dt);
+      velocityRef.current += (targetRef.current - velocityRef.current) * lerp;
+
+      // Scroll
+      if (velocityRef.current > 0.5) {
+        track.scrollLeft += velocityRef.current * dt;
       }
 
       // Seamless loop
@@ -79,11 +71,30 @@ export default function PhotoGallery({ images, galleryId, imageClassName, speed 
     };
 
     raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [speed]);
 
+  useEffect(() => {
+    const track = trackRef.current;
+    if (!track) return;
+
+    const onEnter = () => {
+      if (resumeTimerRef.current) clearTimeout(resumeTimerRef.current);
+      targetRef.current = 0;
+    };
+
+    const onLeave = () => {
+      resumeTimerRef.current = setTimeout(() => {
+        targetRef.current = speed;
+      }, 1000);
+    };
+
+    track.addEventListener('mouseenter', onEnter);
+    track.addEventListener('mouseleave', onLeave);
     return () => {
-      cancelAnimationFrame(raf);
       track.removeEventListener('mouseenter', onEnter);
       track.removeEventListener('mouseleave', onLeave);
+      if (resumeTimerRef.current) clearTimeout(resumeTimerRef.current);
     };
   }, [speed]);
 
