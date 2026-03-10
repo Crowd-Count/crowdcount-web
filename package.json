@@ -1,5 +1,27 @@
 {
+  "name": "crowdcount-web",
+  "version": "1.0.0",
+  "private": true,
   "scripts": {
-    "build": "rm -rf public && mkdir public && cp -r src/* public/ && cp src/assets/Favicon-Icons/favicon.ico public/"
+    "dev": "next dev --turbopack",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "aos": "^2.3.4",
+    "bootstrap": "^5.3.0",
+    "next": "^15.3.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "typewriter-effect": "^2.21.0"
+  },
+  "devDependencies": {
+    "@netlify/plugin-nextjs": "^5.15.8",
+    "@types/aos": "^3.0.7",
+    "@types/node": "25.4.0",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "typescript": "^5.7.0"
   }
 }

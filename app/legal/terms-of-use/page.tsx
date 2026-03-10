@@ -1,0 +1,205 @@
+import type { Metadata } from 'next';
+import MenuLinks from '@/components/MenuLinks';
+import TypewriterText from '@/components/TypewriterText';
+
+export const metadata: Metadata = { title: 'Terms of Use' };
+
+export default function TermsOfUsePage() {
+  return (
+    <>
+      <header className="d-flex flex-column" data-aos="fade-down">
+        <div className="text-center">
+          <div id="MediumHomeTitle" className="d-inline-block">
+            <TypewriterText text="Legal Information" id="CrowdCountLEGAL" hideCursorAfter={3500} />
+          </div>
+        </div>
+        <MenuLinks />
+      </header>
+      <br />
+
+      <h3 id="center" data-aos="fade-up">
+        <div id="secondary">Please respect and follow our <div id="primary">terms and conditions</div> when using our products and services.</div>
+      </h3>
+      <br />
+      <h3 id="center">
+        <div id="secondary">
+          <div className="text-box-legal" data-aos="fade-up">
+            <img src="/assets/Icons/book-solid.png" alt="Terms of Use" className="scaled-image-hand-legal" /><br />
+            <div id="primaryTitleBold">Terms and Conditions of Use</div><br /><br />
+            <div id="secondary">
+              Terms and Conditions for <div id="primary">CrowdCount LLC and its products</div>
+              <br /><br />
+              Effective Date: <div id="primary">February 23rd, 2026</div>
+              <br /><br />
+
+              <div id="primary">1. Introduction</div>
+              <br />
+              Welcome to CrowdCount LLC (collectively referred to as &quot;CrowdCount&quot;, &quot;we,&quot; &quot;us,&quot; or &quot;our&quot;). These Terms and Conditions of Use (sometimes referred to as &quot;Terms&quot; or &quot;ToS&quot;) govern your access and use of our app, website, and services.
+              By using our products and services, you agree to these Terms. Please read them carefully.
+              <br /><br />
+
+              <div id="primary">2. Usage Restrictions</div>
+              <br />
+              Users are prohibited from overloading the API through repeated or excessive calls, whether manual or automated. This includes any activities aimed at disrupting or degrading the performance of our services.
+              <br /><br />
+              Attempting to hack or gain unauthorized access to our systems, servers, or any related infrastructure is strictly prohibited and will result in immediate termination of access to CrowdCount LLC services.{' '}
+              <div id="primary">Such actions may also result in civil and criminal liability, including reporting to law enforcement and pursuit of damages to the fullest extent permitted by law.</div>
+              <br /><br />
+
+              <div id="primary">3. Counter Usage and Payment</div>
+              <br />
+              Users who purchase a counter are required to pay the full amount as noted on the product page at the time of purchase, this includes the monthly payments. The counter will only be functional upon proper payment.
+              Failure to complete the payment(s) will result in the counter being deactivated or non-functional.
+              <br />
+              This is because the footage from the counter is processed on our servers, and we must ensure that we can maintain the necessary infrastructure to support the counter.
+              <br /><br />
+
+              <div id="primary">4. Device and Account Ownership</div>
+              <br />
+              <li><b>Hardware Ownership:</b> Upon full payment of the purchase price, you own the physical Crowd Counter hardware device. However, the software, firmware, and cloud services that enable the device to function remain the property of CrowdCount LLC.</li>
+              <li><b>Service Subscription:</b> The monthly subscription fee covers cloud processing, data storage, API access, and ongoing support. The hardware will not function without an active subscription.</li>
+              <li><b>Subscription Lapse:</b> If your subscription lapses, your counter will be deactivated. Historical data may be retained for a reasonable period to allow for reactivation. After an extended period of non-payment, data may be permanently deleted.</li>
+              <li><b>Device Transfer:</b> You may transfer ownership of your counter device to another party. The new owner must create their own account and subscription. Contact us at <a href="mailto:info@crowdcount.tech" id="primary">info@crowdcount.tech</a> to initiate a transfer.</li>
+              <li><b>No Resale of Services:</b> You may not resell, sublicense, or provide access to CrowdCount services to third parties without our written permission.</li>
+              <br /><br />
+
+              <div id="primary">5. Public Map Access and Responsibilities</div>
+              <br />
+              Users who choose to make their counter public on our map must adhere to the following rules. Access to the map and public display of the counter will be terminated if any of the following occur:
+              <br /><br />
+              <li>Falsifying or manipulating the counter&apos;s data, such as inflating or deflating counts inaccurately.</li>
+              <li>Failing to maintain the counter, including allowing it to malfunction without attempting to repair or report the issue.</li>
+              <li>Failure to notify us of significant changes, such as the counter&apos;s relocation or closure of the location, and not requesting removal from the map.</li>
+              <br />
+              Users found violating these rules will be removed from the public map after receiving enough reports, and further access to the map may be restricted or terminated.
+              <br /><br />
+
+              <div id="primary">6. Promotion Terms</div>
+              <br />
+              Users who create promotions through our app agree to the following:
+              <br /><br />
+              <li><b>Content Requirements:</b> All promotion content must be accurate, lawful, and not misleading. You must have the rights to use any images, logos, or content you submit.</li>
+              <li><b>Prohibited Content:</b> Promotions may not contain: illegal content, hate speech, sexually explicit material, violent content, malware or phishing links, misleading claims, or content that infringes on third-party intellectual property rights.</li>
+              <li><b>Review Process:</b> All promotions are subject to review and approval by CrowdCount. We reserve the right to reject or remove any promotion at our sole discretion without providing a reason.</li>
+              <li><b>Refunds:</b> If your promotion is rejected during our review process, you will receive a refund of the purchase amount minus payment processing fees (3% + $0.30). If a promotion is approved and begins running but is later removed due to a violation of these terms, no refund will be provided. Refunds are processed through your original payment method and may take 5-10 business days to appear.</li>
+              <li><b>Pricing:</b> Promotion pricing is as stated at the time of purchase. We reserve the right to change pricing for future promotions.</li>
+              <li><b>Performance:</b> We do not guarantee any specific level of views, clicks, or engagement for promotions.</li>
+              <br /><br />
+
+              <div id="primary">7. User-Generated Content</div>
+              <br />
+              By submitting content to CrowdCount (including promotions, reports, and feedback):
+              <br /><br />
+              <li><b>License Grant:</b> You grant CrowdCount a non-exclusive, worldwide, royalty-free license to use, display, and distribute the content in connection with our services.</li>
+              <li><b>Ownership:</b> You retain ownership of your content, but grant us the rights necessary to operate and promote our services.</li>
+              <li><b>Responsibility:</b> You are solely responsible for the content you submit and represent that you have all necessary rights to grant the license above.</li>
+              <li><b>Report Submissions:</b> Reports submitted about counters may be used to investigate issues and improve our services. Report content may be shared with the counter owner if relevant to resolving an issue.</li>
+              <br /><br />
+
+              <div id="primary">8. Service Availability</div>
+              <br />
+              <li><b>No Uptime Guarantee:</b> While we strive to maintain high availability, we do not guarantee uninterrupted access to our services. Services may be unavailable due to maintenance, updates, or circumstances beyond our control.</li>
+              <li><b>Maintenance:</b> We may perform scheduled or unscheduled maintenance that temporarily affects service availability. We will attempt to provide advance notice for scheduled maintenance when possible.</li>
+              <li><b>Service Modifications:</b> We reserve the right to modify, suspend, or discontinue any aspect of our services at any time, with or without notice.</li>
+              <li><b>Third-Party Dependencies:</b> Our services rely on third-party providers (including cloud infrastructure, payment processing, and mapping services). We are not responsible for outages or issues caused by these third parties.</li>
+              <br /><br />
+
+              <div id="primary">9. Intellectual Property</div>
+              <br />
+              <li><b>CrowdCount Property:</b> The CrowdCount name, logo, website, app, software, firmware, APIs, and all related intellectual property are owned by CrowdCount LLC and protected by applicable laws.</li>
+              <li><b>Count Data:</b> All data collected by and generated through CrowdCount counter devices, including but not limited to occupancy counts, traffic data, and historical count data, is the property of CrowdCount LLC. You are granted a license to access and use this data for your own purposes while you maintain an active subscription. You may export your count data at any time during your subscription.</li>
+              <li><b>Restrictions:</b> You may not copy, modify, distribute, sell, or lease any part of our services or software without our written permission.</li>
+              <li><b>Trademarks:</b> You may not use CrowdCount trademarks, logos, or branding without our prior written consent.</li>
+              <br /><br />
+
+              <div id="primary">10. Limitation of Liability</div>
+              <br />
+              <li><b>Data Accuracy:</b> Count data is provided on an &quot;as-is&quot; basis. We do not guarantee the accuracy of crowd counts and are not liable for decisions made based on this data.</li>
+              <li><b>Disclaimer:</b> TO THE MAXIMUM EXTENT PERMITTED BY LAW, CROWDCOUNT LLC PROVIDES ITS SERVICES &quot;AS IS&quot; WITHOUT WARRANTIES OF ANY KIND, WHETHER EXPRESS OR IMPLIED, INCLUDING IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, AND NON-INFRINGEMENT.</li>
+              <li><b>Damages Cap:</b> TO THE MAXIMUM EXTENT PERMITTED BY LAW, CROWDCOUNT LLC&apos;S TOTAL LIABILITY FOR ANY CLAIMS ARISING FROM OR RELATED TO THESE TERMS OR OUR SERVICES SHALL NOT EXCEED THE AMOUNT YOU PAID TO US IN THE TWELVE (12) MONTHS PRECEDING THE CLAIM.</li>
+              <li><b>Exclusions:</b> IN NO EVENT SHALL CROWDCOUNT LLC BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, OR PUNITIVE DAMAGES, INCLUDING LOSS OF PROFITS, DATA, OR BUSINESS OPPORTUNITIES.</li>
+              <li><b>Force Majeure:</b> We are not liable for any failure or delay in performance due to circumstances beyond our reasonable control, including natural disasters, acts of government, internet outages, or third-party service failures.</li>
+              <br /><br />
+
+              <div id="primary">11. Indemnification</div>
+              <br />
+              You agree to indemnify, defend, and hold harmless CrowdCount LLC, its officers, directors, employees, and agents from and against any claims, liabilities, damages, losses, and expenses (including reasonable attorneys&apos; fees) arising out of or related to:
+              <br /><br />
+              <li>Your use of our services</li>
+              <li>Your violation of these Terms</li>
+              <li>Your violation of any applicable laws or regulations</li>
+              <li>Your installation and operation of counter devices, including compliance with local privacy laws and signage requirements</li>
+              <li>Any content you submit through our services</li>
+              <li>Any claims by third parties related to your use of our services</li>
+              <br /><br />
+
+              <div id="primary">12. Termination</div>
+              <br />
+              <li><b>Termination by You:</b> You may terminate your use of our services at any time by discontinuing use and, if applicable, canceling your subscription. No refunds will be provided for partial months.</li>
+              <li><b>Termination by Us:</b> We may suspend or terminate your access to our services immediately, without prior notice, if you violate these Terms, fail to pay required fees, or engage in conduct that we determine is harmful to CrowdCount or other users.</li>
+              <li><b>Effect of Termination:</b> Upon termination, your right to use our services ends immediately. Your counter device will be deactivated. We may retain your data for a reasonable period as required by law or for legitimate business purposes.</li>
+              <li><b>Data Export:</b> We recommend exporting your data before terminating your account. We are not obligated to provide data exports after termination.</li>
+              <li><b>Survival:</b> Sections relating to intellectual property, limitation of liability, indemnification, and dispute resolution survive termination.</li>
+              <br /><br />
+
+              <div id="primary">13. Push Notifications</div>
+              <br />
+              By enabling push notifications in our iOS app:
+              <br /><br />
+              <li>You consent to receive notifications about overcrowding alerts for counters you have registered for.</li>
+              <li>You consent to receive service notifications about important updates, maintenance, or issues affecting your counter.</li>
+              <li>You may opt out of notifications at any time through your device settings or within the app.</li>
+              <li>We will not use push notifications for marketing purposes without your explicit consent.</li>
+              <br /><br />
+
+              <div id="primary">14. Data Export and Portability</div>
+              <br />
+              <li><b>Export Rights:</b> While you maintain an active subscription, you have the right to export count data associated with your devices at any time through our app or API.</li>
+              <li><b>Export Formats:</b> Data is available for export in CSV format.</li>
+              <li><b>Data Scope:</b> Exports include your historical count data for the periods available in your account.</li>
+              <li><b>Account Required:</b> Data export features require an active account and valid device credentials.</li>
+              <br /><br />
+
+              <div id="primary">15. Age Requirement</div>
+              <br />
+              You must be at least 18 years of age to purchase products or services from CrowdCount. By making a purchase, you represent and warrant that you are at least 18 years old. Minors may use our app and website under the supervision of a parent or legal guardian, but all purchases and account management must be conducted by an adult.
+              <br /><br />
+
+              <div id="primary">16. Pilot Program Participation</div>
+              <br />
+              If you participate in a CrowdCount pilot program or test deployment:
+              <br /><br />
+              <li><b>Video Processing:</b> You acknowledge that during pilot programs, video feeds may be temporarily retained and reviewed by authorized personnel to test, validate, and improve our systems, as described in our Privacy Policy.</li>
+              <li><b>Feedback:</b> You agree to provide reasonable feedback about your experience to help us improve our products.</li>
+              <li><b>No Guarantees:</b> Pilot features may be incomplete, contain bugs, or be discontinued without notice.</li>
+              <li><b>Confidentiality:</b> You agree not to publicly disclose details about unreleased features or pilot-specific functionality without our permission.</li>
+              <br /><br />
+
+              <div id="primary">17. Dispute Resolution</div>
+              <br />
+              <li><b>Governing Law:</b> These Terms are governed by the laws of the State of Delaware, United States, without regard to its conflict of law provisions.</li>
+              <li><b>Informal Resolution:</b> Before filing any formal dispute, you agree to first contact us at <a href="mailto:info@crowdcount.tech" id="primary">info@crowdcount.tech</a> and attempt to resolve the dispute informally for at least 30 days.</li>
+              <li><b>Jurisdiction:</b> Any legal proceedings arising from these Terms shall be brought exclusively in the state or federal courts located in Delaware, and you consent to the personal jurisdiction of such courts.</li>
+              <li><b>Class Action Waiver:</b> You agree that any dispute resolution proceedings will be conducted only on an individual basis and not in a class, consolidated, or representative action.</li>
+              <br /><br />
+
+              <div id="primary">18. Data Security and Privacy</div>
+              <br />
+              All user data will be stored securely in accordance with our <a href="/legal/privacy-policy" id="primary">Privacy Policy</a>. By using our services, you agree that your counter&apos;s data may be stored on our servers, though it will not be publicly accessible unless you choose to display your counter on the public map.
+              <br /><br />
+
+              <div id="primary">19. Changes to These Terms</div>
+              <br />
+              We reserve the right to modify these Terms and Conditions at any time. If changes are made, we will notify you through the app, website, or email. Continued use of our services after changes are posted constitutes your acceptance of the modified Terms. If you do not agree to the modified Terms, you must stop using our services.
+              <br /><br />
+
+              <div id="primary">20. Contact Us</div>
+              <br />
+              If you have any questions or concerns about these Terms, please contact us at: <a href="mailto:info@crowdcount.tech">info@crowdcount.tech</a>
+            </div>
+          </div>
+        </div>
+      </h3>
+    </>
+  );
+}

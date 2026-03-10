@@ -1,0 +1,1 @@
+self.__REACT_LOADABLE_MANIFEST='{"components/BootstrapJs.tsx -> bootstrap/dist/js/bootstrap.bundle.min.js":{"id":1134,"files":["static/chunks/134.ec8d83f0c011ff50.js"]},"components/TypewriterText.tsx -> typewriter-effect/dist/core":{"id":9886,"files":["static/chunks/886.9d11e9d15d12b0dd.js"]}}';
