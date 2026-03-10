@@ -57,6 +57,14 @@ export default function LinkHoverEffect() {
           activeEls.delete(el);
         }
       }
+
+      // Feature card cursor glow
+      const cards = document.querySelectorAll<HTMLElement>('.feature-card');
+      for (const card of cards) {
+        const rect = card.getBoundingClientRect();
+        card.style.setProperty('--card-mx', `${e.clientX - rect.left}px`);
+        card.style.setProperty('--card-my', `${e.clientY - rect.top}px`);
+      }
     };
 
     const handleLeave = () => {

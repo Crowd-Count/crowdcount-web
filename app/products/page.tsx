@@ -34,15 +34,6 @@ const appPhotos = [
   { src: '/assets/AppPhotos/InfoPage.png', alt: 'Information Page' },
 ];
 
-const counterFeatures = [
-  { title: '99% Accuracy', desc: 'NVIDIA-powered processing' },
-  { title: 'Easy Install', desc: 'Place above your door' },
-  { title: 'Live Counting', desc: 'Real-time population data' },
-  { title: 'Entry Tracking', desc: 'Cumulative foot traffic' },
-  { title: 'Privacy First', desc: 'Restricted footage access' },
-  { title: 'Multi-Device', desc: 'Multiple entrances supported' },
-];
-
 const appFeatures = [
   { title: 'Live Data', desc: 'Real-time counts from anywhere' },
   { title: 'Insights', desc: 'Historical trends & averages' },
@@ -77,18 +68,8 @@ export default function ProductsPage() {
             <div id="primaryTitleBold">Crowd Counter 1</div>
             <br /><br />
             <div id="primary">Our flagship product</div>, complete and available to anyone. The Crowd Counter 1 is engineered to allow seamless install and use by anybody.
-
-            {/* Feature cards */}
-            <div className="feature-grid" data-aos="fade-up">
-              {counterFeatures.map((f, i) => (
-                <div key={i} className="feature-card" data-aos="fade-up" data-aos-delay={i * 80}>
-                  <div className="feature-card-title">{f.title}</div>
-                  <div className="feature-card-desc">{f.desc}</div>
-                </div>
-              ))}
-            </div>
-
-            The Crowd Counter 1 counts the number of people entering and exiting your location, <div id="primary">providing you with a live count of the number of people inside and the amount of entries.</div>
+            <br />
+            <br />The Crowd Counter 1 counts the number of people entering and exiting your location, <div id="primary">providing you with a live count of the number of people inside and the amount of entries.</div>
             <br />
             <br />Simply <div id="primary">place the small device above your door and let it do the rest.</div> Using its camera, it sends the footage to our powerful custom built in house NVIDIA servers for us to do the processing. That way, the device can remain inexpensive and reliable for our customers. In addition, we restrict our own access to the footage, ensuring your privacy is maintained at all times.
             <br />
@@ -96,16 +77,17 @@ export default function ProductsPage() {
 
             {/* Specs table */}
             <div className="specs-table-wrapper" data-aos="fade-up">
+              <div id="primary" style={{ marginBottom: '12px', fontSize: '1.1rem' }}>Technical Specs</div>
               <table className="specs-table">
                 <tbody>
-                  <tr><td className="specs-label">Accuracy</td><td className="specs-value">Up to 99%</td></tr>
+                  <tr><td className="specs-label">Accuracy</td><td className="specs-value"><span className="specs-highlight">Up to 99%</span></td></tr>
                   <tr><td className="specs-label">Processing</td><td className="specs-value">Cloud (NVIDIA GPU)</td></tr>
                   <tr><td className="specs-label">Connectivity</td><td className="specs-value">Wi-Fi</td></tr>
-                  <tr><td className="specs-label">Setup Time</td><td className="specs-value">~5 minutes</td></tr>
-                  <tr><td className="specs-label">Entrances</td><td className="specs-value">Unlimited (1 device per door)</td></tr>
+                  <tr><td className="specs-label">Setup Time</td><td className="specs-value"><span className="specs-highlight">~5 minutes</span></td></tr>
+                  <tr><td className="specs-label">Entrances</td><td className="specs-value">Unlimited (1 per door)</td></tr>
                   <tr><td className="specs-label">App Support</td><td className="specs-value">iOS, Web</td></tr>
                   <tr><td className="specs-label">Data</td><td className="specs-value">Live count, entries, history, insights</td></tr>
-                  <tr><td className="specs-label">Generation</td><td className="specs-value">Gen 1.3 (January 2026)</td></tr>
+                  <tr><td className="specs-label">Generation</td><td className="specs-value">Gen 1.3 (Jan 2026)</td></tr>
                 </tbody>
               </table>
             </div>
@@ -113,7 +95,7 @@ export default function ProductsPage() {
             <br />Check out our <div id="primary">beautiful design!</div>
             <div data-aos="fade-up">
               <div className="text-box-legal gallery-container" id="counter-gallery">
-                <PhotoGallery images={counterPhotos} autoScrollInterval={3500} />
+                <PhotoGallery images={counterPhotos} speed={35} />
               </div>
             </div>
             <br />While we are not yet shipping, <div id="primary">we are currently doing free installs in the Boulder/Denver area!</div> Send us an email at <a href="mailto:info@crowdcount.tech">info@crowdcount.tech</a> to learn more about it and potentially receive your own.
@@ -147,7 +129,7 @@ export default function ProductsPage() {
             <br />
             <div data-aos="fade-up">
               <div className="text-box-legal gallery-container" id="app-gallery">
-                <PhotoGallery images={appPhotos} galleryId="photo-gallery" autoScrollInterval={2500} />
+                <PhotoGallery images={appPhotos} galleryId="photo-gallery" speed={30} />
               </div>
             </div>
             Now available on the App Store!

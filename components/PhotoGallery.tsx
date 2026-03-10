@@ -6,58 +6,62 @@ interface PhotoGalleryProps {
   images: { src: string; alt: string }[];
   galleryId?: string;
   imageClassName?: string;
-  autoScrollInterval?: number;
+  speed?: number; // pixels per second
 }
 
-export default function PhotoGallery({ images, galleryId, imageClassName, autoScrollInterval = 3000 }: PhotoGalleryProps) {
-  const galleryRef = useRef<HTMLDivElement>(null);
-  const currentIndex = useRef(0);
+export default function PhotoGallery({ images, galleryId, imageClassName, speed = 30 }: PhotoGalleryProps) {
+  const trackRef = useRef<HTMLDivElement>(null);
+  const animRef = useRef<number | null>(null);
+  const lastTimeRef = useRef(0);
   const pausedRef = useRef(false);
-  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  const scrollToIndex = useCallback((index: number) => {
-    const gallery = galleryRef.current;
-    if (!gallery) return;
-    const total = gallery.scrollWidth - gallery.clientWidth;
-    const pos = images.length > 1 ? (total / (images.length - 1)) * index : 0;
-    gallery.scrollTo({ left: pos, behavior: 'smooth' });
-  }, [images.length]);
+  // We render images 3x for seamless looping
+  const tripled = [...images, ...images, ...images];
 
-  const advance = useCallback(() => {
-    if (pausedRef.current) return;
-    const next = (currentIndex.current + 1) % images.length;
-    currentIndex.current = next;
-    scrollToIndex(next);
-  }, [images.length, scrollToIndex]);
+  const animate = useCallback((time: number) => {
+    if (!lastTimeRef.current) lastTimeRef.current = time;
+    const delta = time - lastTimeRef.current;
+    lastTimeRef.current = time;
 
-  // Auto-scroll timer
+    const track = trackRef.current;
+    if (track && !pausedRef.current) {
+      const px = (speed * delta) / 1000;
+      track.scrollLeft += px;
+
+      // When we've scrolled past the first copy, jump back seamlessly
+      const oneSetWidth = track.scrollWidth / 3;
+      if (track.scrollLeft >= oneSetWidth * 2) {
+        track.scrollLeft -= oneSetWidth;
+      }
+    }
+
+    animRef.current = requestAnimationFrame(animate);
+  }, [speed]);
+
   useEffect(() => {
-    timerRef.current = setInterval(advance, autoScrollInterval);
+    const track = trackRef.current;
+    if (track) {
+      // Start at the middle copy so we can scroll both directions
+      const oneSetWidth = track.scrollWidth / 3;
+      track.scrollLeft = oneSetWidth;
+    }
+    animRef.current = requestAnimationFrame(animate);
     return () => {
-      if (timerRef.current) clearInterval(timerRef.current);
+      if (animRef.current) cancelAnimationFrame(animRef.current);
     };
-  }, [advance, autoScrollInterval]);
+  }, [animate]);
 
-  // Pause on user interaction, resume after idle
   const handleInteractionStart = useCallback(() => {
     pausedRef.current = true;
   }, []);
 
   const handleInteractionEnd = useCallback(() => {
-    // Sync currentIndex to wherever the user scrolled
-    const gallery = galleryRef.current;
-    if (gallery) {
-      const total = gallery.scrollWidth - gallery.clientWidth;
-      const fraction = total > 0 ? gallery.scrollLeft / total : 0;
-      currentIndex.current = Math.round(fraction * (images.length - 1));
-    }
-    // Resume after a delay
-    setTimeout(() => { pausedRef.current = false; }, 2000);
-  }, [images.length]);
+    setTimeout(() => { pausedRef.current = false; }, 1500);
+  }, []);
 
   return (
     <div
-      ref={galleryRef}
+      ref={trackRef}
       id={galleryId}
       className="photo-gallery"
       aria-label="Photo gallery"
@@ -65,7 +69,7 @@ export default function PhotoGallery({ images, galleryId, imageClassName, autoSc
       onPointerUp={handleInteractionEnd}
       onPointerLeave={handleInteractionEnd}
     >
-      {images.map((img, i) => (
+      {tripled.map((img, i) => (
         <img key={i} src={img.src} alt={img.alt} className={imageClassName} />
       ))}
     </div>
