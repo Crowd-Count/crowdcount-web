@@ -1137,7 +1137,7 @@ function PopularTimesPanel({ data, loading, currentCount, pinColor, isClosed }: 
     hourlyValues[localH] = value;
   });
 
-  const peakValue = Math.max(...hourlyValues, currentCount, 1);
+  const peakValue = Math.max(...hourlyValues, currentCount, 10);
   const usualAtCurrentHour = hourlyValues[localHour];
 
   // Live comparison label (matches iOS logic)
