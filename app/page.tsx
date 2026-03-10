@@ -5,8 +5,6 @@ import Link from 'next/link';
 import PeopleCounter from '@/components/PeopleCounter';
 import { NAV_LINKS } from '@/lib/constants';
 import { API_BASE_URL } from '@/lib/constants';
-import ParallaxBackground from '@/components/ParallaxBackground';
-
 export default function HomePage() {
   const [loginText, setLoginText] = useState('');
 
@@ -21,7 +19,6 @@ export default function HomePage() {
 
   return (
     <header className="d-flex flex-column align-items-center justify-content-center text-center vh-100 homeheader">
-      <ParallaxBackground />
       <div>
         <div data-aos="fade-down">
           <div id="LargeHomeText">Total People Counted with <div className="gradient-text">CrowdCount</div></div>

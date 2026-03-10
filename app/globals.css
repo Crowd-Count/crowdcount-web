@@ -1283,7 +1283,7 @@ button:focus {
     width: 250px;
     height: auto; /* Maintain aspect ratio */
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-
+    scroll-snap-align: center;
 }
 
 /* Updated #dots-container styles */
@@ -1670,6 +1670,7 @@ video {
     width: 250px;   /* same as #photo-gallery img */
     height: auto;
     box-shadow: 0 0 10px rgba(0,0,0,0.5);
+    scroll-snap-align: center;
 }
 
 #counter-gallery .dots-container {
@@ -3040,99 +3041,22 @@ video {
     }
 
     #big-red-button {
-        transition: background-color 0.3s ease, transform 0.25s ease, box-shadow 0.3s ease;
+        transition: background-color 0.3s ease, box-shadow 0.3s ease;
     }
 
     #big-red-button:hover {
-        transform: scale(1.05);
         box-shadow: 0 4px 25px rgba(253, 64, 64, 0.5);
     }
 }
 
-/* ===== 4. Scroll Progress Bar ===== */
-
-.scroll-progress {
-    position: fixed;
-    top: 0;
-    left: 0;
-    height: 3px;
-    background: var(--accent-color);
-    z-index: 9999;
-    transition: width 0.1s linear;
-    pointer-events: none;
-}
-
-/* ===== 6. Loading Screen ===== */
-
-.loading-screen {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    min-height: 60vh;
-    gap: 24px;
-}
-
-.loading-logo-pulse {
-    font-size: 3rem;
-    font-weight: bold;
-    color: var(--light-color);
-    animation: logo-pulse 2s ease-in-out infinite;
-}
-
-@keyframes logo-pulse {
-    0%, 100% { opacity: 0.4; transform: scale(0.97); }
-    50% { opacity: 1; transform: scale(1); }
-}
-
-.loading-bar-track {
-    width: 200px;
-    height: 3px;
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 2px;
-    overflow: hidden;
-}
-
-.loading-bar {
-    height: 100%;
-    width: 40%;
-    background: var(--accent-color);
-    border-radius: 2px;
-    animation: loading-slide 1.2s ease-in-out infinite;
-}
-
-@keyframes loading-slide {
-    0% { transform: translateX(-100%); }
-    100% { transform: translateX(350%); }
-}
-
-/* ===== 7. Cursor Glow ===== */
-
-.cursor-glow {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    pointer-events: none;
-    z-index: 9998;
-}
-
 /* ===== 8. Odometer Number Ticker ===== */
-
-.odometer {
-    display: inline-flex;
-    align-items: baseline;
-    overflow: hidden;
-    font-weight: bold;
-    color: var(--light-color);
-}
 
 .odometer-digit-wrapper {
     display: inline-block;
     height: 1em;
     overflow: hidden;
     line-height: 1;
+    vertical-align: baseline;
 }
 
 .odometer-digit-column {
@@ -3149,8 +3073,7 @@ video {
 }
 
 .odometer-comma {
-    display: inline-block;
-    line-height: 1;
+    display: inline;
 }
 
 /* ===== 9. View Transitions ===== */
@@ -3171,42 +3094,6 @@ video {
 @keyframes fade-in {
     from { opacity: 0; }
     to { opacity: 1; }
-}
-
-/* ===== 10. Parallax Background Orbs ===== */
-
-.parallax-container {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    pointer-events: none;
-    z-index: 0;
-    overflow: hidden;
-}
-
-.parallax-orb {
-    position: absolute;
-    border-radius: 50%;
-    filter: blur(80px);
-    opacity: 0.08;
-}
-
-.parallax-orb-red {
-    width: 500px;
-    height: 500px;
-    background: radial-gradient(circle, var(--accent-color), transparent 70%);
-    top: 20%;
-    left: -10%;
-}
-
-.parallax-orb-white {
-    width: 400px;
-    height: 400px;
-    background: radial-gradient(circle, rgba(255, 255, 255, 0.8), transparent 70%);
-    top: 60%;
-    right: -10%;
 }
 
 /* ===== 5. Custom 404 Page ===== */

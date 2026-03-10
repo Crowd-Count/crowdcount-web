@@ -7,77 +7,79 @@ function formatNumberWithCommas(num: number): string {
   return num.toLocaleString('en-US');
 }
 
-function OdometerDigit({ digit, fontSize }: { digit: number; fontSize: number }) {
+// 11 slots: 0-9 plus a duplicate 0 at position 10 so 9→0 rolls forward
+const DIGIT_SLOTS = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0];
+const SLOT_PERCENT = 100 / DIGIT_SLOTS.length; // ~9.09% per slot
+
+function OdometerDigit({ digit, fast }: { digit: number; fast: boolean }) {
+  const prevDigitRef = useRef(digit);
+  const columnRef = useRef<HTMLSpanElement>(null);
+  const [position, setPosition] = useState(digit);
+  const [animate, setAnimate] = useState(true);
+
+  useEffect(() => {
+    const prev = prevDigitRef.current;
+    prevDigitRef.current = digit;
+
+    if (prev > digit) {
+      // Wrap case (e.g. 9→0): roll forward to slot 10 (the duplicate 0)
+      setAnimate(true);
+      setPosition(10);
+    } else {
+      setAnimate(true);
+      setPosition(digit);
+    }
+  }, [digit]);
+
+  // After wrapping to slot 10, silently snap back to slot 0
+  const handleTransitionEnd = useCallback(() => {
+    if (position === 10) {
+      setAnimate(false);
+      setPosition(0);
+    }
+  }, [position]);
+
   return (
-    <span className="odometer-digit-wrapper" style={{ fontSize: `${fontSize}px` }}>
+    <span className="odometer-digit-wrapper">
       <span
+        ref={columnRef}
         className="odometer-digit-column"
-        style={{ transform: `translateY(-${digit}em)` }}
+        onTransitionEnd={handleTransitionEnd}
+        style={{
+          transform: `translateY(-${position * SLOT_PERCENT}%)`,
+          transitionDuration: animate ? (fast ? '0.4s' : '0.8s') : '0s',
+        }}
       >
-        {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map(n => (
-          <span key={n}>{n}</span>
+        {DIGIT_SLOTS.map((n, i) => (
+          <span key={i}>{n}</span>
         ))}
       </span>
     </span>
   );
 }
 
-function OdometerComma({ fontSize }: { fontSize: number }) {
-  return (
-    <span className="odometer-comma" style={{ fontSize: `${fontSize}px` }}>
-      ,
-    </span>
-  );
-}
-
-function computeFontSize(count: number): number {
-  const formatted = formatNumberWithCommas(count);
-  const charCount = formatted.length;
+function scaleCounterFont(el: HTMLElement, count: number) {
+  const formattedCount = formatNumberWithCommas(count);
+  const charCount = formattedCount.length;
   const digitCount = count.toString().length;
   const commaCount = charCount - digitCount;
-  const viewportWidth = typeof window !== 'undefined' ? window.innerWidth : 1200;
+  const viewportWidth = window.innerWidth;
   const padding = 20;
   const availableWidth = viewportWidth - padding;
   const effectiveWidth = (digitCount * 0.6) + (commaCount * 0.3);
   const maxFitSize = availableWidth / effectiveWidth;
   const maxSize = 240;
-  return Math.max(Math.min(maxFitSize, maxSize), 24);
+  const fontSize = Math.min(maxFitSize, maxSize);
+  const finalSize = Math.max(fontSize, 24);
+  el.style.fontSize = `${finalSize}px`;
 }
 
 export default function PeopleCounter() {
   const [displayCount, setDisplayCount] = useState(0);
-  const [fontSize, setFontSize] = useState(240);
-  const currentCountRef = useRef(0);
+  const [isFirstLoad, setIsFirstLoad] = useState(true);
+  const counterRef = useRef<HTMLDivElement>(null);
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const animFrameRef = useRef<ReturnType<typeof setInterval> | null>(null);
-
-  const animateCounter = useCallback((targetCount: number, callback?: () => void) => {
-    if (animFrameRef.current) clearInterval(animFrameRef.current);
-
-    const startCount = currentCountRef.current;
-    const duration = 2000;
-    const frameRate = 50;
-    const totalFrames = duration / frameRate;
-    let frame = 0;
-
-    setFontSize(computeFontSize(targetCount));
-
-    animFrameRef.current = setInterval(() => {
-      frame++;
-      const progress = frame / totalFrames;
-      const current = Math.round(startCount + (targetCount - startCount) * progress);
-      currentCountRef.current = current;
-      setDisplayCount(current);
-
-      if (frame >= totalFrames) {
-        if (animFrameRef.current) clearInterval(animFrameRef.current);
-        animFrameRef.current = null;
-        currentCountRef.current = targetCount;
-        setDisplayCount(targetCount);
-        if (callback) callback();
-      }
-    }, frameRate);
-  }, []);
+  const isFirstLoadRef = useRef(true);
 
   const updateCounter = useCallback(() => {
     fetch(`${API_BASE_URL}/totalcount`, {
@@ -88,30 +90,38 @@ export default function PeopleCounter() {
         return res.json();
       })
       .then(data => {
-        animateCounter(data.total_count, () => {
-          timeoutRef.current = setTimeout(updateCounter, 3000);
-        });
+        const target = data.total_count;
+        if (counterRef.current) {
+          scaleCounterFont(counterRef.current, target);
+        }
+        setDisplayCount(target);
+        if (isFirstLoadRef.current) {
+          isFirstLoadRef.current = false;
+          setTimeout(() => setIsFirstLoad(false), 500);
+        }
+        timeoutRef.current = setTimeout(updateCounter, 5000);
       })
       .catch(() => {
-        animateCounter(404, () => {
-          timeoutRef.current = setTimeout(updateCounter, 3000);
-        });
+        if (counterRef.current) {
+          scaleCounterFont(counterRef.current, 404);
+        }
+        setDisplayCount(404);
+        timeoutRef.current = setTimeout(updateCounter, 5000);
       });
-  }, [animateCounter]);
+  }, []);
 
   useEffect(() => {
     updateCounter();
 
     const handleResize = () => {
-      if (currentCountRef.current > 0) {
-        setFontSize(computeFontSize(currentCountRef.current));
+      if (counterRef.current && displayCount > 0) {
+        scaleCounterFont(counterRef.current, displayCount);
       }
     };
     window.addEventListener('resize', handleResize);
 
     return () => {
       if (timeoutRef.current) clearTimeout(timeoutRef.current);
-      if (animFrameRef.current) clearInterval(animFrameRef.current);
       window.removeEventListener('resize', handleResize);
     };
   }, [updateCounter]);
@@ -120,12 +130,12 @@ export default function PeopleCounter() {
   const chars = formatted.split('');
 
   return (
-    <div id="peopleCounter" className="odometer">
+    <div id="peopleCounter" ref={counterRef}>
       {chars.map((char, i) =>
         char === ',' ? (
-          <OdometerComma key={`c-${i}`} fontSize={fontSize} />
+          <span key={`c-${i}`} className="odometer-comma">,</span>
         ) : (
-          <OdometerDigit key={`d-${i}`} digit={parseInt(char, 10)} fontSize={fontSize} />
+          <OdometerDigit key={`d-${i}`} digit={parseInt(char, 10)} fast={isFirstLoad} />
         )
       )}
     </div>

@@ -8,8 +8,6 @@ import AlertBanner from '@/components/AlertBanner';
 import AosInit from '@/components/AosInit';
 import BootstrapJs from '@/components/BootstrapJs';
 import BodyIdSetter from '@/components/BodyIdSetter';
-import ScrollProgress from '@/components/ScrollProgress';
-import CursorGlow from '@/components/CursorGlow';
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://crowdcount.tech'),
@@ -48,8 +46,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <AosInit />
         <BootstrapJs />
         <BodyIdSetter />
-        <ScrollProgress />
-        <CursorGlow />
         <AlertBanner />
         <Navigation />
         {children}
