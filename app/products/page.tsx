@@ -77,12 +77,12 @@ export default function ProductsPage() {
 
             {/* Specs table */}
             <div className="specs-table-wrapper" data-aos="fade-up">
-              <div id="primary" style={{ marginBottom: '12px', fontSize: '1.1rem' }}>Technical Specs</div>
+              <div id="primary" style={{ marginBottom: '20px', fontSize: '1.1rem' }}>Technical Specs</div>
               <table className="specs-table">
                 <tbody>
                   <tr><td className="specs-label">Accuracy</td><td className="specs-value"><span className="specs-highlight">Up to 99%</span></td></tr>
-                  <tr><td className="specs-label">Processing</td><td className="specs-value">Cloud (NVIDIA GPU)</td></tr>
-                  <tr><td className="specs-label">Connectivity</td><td className="specs-value">Wi-Fi</td></tr>
+                  <tr><td className="specs-label">Processing</td><td className="specs-value">Cloud (In-House NVIDIA GPU)</td></tr>
+                  <tr><td className="specs-label">Connectivity</td><td className="specs-value">Wi-Fi & Bluetooth</td></tr>
                   <tr><td className="specs-label">Setup Time</td><td className="specs-value"><span className="specs-highlight">~5 minutes</span></td></tr>
                   <tr><td className="specs-label">Entrances</td><td className="specs-value">Unlimited (1 per door)</td></tr>
                   <tr><td className="specs-label">App Support</td><td className="specs-value">iOS, Web</td></tr>
@@ -92,7 +92,7 @@ export default function ProductsPage() {
               </table>
             </div>
 
-            <br />Check out our <div id="primary">beautiful design!</div>
+            Check out our <div id="primary">beautiful design!</div>
             <div data-aos="fade-up">
               <div className="text-box-legal gallery-container" id="counter-gallery">
                 <PhotoGallery images={counterPhotos} speed={120} />
@@ -129,7 +129,7 @@ export default function ProductsPage() {
             <br />
             <div data-aos="fade-up">
               <div className="text-box-legal gallery-container" id="app-gallery">
-                <PhotoGallery images={appPhotos} galleryId="photo-gallery" speed={100} phoneFrame />
+                <PhotoGallery images={appPhotos} galleryId="photo-gallery" speed={120} phoneFrame />
               </div>
             </div>
             Now available on the App Store!

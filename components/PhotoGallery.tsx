@@ -12,8 +12,8 @@ interface PhotoGalleryProps {
 
 export default function PhotoGallery({ images, galleryId, imageClassName, speed = 60, phoneFrame }: PhotoGalleryProps) {
   const trackRef = useRef<HTMLDivElement>(null);
-  const stateRef = useRef({ hovering: false, velocity: 0 });
-  const resumeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const mouseInside = useRef(false);
+  const mouseLeft = useRef(0); // timestamp when mouse last left
 
   const tripled = [...images, ...images, ...images];
 
@@ -23,15 +23,21 @@ export default function PhotoGallery({ images, galleryId, imageClassName, speed 
 
     let raf = 0;
     let started = false;
-    const state = stateRef.current;
-    state.velocity = 0;
+    let velocity = 0;
 
-    // Ramp rate: px/s per second (reaches full speed in ~1.5s)
-    const rampUp = speed / 1.5;
-    const rampDown = speed / 1.0;
+    const RAMP_SECONDS = 2.0; // time to go from 0 to full speed
+    const rampRate = speed / RAMP_SECONDS;
 
-    const tick = (time: number) => {
-      // Initialize scroll position on first frame after layout
+    const onEnter = () => { mouseInside.current = true; };
+    const onLeave = () => {
+      mouseInside.current = false;
+      mouseLeft.current = performance.now();
+    };
+
+    track.addEventListener('mouseenter', onEnter);
+    track.addEventListener('mouseleave', onLeave);
+
+    const tick = () => {
       if (!started) {
         started = true;
         const oneSet = track.scrollWidth / 3;
@@ -40,18 +46,23 @@ export default function PhotoGallery({ images, galleryId, imageClassName, speed 
         return;
       }
 
-      const dt = 1 / 60; // fixed timestep for consistency
+      const dt = 1 / 60;
 
-      // Linear ramp toward target
-      const target = state.hovering ? 0 : speed;
-      if (state.velocity < target) {
-        state.velocity = Math.min(state.velocity + rampUp * dt, target);
-      } else if (state.velocity > target) {
-        state.velocity = Math.max(state.velocity - rampDown * dt, target);
+      // Determine target: 0 if hovering, also 0 during 1s pause after leaving
+      const pauseRemaining = mouseLeft.current ? performance.now() - mouseLeft.current : Infinity;
+      const shouldStop = mouseInside.current || (!mouseInside.current && pauseRemaining < 1000);
+      const target = shouldStop ? 0 : speed;
+
+      // Ramp velocity toward target
+      if (velocity < target) {
+        velocity = Math.min(velocity + rampRate * dt, target);
+      } else if (velocity > target) {
+        velocity = Math.max(velocity - rampRate * dt, target);
       }
 
-      if (state.velocity > 0.1) {
-        track.scrollLeft += state.velocity * dt;
+      // Move
+      if (velocity > 0.1) {
+        track.scrollLeft += velocity * dt;
       }
 
       // Seamless loop
@@ -68,19 +79,13 @@ export default function PhotoGallery({ images, galleryId, imageClassName, speed 
     };
 
     raf = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(raf);
+
+    return () => {
+      cancelAnimationFrame(raf);
+      track.removeEventListener('mouseenter', onEnter);
+      track.removeEventListener('mouseleave', onLeave);
+    };
   }, [speed]);
-
-  const handleEnter = () => {
-    if (resumeTimer.current) clearTimeout(resumeTimer.current);
-    stateRef.current.hovering = true;
-  };
-
-  const handleLeave = () => {
-    resumeTimer.current = setTimeout(() => {
-      stateRef.current.hovering = false;
-    }, 1000);
-  };
 
   return (
     <div
@@ -88,8 +93,6 @@ export default function PhotoGallery({ images, galleryId, imageClassName, speed 
       id={galleryId}
       className="photo-gallery"
       aria-label="Photo gallery"
-      onMouseEnter={handleEnter}
-      onMouseLeave={handleLeave}
     >
       {tripled.map((img, i) =>
         phoneFrame ? (
