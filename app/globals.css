@@ -730,6 +730,7 @@ body:has(.map-page) > .alert {
     gap: 8px;
     animation: controls-slide-in 0.4s ease-out both;
     animation-delay: 0.5s;
+    transition: top 0.3s ease;
 }
 
 .map-control-btn {
@@ -758,6 +759,23 @@ body:has(.map-page) > .alert {
 
 .map-control-btn:active {
     transform: scale(0.95);
+}
+
+/* --- User location dot (pulsing blue dot on map) --- */
+.user-location-dot {
+    width: 16px;
+    height: 16px;
+    background: #007AFF;
+    border-radius: 50%;
+    border: 3px solid white;
+    box-shadow: 0 0 0 0 rgba(0, 122, 255, 0.4);
+    animation: user-dot-pulse 2s ease-out infinite;
+}
+
+@keyframes user-dot-pulse {
+    0% { box-shadow: 0 0 0 0 rgba(0, 122, 255, 0.4); }
+    70% { box-shadow: 0 0 0 15px rgba(0, 122, 255, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(0, 122, 255, 0); }
 }
 
 /* --- Location icon circle (36x36 colored circle with SVG icon) --- */
@@ -962,13 +980,8 @@ body:has(.map-page) > .alert {
 
 /* --- Mobile: sidebar becomes bottom sheet, panels stack --- */
 @media (max-width: 768px) {
-    .map-topbar-links {
-        gap: 2px;
-    }
-
     .map-topbar-links a {
-        font-size: 0.7rem;
-        padding: 5px 8px;
+        display: none;
     }
 
     .map-sidebar {
@@ -1018,6 +1031,10 @@ body:has(.map-page) > .alert {
 
     .map-controls {
         right: 8px;
+    }
+
+    .map-controls.shifted-up {
+        top: 30%;
     }
 
     .map-control-btn {
@@ -2026,12 +2043,13 @@ video {
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.8);
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
     z-index: 2000;
     justify-content: center;
     align-items: center;
-    opacity: 0;
-    transition: opacity 0.3s ease;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
 }
 
 .promo-modal-overlay.visible {
@@ -2432,8 +2450,13 @@ video {
     z-index: 16;
     padding: 20px 24px 40px;
     padding-bottom: calc(40px + env(safe-area-inset-bottom, 0px));
-    animation: detail-card-slide-up 0.3s ease-out;
+    animation: detail-card-slide-up 0.3s ease-out forwards;
     box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.25);
+}
+
+.location-detail-card.closing {
+    animation: detail-card-slide-down 0.25s ease-in forwards;
+    pointer-events: none;
 }
 
 @keyframes detail-card-slide-up {
@@ -2444,6 +2467,17 @@ video {
     to {
         opacity: 1;
         transform: translateY(0);
+    }
+}
+
+@keyframes detail-card-slide-down {
+    from {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    to {
+        opacity: 0;
+        transform: translateY(100%);
     }
 }
 

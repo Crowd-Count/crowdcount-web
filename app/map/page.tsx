@@ -33,6 +33,10 @@ declare global {
       selectedAnnotation: any;
       static readonly ColorSchemes: { Dark: string; Light: string };
     }
+    class Annotation {
+      constructor(coordinate: Coordinate, factory: (coordinate: Coordinate, options: any) => Element, options?: any);
+      data: any;
+    }
     class MarkerAnnotation {
       constructor(coordinate: Coordinate, options?: any);
       data: any;
@@ -284,14 +288,15 @@ function extractDominantColor(imageUrl: string): Promise<string> {
 /* ------------------------------------------------------------------ */
 /*  Map Control Buttons (right-edge floating stack)                     */
 /* ------------------------------------------------------------------ */
-function MapControls({ onRefresh, onCenterUser, onToggleList, onToggleFilter }: {
+function MapControls({ onRefresh, onCenterUser, onToggleList, onToggleFilter, className }: {
   onRefresh: () => void;
   onCenterUser: () => void;
   onToggleList: () => void;
   onToggleFilter: () => void;
+  className?: string;
 }) {
   return (
-    <div className="map-controls">
+    <div className={`map-controls${className ? ' ' + className : ''}`}>
       <button className="map-control-btn" onClick={onRefresh} aria-label="Refresh" title="Refresh">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
           <path d="M23 4v6h-6" />
@@ -299,9 +304,8 @@ function MapControls({ onRefresh, onCenterUser, onToggleList, onToggleFilter }: 
         </svg>
       </button>
       <button className="map-control-btn" onClick={onCenterUser} aria-label="My Location" title="My Location">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <circle cx="12" cy="12" r="4" />
-          <path d="M12 2v4M12 18v4M2 12h4M18 12h4" />
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" stroke="none">
+          <path d="M12 2L4.5 20.29l.71.71L12 18l6.79 3 .71-.71z" />
         </svg>
       </button>
       <button className="map-control-btn" onClick={onToggleList} aria-label="Search" title="Search">
@@ -347,6 +351,9 @@ export default function MapPage() {
   const [filterOpen, setFilterOpen] = useState(false);
   const [activeColorFilters, setActiveColorFilters] = useState<Set<string>>(new Set());
   const [infoOpen, setInfoOpen] = useState(false);
+  const userAnnotationRef = useRef<any>(null);
+  const [detailCardClosing, setDetailCardClosing] = useState(false);
+  const closingLocationRef = useRef<LocationData | null>(null);
 
   // Derive selected location from live locations state (updates every 30s)
   const selectedLocation = selectedLocationId
@@ -524,6 +531,19 @@ export default function MapPage() {
           new mapkit.Coordinate(userLoc.lat, userLoc.lon),
           new mapkit.CoordinateSpan(0.05, 0.05)
         ));
+        // Add user location dot
+        const userDot = new mapkit.Annotation(
+          new mapkit.Coordinate(userLoc.lat, userLoc.lon),
+          () => {
+            const el = document.createElement('div');
+            el.className = 'user-location-dot';
+            return el;
+          },
+          { displayPriority: 1001, anchorOffset: new DOMPoint(0, -8) }
+        );
+        userDot.data = { isUserLocation: true };
+        map.addAnnotation(userDot);
+        userAnnotationRef.current = userDot;
       } catch {
         fitAllMarkers(locs);
       }
@@ -565,7 +585,8 @@ export default function MapPage() {
     setLocations(locs);
     if (mapRef.current) {
       const map = mapRef.current;
-      map.removeAnnotations(map.annotations);
+      const toRemove = map.annotations.filter((a: any) => !a.data?.isUserLocation);
+      map.removeAnnotations(toRemove);
       locs.forEach(loc => {
         const annotation = new mapkit.MarkerAnnotation(
           new mapkit.Coordinate(loc.location_latitude, loc.location_longitude),
@@ -592,6 +613,22 @@ export default function MapPage() {
           new mapkit.Coordinate(loc.lat, loc.lon),
           new mapkit.CoordinateSpan(0.005, 0.005)
         ));
+        // Add/update user location dot
+        if (userAnnotationRef.current) {
+          mapRef.current.removeAnnotations([userAnnotationRef.current]);
+        }
+        const userDot = new mapkit.Annotation(
+          new mapkit.Coordinate(loc.lat, loc.lon),
+          () => {
+            const el = document.createElement('div');
+            el.className = 'user-location-dot';
+            return el;
+          },
+          { displayPriority: 1001, anchorOffset: new DOMPoint(0, -8) }
+        );
+        userDot.data = { isUserLocation: true };
+        mapRef.current.addAnnotation(userDot);
+        userAnnotationRef.current = userDot;
       }
     } catch { /* location not available */ }
   }, [getUserLocation]);
@@ -608,7 +645,7 @@ export default function MapPage() {
     // Only offset if sidebar is visible (desktop)
     const isMobile = window.innerWidth <= 768;
     const offsetFraction = isMobile ? 0 : sidebarWidth / mapWidth / 2;
-    const currentSpan = 0.001;
+    const currentSpan = 0.005;
     const lngOffset = currentSpan * offsetFraction * (mapWidth / viewableWidth);
 
     map.setRegionAnimated(new mapkit.CoordinateRegion(
@@ -639,12 +676,20 @@ export default function MapPage() {
 
   /* ---- Close detail card ---- */
   const handleCloseDetailCard = useCallback(() => {
-    setSelectedLocationId(null);
+    // Start close animation
+    closingLocationRef.current = selectedLocation;
+    setDetailCardClosing(true);
     // Deselect the map annotation
     if (mapRef.current?.selectedAnnotation) {
       mapRef.current.selectedAnnotation = null;
     }
-  }, []);
+    // After animation completes, remove the card
+    setTimeout(() => {
+      setSelectedLocationId(null);
+      setDetailCardClosing(false);
+      closingLocationRef.current = null;
+    }, 250);
+  }, [selectedLocation]);
 
   const handleCloseDetailCardRef = useRef(handleCloseDetailCard);
   handleCloseDetailCardRef.current = handleCloseDetailCard;
@@ -810,6 +855,7 @@ export default function MapPage() {
           onCenterUser={handleCenterUser}
           onToggleList={() => { setListVisible(v => !v); setFilterOpen(false); }}
           onToggleFilter={() => { setFilterOpen(v => !v); }}
+          className={isMobile && listVisible ? 'shifted-up' : ''}
         />
 
         {/* Filter panel */}
@@ -840,15 +886,20 @@ export default function MapPage() {
         )}
 
         {/* Detail card — overlays bottom of map */}
-        {selectedLocation && (
-          <LocationDetailCard
-            key={selectedLocationId}
-            location={selectedLocation}
-            popularTimesData={popularTimesData[selectedLocation.location_id]}
-            popularTimesLoading={!!popularTimesLoading[selectedLocation.location_id]}
-            onClose={handleCloseDetailCard}
-          />
-        )}
+        {(selectedLocation || detailCardClosing) && (() => {
+          const loc = selectedLocation || closingLocationRef.current;
+          if (!loc) return null;
+          return (
+            <LocationDetailCard
+              key={loc.location_id}
+              location={loc}
+              popularTimesData={popularTimesData[loc.location_id]}
+              popularTimesLoading={!!popularTimesLoading[loc.location_id]}
+              onClose={handleCloseDetailCard}
+              closing={detailCardClosing}
+            />
+          );
+        })()}
 
         {/* Promotions — hidden on mobile when list is open, fades when detail card shown on mobile */}
         {ads.length > 0 && !(isMobile && listVisible) && (
@@ -878,17 +929,18 @@ export default function MapPage() {
 /* ------------------------------------------------------------------ */
 /*  Location Detail Card (overlays bottom of map)                      */
 /* ------------------------------------------------------------------ */
-function LocationDetailCard({ location, popularTimesData, popularTimesLoading, onClose }: {
+function LocationDetailCard({ location, popularTimesData, popularTimesLoading, onClose, closing }: {
   location: LocationData;
   popularTimesData: PopularTimesResponse | null | undefined;
   popularTimesLoading: boolean;
   onClose: () => void;
+  closing?: boolean;
 }) {
   const pinColor = getMarkerColor(location.location_color || '');
   const directionsUrl = `https://maps.apple.com/?daddr=${location.location_latitude},${location.location_longitude}&dirflg=d&t=m`;
 
   return (
-    <div className="location-detail-card">
+    <div className={`location-detail-card${closing ? ' closing' : ''}`}>
       {/* Header: icon + name + close */}
       <div className="location-detail-header">
         <div className="location-detail-title-row">
