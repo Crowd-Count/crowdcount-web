@@ -129,7 +129,7 @@ export default function ProductsPage() {
             <br />
             <div data-aos="fade-up">
               <div className="text-box-legal gallery-container" id="app-gallery">
-                <PhotoGallery images={appPhotos} galleryId="photo-gallery" speed={30} />
+                <PhotoGallery images={appPhotos} galleryId="photo-gallery" speed={30} phoneFrame />
               </div>
             </div>
             Now available on the App Store!

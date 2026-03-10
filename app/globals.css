@@ -1284,6 +1284,43 @@ button:focus {
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
 }
 
+/* Phone frame wrapper — override default img styles inside */
+#photo-gallery .phone-frame-wrapper img {
+    margin: 0;
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+    width: auto;
+}
+
+/* ===== Phone Frame Overlay ===== */
+.phone-frame-wrapper {
+    position: relative;
+    display: inline-block;
+    flex-shrink: 0;
+    width: 250px;
+    height: auto;
+    margin: 6.5px;
+}
+
+.phone-frame-wrapper .phone-frame-screenshot {
+    width: 100%;
+    height: auto;
+    display: block;
+    border-radius: 38px;
+    clip-path: inset(0 round 38px);
+}
+
+.phone-frame-wrapper .phone-frame-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    object-fit: fill;
+}
+
 /* Updated #dots-container styles */
 #dots-container,
 .dots-container {
@@ -1359,7 +1396,7 @@ button:focus {
     cursor: default;
 }
 
-.feature-card:hover {
+.feature-card.card-glow-active {
     --card-glow: rgba(253, 64, 64, 0.12);
 }
 

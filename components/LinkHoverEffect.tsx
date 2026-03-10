@@ -9,6 +9,7 @@ const SELECTOR = [
 ].join(', ');
 
 const RANGE = 80;
+const CARD_RANGE = 120;
 
 function distToRect(x: number, y: number, rect: DOMRect): number {
   const dx = Math.max(rect.left - x, 0, x - rect.right);
@@ -19,7 +20,9 @@ function distToRect(x: number, y: number, rect: DOMRect): number {
 export default function LinkHoverEffect() {
   useEffect(() => {
     const activeEls = new Set<HTMLElement>();
+    const activeCards = new Set<HTMLElement>();
     let links: HTMLElement[] = [];
+    let cards: HTMLElement[] = [];
     let linksStale = true;
 
     const observer = new MutationObserver(() => { linksStale = true; });
@@ -27,6 +30,7 @@ export default function LinkHoverEffect() {
 
     const refreshLinks = () => {
       links = Array.from(document.querySelectorAll<HTMLElement>(SELECTOR));
+      cards = Array.from(document.querySelectorAll<HTMLElement>('.feature-card'));
       linksStale = false;
     };
 
@@ -58,12 +62,27 @@ export default function LinkHoverEffect() {
         }
       }
 
-      // Feature card cursor glow
-      const cards = document.querySelectorAll<HTMLElement>('.feature-card');
+      // Feature card cursor glow (proximity-based, multiple at once)
+      const stillActiveCards = new Set<HTMLElement>();
       for (const card of cards) {
         const rect = card.getBoundingClientRect();
-        card.style.setProperty('--card-mx', `${e.clientX - rect.left}px`);
-        card.style.setProperty('--card-my', `${e.clientY - rect.top}px`);
+        const dist = distToRect(e.clientX, e.clientY, rect);
+
+        if (dist <= CARD_RANGE) {
+          card.style.setProperty('--card-mx', `${e.clientX - rect.left}px`);
+          card.style.setProperty('--card-my', `${e.clientY - rect.top}px`);
+          if (!activeCards.has(card)) {
+            card.classList.add('card-glow-active');
+            activeCards.add(card);
+          }
+          stillActiveCards.add(card);
+        }
+      }
+      for (const el of activeCards) {
+        if (!stillActiveCards.has(el)) {
+          el.classList.remove('card-glow-active');
+          activeCards.delete(el);
+        }
       }
     };
 
@@ -72,6 +91,10 @@ export default function LinkHoverEffect() {
         el.classList.remove('link-hover-active');
       }
       activeEls.clear();
+      for (const el of activeCards) {
+        el.classList.remove('card-glow-active');
+      }
+      activeCards.clear();
     };
 
     document.addEventListener('mousemove', handleMove, { passive: true });
@@ -83,6 +106,9 @@ export default function LinkHoverEffect() {
       observer.disconnect();
       for (const el of activeEls) {
         el.classList.remove('link-hover-active');
+      }
+      for (const el of activeCards) {
+        el.classList.remove('card-glow-active');
       }
     };
   }, []);

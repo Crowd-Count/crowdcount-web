@@ -1,63 +1,74 @@
 'use client';
 
-import { useEffect, useRef, useCallback } from 'react';
+import { useEffect, useRef } from 'react';
 
 interface PhotoGalleryProps {
   images: { src: string; alt: string }[];
   galleryId?: string;
   imageClassName?: string;
-  speed?: number; // pixels per second
+  speed?: number;
+  phoneFrame?: boolean;
 }
 
-export default function PhotoGallery({ images, galleryId, imageClassName, speed = 30 }: PhotoGalleryProps) {
+export default function PhotoGallery({ images, galleryId, imageClassName, speed = 50, phoneFrame }: PhotoGalleryProps) {
   const trackRef = useRef<HTMLDivElement>(null);
-  const animRef = useRef<number | null>(null);
-  const lastTimeRef = useRef(0);
-  const pausedRef = useRef(false);
+  const animRef = useRef<number>(0);
+  const hovering = useRef(false);
+  const currentSpeed = useRef(speed);
+  const resumeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // We render images 3x for seamless looping
+  // 3x for seamless loop
   const tripled = [...images, ...images, ...images];
-
-  const animate = useCallback((time: number) => {
-    if (!lastTimeRef.current) lastTimeRef.current = time;
-    const delta = time - lastTimeRef.current;
-    lastTimeRef.current = time;
-
-    const track = trackRef.current;
-    if (track && !pausedRef.current) {
-      const px = (speed * delta) / 1000;
-      track.scrollLeft += px;
-
-      // When we've scrolled past the first copy, jump back seamlessly
-      const oneSetWidth = track.scrollWidth / 3;
-      if (track.scrollLeft >= oneSetWidth * 2) {
-        track.scrollLeft -= oneSetWidth;
-      }
-    }
-
-    animRef.current = requestAnimationFrame(animate);
-  }, [speed]);
 
   useEffect(() => {
     const track = trackRef.current;
-    if (track) {
-      // Start at the middle copy so we can scroll both directions
-      const oneSetWidth = track.scrollWidth / 3;
-      track.scrollLeft = oneSetWidth;
-    }
-    animRef.current = requestAnimationFrame(animate);
-    return () => {
-      if (animRef.current) cancelAnimationFrame(animRef.current);
+    if (!track) return;
+
+    // Start at the first copy
+    const oneSet = track.scrollWidth / 3;
+    track.scrollLeft = oneSet;
+
+    let prev = 0;
+
+    const tick = (time: number) => {
+      if (prev) {
+        const dt = time - prev;
+
+        // Ease current speed toward target
+        const target = hovering.current ? 0 : speed;
+        currentSpeed.current += (target - currentSpeed.current) * 0.05;
+
+        const px = (currentSpeed.current * dt) / 1000;
+        track.scrollLeft += px;
+
+        // Seamless loop
+        const setWidth = track.scrollWidth / 3;
+        if (track.scrollLeft >= setWidth * 2) {
+          track.scrollLeft -= setWidth;
+        } else if (track.scrollLeft < setWidth * 0.5) {
+          track.scrollLeft += setWidth;
+        }
+      }
+      prev = time;
+      animRef.current = requestAnimationFrame(tick);
     };
-  }, [animate]);
 
-  const handleInteractionStart = useCallback(() => {
-    pausedRef.current = true;
-  }, []);
+    animRef.current = requestAnimationFrame(tick);
 
-  const handleInteractionEnd = useCallback(() => {
-    setTimeout(() => { pausedRef.current = false; }, 1500);
-  }, []);
+    return () => cancelAnimationFrame(animRef.current);
+  }, [speed]);
+
+  const handleEnter = () => {
+    if (resumeTimer.current) clearTimeout(resumeTimer.current);
+    hovering.current = true;
+  };
+
+  const handleLeave = () => {
+    // Wait 1s then ease back (the ease happens in the rAF loop)
+    resumeTimer.current = setTimeout(() => {
+      hovering.current = false;
+    }, 1000);
+  };
 
   return (
     <div
@@ -65,13 +76,19 @@ export default function PhotoGallery({ images, galleryId, imageClassName, speed 
       id={galleryId}
       className="photo-gallery"
       aria-label="Photo gallery"
-      onPointerDown={handleInteractionStart}
-      onPointerUp={handleInteractionEnd}
-      onPointerLeave={handleInteractionEnd}
+      onMouseEnter={handleEnter}
+      onMouseLeave={handleLeave}
     >
-      {tripled.map((img, i) => (
-        <img key={i} src={img.src} alt={img.alt} className={imageClassName} />
-      ))}
+      {tripled.map((img, i) =>
+        phoneFrame ? (
+          <span key={i} className="phone-frame-wrapper">
+            <img src={img.src} alt={img.alt} className={`phone-frame-screenshot ${imageClassName || ''}`} />
+            <img src="/assets/iphone-frame.png" alt="" className="phone-frame-overlay" />
+          </span>
+        ) : (
+          <img key={i} src={img.src} alt={img.alt} className={imageClassName} />
+        )
+      )}
     </div>
   );
 }
