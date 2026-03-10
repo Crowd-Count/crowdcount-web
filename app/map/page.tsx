@@ -488,6 +488,7 @@ export default function MapPage() {
       showsZoomControl: false,
       showsMapTypeControl: false,
       showsPointsOfInterest: false,
+      showsCompass: (mapkit as any).FeatureVisibility.Hidden,
     });
     mapRef.current = map;
 
@@ -851,6 +852,7 @@ export default function MapPage() {
       {/* Full-screen map area */}
       <div className="map-body">
         <div id="map"></div>
+        <div className="map-title">CrowdCount Map</div>
 
         {/* Left sidebar */}
         <div className={`map-sidebar${listVisible ? '' : ' collapsed'}`}>
@@ -1274,14 +1276,32 @@ function PromosPanel({ ads, onCardClick }: { ads: Ad[]; onCardClick: (ad: Ad) =>
         ))}
       </div>
       {ads.length > 1 && (
-        <div className="map-promos-dots">
-          {ads.map((_, i) => (
-            <span
-              key={i}
-              className={`map-promos-dot${i === activeIndex ? ' active' : ''}`}
-              onClick={() => scrollToIndex(i)}
-            />
-          ))}
+        <div className="map-promos-nav">
+          <button
+            className="map-promos-arrow"
+            onClick={() => scrollToIndex(Math.max(0, activeIndex - 1))}
+            disabled={activeIndex === 0}
+            aria-label="Previous promotion"
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6" /></svg>
+          </button>
+          <div className="map-promos-dots">
+            {ads.map((_, i) => (
+              <span
+                key={i}
+                className={`map-promos-dot${i === activeIndex ? ' active' : ''}`}
+                onClick={() => scrollToIndex(i)}
+              />
+            ))}
+          </div>
+          <button
+            className="map-promos-arrow"
+            onClick={() => scrollToIndex(Math.min(ads.length - 1, activeIndex + 1))}
+            disabled={activeIndex === ads.length - 1}
+            aria-label="Next promotion"
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 18l6-6-6-6" /></svg>
+          </button>
         </div>
       )}
     </div>
@@ -1371,6 +1391,12 @@ function PromoModal({ ad, adLocation, onClose }: {
 
   const imagePath = getAdField(ad, 'imagePath', 'image_path');
   const imageUrl = getAdImageUrl(imagePath);
+  const [accentColor, setAccentColor] = useState<string>('#fd4040');
+
+  useEffect(() => {
+    if (!imageUrl) return;
+    extractDominantColor(imageUrl).then(setAccentColor);
+  }, [imageUrl]);
 
   const openDirections = () => {
     if (adLocation) {
@@ -1405,7 +1431,7 @@ function PromoModal({ ad, adLocation, onClose }: {
           <div className="promo-modal-label">Sponsored Content</div>
           <div className="promo-modal-title">{ad.title}</div>
           <div className="promo-modal-description">{ad.description}</div>
-          <button className="promo-modal-directions" onClick={openDirections}>Get Directions</button>
+          <button className="promo-modal-directions" style={{ backgroundColor: accentColor }} onClick={openDirections}>Get Directions</button>
           <div className="promo-modal-reference">{generateReferenceNumber(ad.id || '')}</div>
         </div>
       </div>
