@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Report - CrowdCount</title>
+    <meta property="og:title" content="Report - CrowdCount">
+    <meta property="og:description" content="CrowdCount offers accurate crowd counting solutions. Discover the best crowd counting technology for a wide range of applications.">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="CrowdCount">
+    <meta property="og:image" content="./assets/Logos/banner.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="./assets/Favicon-Icons/favicon-16x16.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="./assets/Favicon-Icons/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="./assets/Favicon-Icons/android-chrome-192x192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="./assets/Favicon-Icons/android-chrome-512x512.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="./assets/Favicon-Icons/apple-touch-icon.png">
+    <link rel="shortcut icon" href="./assets/Favicon-Icons/favicon.ico">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD" crossorigin="anonymous">
+    <link href="./styles/styles.css" rel="stylesheet">
+    <link href="https://fonts.cdnfonts.com/css/sf-pro-display" rel="stylesheet">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet" integrity="sha384-/rJKQnzOkEo+daG0jMjU1IwwY9unxt1NBw3Ef2fmOJ3PW/TfAg2KXVoWwMZQZtw9" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/typewriter-effect@2.18.2/dist/core.js" integrity="sha384-D9OWnhATqTL1zPioFCidy8eJF1VYy/sJZnzp3+GNMUUT7tdUG0vmiTe0C6wkez0p" crossorigin="anonymous"></script> <!-- TypewriterJS -->
+</head>
+<body id="secondarypage" onload="fetchOptions()">
+    <nav id="sticky-nav" class="sticky-nav">
+        <div class="sticky-nav-content">
+            <a href="index.html" class="nav-logo"><img src="assets/Logos/TransparentLogoCropped.png" alt="CrowdCount">CrowdCount</a>
+            <ul class="nav-menu">
+                <li><a href="index.html" class="ripple">Home</a></li>
+                <li><a href="products.html" class="ripple">Products</a></li>
+                <li><a href="map.html" class="ripple">Map</a></li>
+                <li><a href="https://counter.crowdcount.tech" target="_blank" rel="noopener noreferrer" class="ripple">Counter Manager</a></li>
+                <li><a href="api.html" class="ripple">API</a></li>
+                <li><a href="about.html" class="ripple">About & Contact</a></li>
+            </ul>
+            <button class="nav-toggle" onclick="toggleMobileNav()">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
+        <ul class="nav-menu-mobile">
+            <li><a href="index.html">Home</a></li>
+            <li><a href="products.html">Products</a></li>
+            <li><a href="map.html">Map</a></li>
+            <li><a href="https://counter.crowdcount.tech" target="_blank" rel="noopener noreferrer">Counter Manager</a></li>
+            <li><a href="api.html">API</a></li>
+            <li><a href="about.html">About & Contact</a></li>
+        </ul>
+    </nav>
+    <header class="d-flex flex-column" data-aos="fade-down">
+        <div class="text-center">
+            <div id="MediumHomeTitle" class="d-inline-block"><div id="CrowdCountREPORT"></div></div> <!-- Ensure it's inline-block -->
+        </div>
+        <ul id="menu" class="list-inline mt-3">
+            <li class="list-inline-item"><a href='index.html' class="ripple">Home</a></li>
+            <li class="list-inline-item"><a href='products.html' class="ripple">Products</a></li>
+            <li class="list-inline-item"><a href='map.html' class="ripple">Map</a></li>
+            <li class="list-inline-item"><a href='https://counter.crowdcount.tech' target="_blank" rel="noopener noreferrer" class="ripple">Counter Manager</a></li>
+            <li class="list-inline-item"><a href='api.html' class="ripple">API</a></li>
+            <li class="list-inline-item"><a href='about.html' class="ripple">About & Contact</a></li>
+        </ul>
+    </header>
+    <br>
+    <h3 id="center" data-aos="fade-up">
+        <div id="secondary"><div id="primary">We apologize if something is wrong</div>, feel free to tell us what's the problem.</div>
+    </h3>
+    <br>
+    <h3 id="center">
+        <div class="text-box-legal" data-aos="fade-up">
+            <img src="./assets/Icons/comment-dots-solid.png" alt="Bubble with dots" class="scaled-image-hand-legal"><br>
+            <h1 id="primaryTitleBold">Submit a Report</h1>
+            <br>
+            <h2 id="secondary">Every category must be filled out</h2>
+            <br>
+            <br>
+            <div class="form-section" id="user-info-section">
+                <h2 id="primaryBold">Your Information</h2><br><br>
+                <input type="text" id="name" placeholder="Name" required>
+                <input type="email" id="email" placeholder="Email" required>
+            </div>
+            <br>
+            <div class="form-section" id="location-section">
+                <h2 id="primaryBold">Select a Location</h2><br><br>
+                <select id="location" required>
+                    <option value="">Click to select a location </option>
+                </select>
+            </div>
+            <br>
+            <div class="form-section" id="report-section">
+                <h2 id="primaryBold">What is wrong?</h2><br>
+                <h2 id="secondary">Select the corresponding option</h2>
+                <br><br>
+                <div id="report-options">
+                    <input type="radio" id="falsifying" name="report" value="This location is falsifying its count data">
+                    <label for="falsifying">This location is falsifying its count data</label><br>
+                    <input type="radio" id="malfunctioning" name="report" value="This location's counter is malfunctioning">
+                    <label for="malfunctioning">This location's counter is malfunctioning</label><br>
+                    <input type="radio" id="moved" name="report" value="This location has moved or no longer exists">
+                    <label for="moved">This location has moved or no longer exists</label><br>
+                    <input type="radio" id="other" name="report" value="Other">
+                    <label for="other">Other</label><br>
+                    <textarea id="other-report-content" placeholder="Please specify" style="display: none;"></textarea>
+                </div>
+            </div>
+            <button id="big-red-button" onclick="submitReport()" class="ripple" disabled>Submit Report</button>
+            <div class="success-message" id="success-message" style="display: none;">Report Submitted! Thank you, we'll go take a look at it.</div>
+            <div class="error-message" id="error-message" style="display: none;"></div>
+        </div>
+    </h3>
+    <h3 id="center" data-aos="fade-up">
+        <div class="text-box">
+            <div id="secondary"><div id="primary">Want to know how we manage reports?</div> Visit <a href="report/info.html">crowdcount.tech/report/info</a></div>
+        </div>
+    </h3>  
+    <div id="bottom-note">© 2026 CrowdCount LLC. All rights reserved. | <a href="legal/privacy-policy.html" id="bottom-color">Privacy Policy</a> | <a href="legal/terms-of-use.html" id="bottom-color">Terms of Use</a></div>    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js" integrity="sha384-w76AqPfDkMBDXo30jS1Sgez6pr3x5MlQ1ZAGC+nuZB+EYdgRZgiwxhTBTkF7CXvN" crossorigin="anonymous"></script>
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js" integrity="sha384-wziAfh6b/qT+3LrqebF9WeK4+J5sehS6FA10J1t3a866kJ/fvU5UwofWnQyzLtwu" crossorigin="anonymous"></script>
+    <script src="./scripts/script.js"></script>
+    <script>
+        AOS.init();
+
+        function fetchOptions() {
+            fetch('https://api.crowdcount.tech/get_all_location_names')
+                .then(response => response.json())
+                .then(data => {
+                    const locationSelect = document.getElementById('location');
+                    data.location_names.forEach(location => {
+                        const option = document.createElement('option');
+                        option.value = location;
+                        option.textContent = location;
+                        locationSelect.appendChild(option);
+                    });
+                    document.getElementById('loading').style.display = 'none';
+                })
+                .catch(error => {
+                    console.error('Error fetching options:', error);
+                    document.getElementById('loading').textContent = 'Failed to load options';
+                });
+        }
+
+        function updateSubmitButtonState() {
+            const name = document.getElementById('name').value;
+            const email = document.getElementById('email').value;
+            const location = document.getElementById('location').value;
+            const report = document.querySelector('input[name="report"]:checked');
+            const otherReportContent = document.getElementById('other-report-content').value;
+
+            const isFormValid = name && email && location && report && (report.value !== "Other" || otherReportContent);
+            document.getElementById('big-red-button').disabled = !isFormValid;
+        }
+
+        document.getElementById('name').addEventListener('input', updateSubmitButtonState);
+        document.getElementById('email').addEventListener('input', updateSubmitButtonState);
+        document.getElementById('location').addEventListener('change', updateSubmitButtonState);
+        document.querySelectorAll('input[name="report"]').forEach((elem) => {
+            elem.addEventListener("change", function(event) {
+                var item = event.target.value;
+                if(item === "Other") {
+                    document.getElementById('other-report-content').style.display = 'block';
+                } else {
+                    document.getElementById('other-report-content').style.display = 'none';
+                }
+                updateSubmitButtonState();
+            });
+        });
+        document.getElementById('other-report-content').addEventListener('input', updateSubmitButtonState);
+
+        function clearForm() {
+            document.getElementById('name').value = '';
+            document.getElementById('email').value = '';
+            document.getElementById('location').value = '';
+            document.querySelectorAll('input[name="report"]').forEach((elem) => {
+                elem.checked = false;
+            });
+            document.getElementById('other-report-content').value = '';
+            document.getElementById('other-report-content').style.display = 'none';
+            updateSubmitButtonState();
+        }
+
+        function submitReport() {
+            const name = document.getElementById('name').value;
+            const email = document.getElementById('email').value;
+            const location = document.getElementById('location').value;
+            const report = document.querySelector('input[name="report"]:checked').value;
+            const otherReportContent = document.getElementById('other-report-content').value;
+
+            const reportContent = report === "Other" ? otherReportContent : report;
+
+            const reportData = {
+                name: name,
+                email: email,
+                location: location,
+                content: reportContent
+            };
+
+            fetch('https://api.crowdcount.tech/submit_report', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(reportData)
+            })
+            .then(response => {
+                if (response.ok) {
+                    clearForm();
+                    document.getElementById('success-message').style.display = 'block';
+                    setTimeout(() => {
+                        document.getElementById('success-message').style.display = 'none';
+                    }, 5000);
+                } else {
+                    return response.text().then(text => {throw new Error(text)});
+                }
+            })
+            .catch(error => {
+                clearForm();
+                document.getElementById('error-message').textContent = 'Failed to submit report: ' + error.message;
+                document.getElementById('error-message').style.display = 'block';
+                setTimeout(() => {
+                    document.getElementById('error-message').style.display = 'none';
+                }, 3000);
+            });
+        }
+    </script>
+    <script src="./scripts/alerts.js"></script>
+</body>
+</html>
