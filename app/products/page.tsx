@@ -95,7 +95,7 @@ export default function ProductsPage() {
             <br />Check out our <div id="primary">beautiful design!</div>
             <div data-aos="fade-up">
               <div className="text-box-legal gallery-container" id="counter-gallery">
-                <PhotoGallery images={counterPhotos} speed={35} />
+                <PhotoGallery images={counterPhotos} speed={120} />
               </div>
             </div>
             <br />While we are not yet shipping, <div id="primary">we are currently doing free installs in the Boulder/Denver area!</div> Send us an email at <a href="mailto:info@crowdcount.tech">info@crowdcount.tech</a> to learn more about it and potentially receive your own.
@@ -129,7 +129,7 @@ export default function ProductsPage() {
             <br />
             <div data-aos="fade-up">
               <div className="text-box-legal gallery-container" id="app-gallery">
-                <PhotoGallery images={appPhotos} galleryId="photo-gallery" speed={30} phoneFrame />
+                <PhotoGallery images={appPhotos} galleryId="photo-gallery" speed={100} phoneFrame />
               </div>
             </div>
             Now available on the App Store!

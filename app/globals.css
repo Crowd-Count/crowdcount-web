@@ -1382,11 +1382,13 @@ button:focus {
 
 .feature-card {
     --card-glow: rgba(255, 255, 255, 0);
-    background: radial-gradient(
-        circle 120px at var(--card-mx, 50%) var(--card-my, 50%),
-        var(--card-glow),
-        transparent 100%
-    );
+    background:
+        radial-gradient(
+            circle 120px at var(--card-mx, 50%) var(--card-my, 50%),
+            var(--card-glow),
+            transparent 100%
+        ),
+        rgba(255, 255, 255, 0.05);
     border: none;
     border-radius: 16px;
     padding: 18px 14px;
