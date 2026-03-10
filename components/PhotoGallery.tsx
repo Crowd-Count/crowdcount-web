@@ -10,7 +10,7 @@ interface PhotoGalleryProps {
   phoneFrame?: boolean;
 }
 
-export default function PhotoGallery({ images, galleryId, imageClassName, speed = 50, phoneFrame }: PhotoGalleryProps) {
+export default function PhotoGallery({ images, galleryId, imageClassName, speed = 150, phoneFrame }: PhotoGalleryProps) {
   const trackRef = useRef<HTMLDivElement>(null);
   const targetSpeed = useRef(speed);
   const currentSpeed = useRef(0);
@@ -44,7 +44,7 @@ export default function PhotoGallery({ images, galleryId, imageClassName, speed 
       if (dt < 0.1) {
         // Move currentSpeed toward targetSpeed at 80px/s/s
         const diff = targetSpeed.current - currentSpeed.current;
-        const step = 80 * dt; // acceleration rate
+        const step = 150 * dt; // acceleration rate (~1s to full speed)
         if (Math.abs(diff) < step) {
           currentSpeed.current = targetSpeed.current;
         } else {

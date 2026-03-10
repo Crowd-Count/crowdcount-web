@@ -1423,10 +1423,39 @@ button:focus {
     }
 }
 
+/* ===== Specs Layout (table + text side by side) ===== */
+
+.specs-layout {
+    display: flex;
+    gap: 30px;
+    align-items: flex-start;
+    margin: 20px 0;
+    text-align: left;
+}
+
+.specs-layout .specs-table-wrapper {
+    flex-shrink: 0;
+}
+
+.specs-text {
+    flex: 1;
+    text-align: left;
+}
+
+@media (max-width: 768px) {
+    .specs-layout {
+        flex-direction: column;
+        text-align: center;
+    }
+    .specs-text {
+        text-align: center;
+    }
+}
+
 /* ===== Specs Table ===== */
 
 .specs-table-wrapper {
-    margin: 28px auto;
+    margin: 0;
     max-width: 520px;
 }
 

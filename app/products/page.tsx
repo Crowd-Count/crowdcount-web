@@ -67,30 +67,32 @@ export default function ProductsPage() {
             <img src="/assets/Icons/ellipsis.rectangle.fill.png" alt="Crowd Counter Icon" className="scaled-image-counter" /><br />
             <div id="primaryTitleBold">Crowd Counter 1</div>
             <br /><br />
-            <div id="primary">Our flagship product</div>, complete and available to anyone. The Crowd Counter 1 is engineered to allow seamless install and use by anybody.
-            <br />
-            <br />The Crowd Counter 1 counts the number of people entering and exiting your location, <div id="primary">providing you with a live count of the number of people inside and the amount of entries.</div>
-            <br />
-            <br />Simply <div id="primary">place the small device above your door and let it do the rest.</div> Using its camera, it sends the footage to our powerful custom built in house NVIDIA servers for us to do the processing. That way, the device can remain inexpensive and reliable for our customers. In addition, we restrict our own access to the footage, ensuring your privacy is maintained at all times.
-            <br />
-            <br />Integrated with our wonderful <a id="primary" href="https://crowdcount.tech/app">iOS App</a> which allows you to access this information from anywhere and anytime. The app also serves as a tool to help you set it up for the first time, and add multiple if you have multiple entrances. If you would like to manage your existing counter on desktop or without the mobile app, we also have a <a href="https://counter.crowdcount.tech" target="_blank" rel="noopener noreferrer" id="primary">web interface</a> at your disposal.
-
-            {/* Specs table */}
-            <div className="specs-table-wrapper" data-aos="fade-up">
-              <div id="primary" style={{ marginBottom: '20px', fontSize: '1.1rem' }}>Technical Specs</div>
-              <table className="specs-table">
-                <tbody>
-                  <tr><td className="specs-label">Accuracy</td><td className="specs-value"><span className="specs-highlight">Up to 99%</span></td></tr>
-                  <tr><td className="specs-label">Processing</td><td className="specs-value">Cloud (In-House NVIDIA Server)</td></tr>
-                  <tr><td className="specs-label">Connectivity</td><td className="specs-value">Wi-Fi & Bluetooth</td></tr>
-                  <tr><td className="specs-label">Setup Time</td><td className="specs-value"><span className="specs-highlight">~5 minutes</span></td></tr>
-                  <tr><td className="specs-label">Entrances</td><td className="specs-value">Unlimited (1 per door)</td></tr>
-                  <tr><td className="specs-label">App Support</td><td className="specs-value">iOS, Web</td></tr>
-                  <tr><td className="specs-label">Data</td><td className="specs-value">Live count, entries, history, insights</td></tr>
-                  <tr><td className="specs-label">Generation</td><td className="specs-value">Gen 1.3 (Jan 2026)</td></tr>
-                  <tr><td className="specs-label">Price</td><td className="specs-value"><span className="specs-highlight">$39.99/mo</span> <span style={{ color: 'rgba(255,255,255,0.4)', fontSize: '0.8rem' }}>(free during pilot program)</span></td></tr>
-                </tbody>
-              </table>
+            <div className="specs-layout" data-aos="fade-up">
+              <div className="specs-table-wrapper">
+                <div id="primary" style={{ marginBottom: '12px', fontSize: '1.1rem' }}>Technical Specs</div>
+                <table className="specs-table">
+                  <tbody>
+                    <tr><td className="specs-label">Accuracy</td><td className="specs-value"><span className="specs-highlight">Up to 99%</span></td></tr>
+                    <tr><td className="specs-label">Processing</td><td className="specs-value">Cloud (In-House NVIDIA Server)</td></tr>
+                    <tr><td className="specs-label">Connectivity</td><td className="specs-value">Wi-Fi & Bluetooth</td></tr>
+                    <tr><td className="specs-label">Setup Time</td><td className="specs-value"><span className="specs-highlight">~5 minutes</span></td></tr>
+                    <tr><td className="specs-label">Entrances</td><td className="specs-value">Unlimited (1 per door)</td></tr>
+                    <tr><td className="specs-label">App Support</td><td className="specs-value">iOS, Web</td></tr>
+                    <tr><td className="specs-label">Data</td><td className="specs-value">Live count, entries, history, insights</td></tr>
+                    <tr><td className="specs-label">Generation</td><td className="specs-value">Gen 1.3 (Jan 2026)</td></tr>
+                    <tr><td className="specs-label">Price</td><td className="specs-value"><span className="specs-highlight">$39.99/mo</span> <span style={{ color: 'rgba(255,255,255,0.4)', fontSize: '0.8rem' }}>(free during pilot)</span></td></tr>
+                  </tbody>
+                </table>
+              </div>
+              <div className="specs-text">
+                <div id="primary">Our flagship product</div>, complete and available to anyone. The Crowd Counter 1 is engineered to allow seamless install and use by anybody.
+                <br />
+                <br />The Crowd Counter 1 counts the number of people entering and exiting your location, <div id="primary">providing you with a live count of the number of people inside and the amount of entries.</div>
+                <br />
+                <br />Simply <div id="primary">place the small device above your door and let it do the rest.</div> Using its camera, it sends the footage to our powerful custom built in house NVIDIA servers for us to do the processing. That way, the device can remain inexpensive and reliable for our customers. In addition, we restrict our own access to the footage, ensuring your privacy is maintained at all times.
+                <br />
+                <br />Integrated with our wonderful <a id="primary" href="https://crowdcount.tech/app">iOS App</a> which allows you to access this information from anywhere and anytime. The app also serves as a tool to help you set it up for the first time, and add multiple if you have multiple entrances. If you would like to manage your existing counter on desktop or without the mobile app, we also have a <a href="https://counter.crowdcount.tech" target="_blank" rel="noopener noreferrer" id="primary">web interface</a> at your disposal.
+              </div>
             </div>
 
             Check out our <div id="primary">beautiful design!</div>
@@ -130,7 +132,7 @@ export default function ProductsPage() {
             <br />
             <div data-aos="fade-up">
               <div className="text-box-legal gallery-container" id="app-gallery">
-                <PhotoGallery images={appPhotos} galleryId="photo-gallery" phoneFrame />
+                <PhotoGallery images={appPhotos} galleryId="photo-gallery" />
               </div>
             </div>
             Now available on the App Store!
