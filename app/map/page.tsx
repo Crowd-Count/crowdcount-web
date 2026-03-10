@@ -3,9 +3,7 @@
 import { useEffect, useState, useCallback, useRef } from 'react';
 import Script from 'next/script';
 import Link from 'next/link';
-import MenuLinks from '@/components/MenuLinks';
-import TypewriterText from '@/components/TypewriterText';
-import { API_BASE_URL, MAPKIT_TOKEN } from '@/lib/constants';
+import { API_BASE_URL, MAPKIT_TOKEN, NAV_LINKS } from '@/lib/constants';
 
 /* ------------------------------------------------------------------ */
 /*  MapKit JS global type declarations                                 */
@@ -387,7 +385,6 @@ export default function MapPage() {
       new mapkit.Coordinate(lat, lon),
       new mapkit.CoordinateSpan(0.003, 0.003)
     ));
-    document.getElementById('map-container')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
   }, []);
 
   /* ---- Select location → show detail card ---- */
@@ -443,139 +440,116 @@ export default function MapPage() {
   });
 
   return (
-    <>
+    <div className="map-page">
       <Script
         src="https://cdn.apple-mapkit.com/mk/5.x.x/mapkit.js"
         strategy="afterInteractive"
         onLoad={onMapkitLoad}
       />
 
-      <header className="d-flex flex-column" data-aos="fade-down">
-        <div className="text-center">
-          <div id="MediumHomeTitle" className="d-inline-block">
-            <TypewriterText text="CrowdCount Map" id="CrowdCountMAP" />
-          </div>
+      {/* Top nav bar */}
+      <nav className="map-topbar">
+        <Link href="/" className="map-topbar-brand">CrowdCount</Link>
+        <div className="map-topbar-links">
+          {NAV_LINKS.filter(l => l.href !== '/map').map(link =>
+            link.external ? (
+              <a key={link.href} href={link.href} target="_blank" rel="noopener noreferrer">{link.label}</a>
+            ) : (
+              <Link key={link.href} href={link.href}>{link.label}</Link>
+            )
+          )}
         </div>
-        <MenuLinks />
-      </header>
+      </nav>
 
-      <h3 id="center" data-aos="fade-up">
-        <div id="secondary">Here is a map of all our public users! <div id="primary">See the live counts by clicking on the locations.</div></div>
-      </h3>
-      <br />
+      {/* Full-screen map area */}
+      <div className="map-body">
+        <div id="map"></div>
 
-      <h3 id="center" data-aos="fade-up">
-        <div id="secondary">
-          <div id="map-container">
-            <div id="map" data-aos="fade-up"></div>
-            {selectedLocation && (
-              <LocationDetailCard
-                key={selectedLocationId}
-                location={selectedLocation}
-                popularTimesData={popularTimesData[selectedLocation.location_id]}
-                popularTimesLoading={!!popularTimesLoading[selectedLocation.location_id]}
-                onClose={handleCloseDetailCard}
-              />
-            )}
+        {/* Left sidebar */}
+        <div className={`map-sidebar${listVisible ? '' : ' collapsed'}`}>
+          <div className="map-sidebar-header">
+            <input
+              type="text"
+              className="map-sidebar-search"
+              placeholder="Search locations..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+            <button
+              className="map-sidebar-toggle"
+              onClick={() => setListVisible(v => !v)}
+              aria-label={listVisible ? 'Collapse sidebar' : 'Expand sidebar'}
+            >
+              {listVisible ? '\u2039' : '\u203A'}
+            </button>
           </div>
-        </div>
-      </h3>
 
-      <br />
-
-      {/* Promo Carousel - only shown when promotions exist */}
-      {ads.length > 0 && (
-        <h3 id="center">
-          <PromoCarousel
-            ads={ads}
-            onCardClick={handleAdCtaClick}
-          />
-        </h3>
-      )}
-
-      {/* Location List */}
-      <h3 id="center">
-        <div className="text-box-legal" data-aos="fade-up" data-aos-delay="150">
-          <div id="secondary">
-            <div id="location-list-content">
-              <input
-                type="text"
-                id="location-search"
-                placeholder="Search locations..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-                <div className="location-list" id="locations-container">
-                  {locations.length === 0 ? (
-                    <div style={{ textAlign: 'center', color: 'var(--gray-color)' }}>Loading locations...</div>
-                  ) : sortedLocations.length === 0 ? (
-                    <div className="no-results">
-                      <div className="no-results-icon"></div>
-                      <p>No locations found</p>
-                    </div>
-                  ) : (
-                    sortedLocations.map(loc => (
-                      <div
-                        key={loc.location_id}
-                        className={`location-item${selectedLocationId === loc.location_id ? ' selected' : ''}`}
-                        onClick={() => handleLocationClick(loc)}
-                      >
-                        <span className="location-color-dot" style={{ backgroundColor: getMarkerColor(loc.location_color || '') }}></span>
-                        <span className="location-name">{loc.location_name}</span>
-                        <div className="location-stats">
-                          {loc.is_closed ? (
-                            <span className="location-closed">Closed</span>
-                          ) : (
-                            <>
-                              <span className="location-count-label">Count:</span>
-                              <span className="location-count-number">{loc.current_count}</span>
-                              {loc.overcrowding_limit != null && (
-                                <span className="location-overcrowding"> / {loc.overcrowding_limit}</span>
-                              )}
-                              {getComparisonSymbol(loc.location_comparison) && (
-                                <span className={getComparisonClass(loc.location_comparison)}>
-                                  {getComparisonSymbol(loc.location_comparison)}
-                                </span>
-                              )}
-                            </>
-                          )}
-                        </div>
+          {listVisible && (
+            <div className="map-sidebar-content">
+              <div className="map-sidebar-list">
+                {locations.length === 0 ? (
+                  <div className="map-sidebar-empty">Loading locations...</div>
+                ) : sortedLocations.length === 0 ? (
+                  <div className="map-sidebar-empty">No locations found</div>
+                ) : (
+                  sortedLocations.map(loc => (
+                    <div
+                      key={loc.location_id}
+                      className={`map-sidebar-item${selectedLocationId === loc.location_id ? ' selected' : ''}`}
+                      onClick={() => handleLocationClick(loc)}
+                    >
+                      <span className="location-color-dot" style={{ backgroundColor: getMarkerColor(loc.location_color || '') }}></span>
+                      <span className="map-sidebar-item-name">{loc.location_name}</span>
+                      <div className="map-sidebar-item-stats">
+                        {loc.is_closed ? (
+                          <span className="location-closed">Closed</span>
+                        ) : (
+                          <>
+                            <span className="map-sidebar-item-count">{loc.current_count}</span>
+                            {loc.overcrowding_limit != null && (
+                              <span className="map-sidebar-item-limit">/ {loc.overcrowding_limit}</span>
+                            )}
+                            {getComparisonSymbol(loc.location_comparison) && (
+                              <span className={getComparisonClass(loc.location_comparison)}>
+                                {getComparisonSymbol(loc.location_comparison)}
+                              </span>
+                            )}
+                          </>
+                        )}
                       </div>
-                    ))
-                  )}
-                </div>
-              <div className="location-sort-footer">
+                    </div>
+                  ))
+                )}
+              </div>
+
+              <div className="map-sidebar-sort-label">
                 {userLocation ? 'Sorted by distance' : 'Sorted alphabetically'}
               </div>
-            </div>
-          </div>
-        </div>
-      </h3>
 
-      <h3 id="center">
-        <div className="text-box-container" data-aos="fade-up" data-aos-delay="250">
-          <div className="text-box">
-            <div id="secondary"><div id="primary">Something wrong?</div> Please fill out a report at <Link href="/report">crowdcount.tech/report</Link></div>
-          </div>
-          <div className="text-box">
-            <div id="secondary"><div id="primary">Want to see a better map?</div> Start using our new iOS App today at <Link href="/app">crowdcount.tech/app</Link></div>
-          </div>
-          <div className="text-box">
-            <div id="secondary"><div id="primary">Want to add your own location?</div> Please send a message to <a href="mailto:info@crowdcount.tech">info@crowdcount.tech</a></div>
-          </div>
+              {/* Promos at bottom of sidebar */}
+              {ads.length > 0 && (
+                <div className="map-sidebar-promos">
+                  <div className="map-sidebar-promos-title">Promotions</div>
+                  {ads.map((ad, i) => (
+                    <PromoCard key={ad.id || i} ad={ad} index={i} onClick={() => handleAdCtaClick(ad)} />
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
         </div>
-        <div className="text-box-legal" data-aos="fade-up" data-aos-delay="300">
-          <div id="secondary">
-            Here is some information regarding the map
-            <br /><br /><div id="primary">{'\u2191\u2193'} Comparisons</div>
-            <br />These arrows indicate whether the current location population is more or less crowded than usual at this given time and day ({'\u00B1'}25%).
-            <br /><br /><div id="primary">/ # Overcrowding Indicator</div>
-            <br />The number that can be displayed after the slash on certain locations shows the maximum amount of people that this location can hold (it is inputted by the business and is in no way an official or legal limit).
-            <br /><br /><div id="primary">Sponsored Promotions</div>
-            <br />The promotions carousel displays sponsored content from local businesses. All promotions are reviewed and approved by our team before appearing. Each promotion runs for a set duration shown by the countdown timer. Promotions are sorted by distance, so you&apos;ll see the closest ones first.
-          </div>
-        </div>
-      </h3>
+
+        {/* Detail card — overlays bottom of map */}
+        {selectedLocation && (
+          <LocationDetailCard
+            key={selectedLocationId}
+            location={selectedLocation}
+            popularTimesData={popularTimesData[selectedLocation.location_id]}
+            popularTimesLoading={!!popularTimesLoading[selectedLocation.location_id]}
+            onClose={handleCloseDetailCard}
+          />
+        )}
+      </div>
 
       {/* Promo Detail Modal */}
       {modalAd && (
@@ -585,7 +559,7 @@ export default function MapPage() {
           onClose={() => setModalAd(null)}
         />
       )}
-    </>
+    </div>
   );
 }
 
@@ -720,73 +694,6 @@ function PopularTimesPanel({ data, loading, currentCount }: {
         {usualAtCurrentHour > 0 && (
           <> &mdash; Usually: {Math.round(usualAtCurrentHour)} around this time</>
         )}
-      </div>
-    </div>
-  );
-}
-
-/* ------------------------------------------------------------------ */
-/*  Promo Carousel                                                     */
-/* ------------------------------------------------------------------ */
-function PromoCarousel({ ads, onCardClick }: { ads: Ad[]; onCardClick: (ad: Ad) => void }) {
-  const carouselRef = useRef<HTMLDivElement>(null);
-  const [activeDot, setActiveDot] = useState(0);
-
-  const updateDots = useCallback(() => {
-    const el = carouselRef.current;
-    if (!el || ads.length <= 1) return;
-    const total = el.scrollWidth - el.clientWidth;
-    const fraction = total > 0 ? el.scrollLeft / total : 0;
-    setActiveDot(Math.round(fraction * (ads.length - 1)));
-  }, [ads.length]);
-
-  useEffect(() => {
-    const el = carouselRef.current;
-    if (!el) return;
-    el.addEventListener('scroll', updateDots);
-    return () => el.removeEventListener('scroll', updateDots);
-  }, [updateDots]);
-
-  const moveGallery = (direction: number) => {
-    const el = carouselRef.current;
-    if (!el) return;
-    const total = el.scrollWidth - el.clientWidth;
-    const step = ads.length > 1 ? total / (ads.length - 1) : total;
-    el.scrollBy({ left: direction * step, behavior: 'smooth' });
-  };
-
-  const scrollToDot = (index: number) => {
-    const el = carouselRef.current;
-    if (!el) return;
-    const total = el.scrollWidth - el.clientWidth;
-    const pos = ads.length > 1 ? (total / (ads.length - 1)) * index : 0;
-    el.scrollTo({ left: pos, behavior: 'smooth' });
-  };
-
-  return (
-    <div className="text-box-legal gallery-container" data-aos="fade-up" data-aos-delay="100">
-      <div style={{ textAlign: 'left' }}>
-        <div id="secondary" style={{ fontSize: '0.9rem', textTransform: 'uppercase', letterSpacing: '1px' }}>Promotions</div>
-        <div className="promo-carousel" ref={carouselRef}>
-          {ads.map((ad, i) => (
-            <PromoCard key={ad.id || i} ad={ad} index={i} onClick={() => onCardClick(ad)} />
-          ))}
-        </div>
-        <div style={{ textAlign: 'center' }}>
-          {ads.length > 1 && (
-            <>
-              <div className="dots-container" style={{ marginTop: '10px' }}>
-                {ads.map((_, i) => (
-                  <span key={i} className={`dot ${i === activeDot ? 'active' : ''}`} onClick={() => scrollToDot(i)}></span>
-                ))}
-              </div>
-              <div className="gallery-controls">
-                <button className="gallery-arrow prev-button" aria-label="Previous Promo" style={{ marginTop: '5px', paddingTop: 0, paddingBottom: 0 }} onClick={() => moveGallery(-1)}>&lt;</button>
-                <button className="gallery-arrow next-button" aria-label="Next Promo" style={{ marginTop: '5px', paddingTop: 0, paddingBottom: 0 }} onClick={() => moveGallery(1)}>&gt;</button>
-              </div>
-            </>
-          )}
-        </div>
       </div>
     </div>
   );
