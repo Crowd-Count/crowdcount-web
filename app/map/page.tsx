@@ -3,7 +3,6 @@
 import { useEffect, useState, useCallback, useRef } from 'react';
 import Script from 'next/script';
 import Link from 'next/link';
-import Image from 'next/image';
 import { API_BASE_URL, MAPKIT_TOKEN, NAV_LINKS } from '@/lib/constants';
 
 /* ------------------------------------------------------------------ */
@@ -37,6 +36,9 @@ declare global {
     class MarkerAnnotation {
       constructor(coordinate: Coordinate, options?: any);
       data: any;
+    }
+    namespace Annotation {
+      enum CollisionMode { Rectangle, Circle, None }
     }
   }
 }
@@ -169,6 +171,96 @@ async function trackAdClick(adId: string) {
       body: JSON.stringify({ adId }),
     });
   } catch { /* silent */ }
+}
+
+/* ---- Dominant color extraction (port of iOS algorithm) ---- */
+function extractDominantColor(imageUrl: string): Promise<string> {
+  return new Promise((resolve) => {
+    const img = new window.Image();
+    img.crossOrigin = 'anonymous';
+    img.onload = () => {
+      try {
+        const size = 50;
+        const canvas = document.createElement('canvas');
+        canvas.width = size;
+        canvas.height = size;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) { resolve('#fd4040'); return; }
+
+        ctx.drawImage(img, 0, 0, size, size);
+        const data = ctx.getImageData(0, 0, size, size).data;
+
+        let totalR = 0, totalG = 0, totalB = 0, totalWeight = 0;
+
+        for (let i = 0; i < data.length; i += 4) {
+          const r = data[i] / 255;
+          const g = data[i + 1] / 255;
+          const b = data[i + 2] / 255;
+          const a = data[i + 3] / 255;
+
+          if (a <= 0.5) continue;
+
+          const maxC = Math.max(r, g, b);
+          const minC = Math.min(r, g, b);
+          const brightness = maxC;
+
+          if (brightness < 0.1 || brightness > 0.9) continue;
+
+          const saturation = maxC > 0 ? (maxC - minC) / maxC : 0;
+          const weight = 1 + saturation * 2;
+
+          totalR += r * weight;
+          totalG += g * weight;
+          totalB += b * weight;
+          totalWeight += weight;
+        }
+
+        if (totalWeight <= 0) { resolve('#fd4040'); return; }
+
+        const avgR = totalR / totalWeight;
+        const avgG = totalG / totalWeight;
+        const avgB = totalB / totalWeight;
+
+        // Convert to HSL, boost saturation, constrain brightness
+        const max = Math.max(avgR, avgG, avgB);
+        const min = Math.min(avgR, avgG, avgB);
+        const l = (max + min) / 2;
+        let h = 0, s = 0;
+
+        if (max !== min) {
+          const d = max - min;
+          s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+          if (max === avgR) h = ((avgG - avgB) / d + (avgG < avgB ? 6 : 0)) / 6;
+          else if (max === avgG) h = ((avgB - avgR) / d + 2) / 6;
+          else h = ((avgR - avgG) / d + 4) / 6;
+        }
+
+        // Boost saturation, constrain lightness
+        s = Math.min(s * 1.5, 1);
+        const boostedL = Math.max(0.3, Math.min(0.55, l));
+
+        // HSL → RGB
+        const hue2rgb = (p: number, q: number, t: number) => {
+          if (t < 0) t += 1; if (t > 1) t -= 1;
+          if (t < 1/6) return p + (q - p) * 6 * t;
+          if (t < 1/2) return q;
+          if (t < 2/3) return p + (q - p) * (2/3 - t) * 6;
+          return p;
+        };
+        const q = boostedL < 0.5 ? boostedL * (1 + s) : boostedL + s - boostedL * s;
+        const p = 2 * boostedL - q;
+        const rr = Math.round(hue2rgb(p, q, h + 1/3) * 255);
+        const gg = Math.round(hue2rgb(p, q, h) * 255);
+        const bb = Math.round(hue2rgb(p, q, h - 1/3) * 255);
+
+        resolve(`rgb(${rr}, ${gg}, ${bb})`);
+      } catch {
+        resolve('#fd4040');
+      }
+    };
+    img.onerror = () => resolve('#fd4040');
+    img.src = imageUrl;
+  });
 }
 
 /* ------------------------------------------------------------------ */
@@ -308,6 +400,7 @@ export default function MapPage() {
       colorScheme: mapkit.Map.ColorSchemes.Dark,
       showsZoomControl: false,
       showsMapTypeControl: false,
+      showsPointsOfInterest: false,
     });
     mapRef.current = map;
 
@@ -324,14 +417,20 @@ export default function MapPage() {
         if (loc.is_closed) {
           subtitle = 'Closed';
         } else {
-          subtitle = `Count: ${loc.current_count}`;
+          subtitle = `${loc.current_count}`;
           if (loc.overcrowding_limit != null) subtitle += ` / ${loc.overcrowding_limit}`;
           const sym = getComparisonSymbol(loc.location_comparison);
           if (sym) subtitle += ` ${sym}`;
         }
         const annotation = new mapkit.MarkerAnnotation(
           new mapkit.Coordinate(loc.location_latitude, loc.location_longitude),
-          { title: loc.location_name, subtitle, color: getMarkerColor(loc.location_color) }
+          {
+            title: loc.location_name,
+            subtitle,
+            color: getMarkerColor(loc.location_color),
+            displayPriority: 750,
+            collisionMode: mapkit.Annotation.CollisionMode.Circle,
+          }
         );
         annotation.data = { locationId: loc.location_id };
         map.addAnnotation(annotation);
@@ -339,15 +438,10 @@ export default function MapPage() {
 
       // Handle annotation select → show detail card
       map.addEventListener('select', (e: any) => {
-        // Skip if this select was triggered programmatically from list click
-        if (selectingFromListRef.current) {
-          selectingFromListRef.current = false;
-          return;
-        }
         const annotation = e.annotation;
         if (!annotation?.data?.locationId) return;
         const loc = locMap.get(annotation.data.locationId);
-        if (loc) handleLocationClickRef.current(loc);
+        if (loc) handleLocationClickRef.current(loc, true);
       });
 
       // Handle deselect → dismiss detail card
@@ -386,31 +480,40 @@ export default function MapPage() {
     return () => clearInterval(interval);
   }, [fetchLocations]);
 
-  /* ---- Center map on a location ---- */
+  /* ---- Center map on a location, offset for sidebar ---- */
   const centerMapOnLocation = useCallback((lat: number, lon: number) => {
     if (!mapRef.current) return;
-    mapRef.current.setRegionAnimated(new mapkit.CoordinateRegion(
-      new mapkit.Coordinate(lat, lon),
-      new mapkit.CoordinateSpan(0.003, 0.003)
+    const map = mapRef.current;
+    // Offset longitude so pin lands in the center of the viewable area (right of sidebar)
+    const mapEl = document.getElementById('map');
+    const sidebarWidth = 360 + 12; // sidebar width + gap
+    const mapWidth = mapEl?.clientWidth || window.innerWidth;
+    const viewableWidth = mapWidth - sidebarWidth;
+    // Only offset if sidebar is visible (desktop)
+    const isMobile = window.innerWidth <= 768;
+    const offsetFraction = isMobile ? 0 : sidebarWidth / mapWidth / 2;
+    const currentSpan = 0.003;
+    const lngOffset = currentSpan * offsetFraction * (mapWidth / viewableWidth);
+
+    map.setRegionAnimated(new mapkit.CoordinateRegion(
+      new mapkit.Coordinate(lat, lon - lngOffset),
+      new mapkit.CoordinateSpan(currentSpan, currentSpan)
     ));
   }, []);
 
   /* ---- Select location → show detail card + select map pin ---- */
-  const selectingFromListRef = useRef(false);
-
-  const handleLocationClick = useCallback((loc: LocationData) => {
+  const handleLocationClick = useCallback((loc: LocationData, fromMap?: boolean) => {
     centerMapOnLocation(loc.location_latitude, loc.location_longitude);
     setSelectedLocationId(loc.location_id);
     fetchPopularTimes(loc.location_id);
 
-    // Programmatically select the annotation on the map
-    if (mapRef.current) {
+    // If clicked from list, programmatically select the annotation on the map
+    if (!fromMap && mapRef.current) {
       const annotation = mapRef.current.annotations.find(
         (a: any) => a.data?.locationId === loc.location_id
       );
-      if (annotation && mapRef.current.selectedAnnotation !== annotation) {
-        selectingFromListRef.current = true;
-        mapRef.current.selectAnnotation(annotation);
+      if (annotation) {
+        mapRef.current.selectedAnnotation = annotation;
       }
     }
   }, [fetchPopularTimes, centerMapOnLocation]);
@@ -471,7 +574,8 @@ export default function MapPage() {
       {/* Top nav bar */}
       <nav className="map-topbar">
         <Link href="/" className="map-topbar-brand">
-          <Image src="/assets/Logos/CrowdCount-Rounded-Logo.png" alt="CrowdCount" width={28} height={28} className="map-topbar-logo" />
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/assets/Logos/CrowdCount-Rounded-Logo.png" alt="" width={28} height={28} className="map-topbar-logo" />
           CrowdCount
         </Link>
         <div className="map-topbar-links">
@@ -566,14 +670,7 @@ export default function MapPage() {
 
         {/* Promotions — separate floating panel bottom-right */}
         {ads.length > 0 && (
-          <div className="map-promos-panel">
-            <div className="map-promos-title">Promotions</div>
-            <div className="map-promos-scroll">
-              {ads.map((ad, i) => (
-                <PromoCard key={ad.id || i} ad={ad} index={i} onClick={() => handleAdCtaClick(ad)} />
-              ))}
-            </div>
-          </div>
+          <PromosPanel ads={ads} onCardClick={handleAdCtaClick} />
         )}
       </div>
 
@@ -675,7 +772,7 @@ function PopularTimesPanel({ data, loading, currentCount }: {
   if (!data || !data.popular_times || Object.keys(data.popular_times).length === 0) {
     return (
       <div className="popular-times-panel">
-        <div className="popular-times-no-data">No popular times data available</div>
+        <div className="popular-times-no-data">Popular times will appear after this location has been active for at least a week.</div>
       </div>
     );
   }
@@ -726,10 +823,63 @@ function PopularTimesPanel({ data, loading, currentCount }: {
 }
 
 /* ------------------------------------------------------------------ */
+/*  Promotions Panel (floating carousel with dots)                     */
+/* ------------------------------------------------------------------ */
+function PromosPanel({ ads, onCardClick }: { ads: Ad[]; onCardClick: (ad: Ad) => void }) {
+  const [activeIndex, setActiveIndex] = useState(0);
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  const updateActive = useCallback(() => {
+    const el = scrollRef.current;
+    if (!el || ads.length <= 1) return;
+    const cardWidth = el.scrollWidth / ads.length;
+    const idx = Math.round(el.scrollLeft / cardWidth);
+    setActiveIndex(Math.min(idx, ads.length - 1));
+  }, [ads.length]);
+
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    el.addEventListener('scroll', updateActive);
+    return () => el.removeEventListener('scroll', updateActive);
+  }, [updateActive]);
+
+  const scrollToIndex = (index: number) => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const cardWidth = el.scrollWidth / ads.length;
+    el.scrollTo({ left: cardWidth * index, behavior: 'smooth' });
+  };
+
+  return (
+    <div className="map-promos-panel">
+      <div className="map-promos-title">Promotions</div>
+      <div className="map-promos-scroll" ref={scrollRef}>
+        {ads.map((ad, i) => (
+          <PromoCard key={ad.id || i} ad={ad} index={i} onClick={() => onCardClick(ad)} />
+        ))}
+      </div>
+      {ads.length > 1 && (
+        <div className="map-promos-dots">
+          {ads.map((_, i) => (
+            <span
+              key={i}
+              className={`map-promos-dot${i === activeIndex ? ' active' : ''}`}
+              onClick={() => scrollToIndex(i)}
+            />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ------------------------------------------------------------------ */
 /*  Promo Card                                                         */
 /* ------------------------------------------------------------------ */
 function PromoCard({ ad, index, onClick }: { ad: Ad; index: number; onClick: () => void }) {
   const [countdown, setCountdown] = useState(() => formatCountdown(getAdField(ad, 'expirationDate', 'expiration_date')));
+  const [accentColor, setAccentColor] = useState<string>('#fd4040');
 
   useEffect(() => {
     const exp = getAdField(ad, 'expirationDate', 'expiration_date');
@@ -744,6 +894,12 @@ function PromoCard({ ad, index, onClick }: { ad: Ad; index: number; onClick: () 
   const imagePath = getAdField(ad, 'imagePath', 'image_path');
   const ctaText = getAdField(ad, 'ctaText', 'cta_text') || 'View Details';
   const imageUrl = getAdImageUrl(imagePath);
+
+  // Extract dominant color from promo image
+  useEffect(() => {
+    if (!imageUrl) return;
+    extractDominantColor(imageUrl).then(setAccentColor);
+  }, [imageUrl]);
 
   return (
     <div className="promo-card" data-promo-id={ad.id} data-promo-index={index}>
@@ -766,7 +922,7 @@ function PromoCard({ ad, index, onClick }: { ad: Ad; index: number; onClick: () 
         <div className="promo-card-title">{ad.title}</div>
         <div className="promo-card-description">{ad.description}</div>
         <div className="promo-card-actions">
-          <button className="promo-card-cta" onClick={(e) => { e.stopPropagation(); onClick(); }}>{ctaText}</button>
+          <button className="promo-card-cta" style={{ backgroundColor: accentColor }} onClick={(e) => { e.stopPropagation(); onClick(); }}>{ctaText}</button>
           <div className={`promo-card-countdown ${countdown.isExpiringSoon ? 'expiring-soon' : ''}`}>
             <span className="promo-card-countdown-icon">⏱</span>
             <span className="promo-card-countdown-time">{countdown.text}</span>

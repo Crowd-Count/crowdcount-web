@@ -669,20 +669,19 @@ body:has(.map-page) > .alert {
     flex-shrink: 0;
 }
 
-/* --- Promotions floating panel (bottom-right) --- */
+/* --- Promotions floating panel (bottom-right carousel) --- */
 .map-promos-panel {
     position: absolute;
     bottom: 12px;
     right: 12px;
-    width: 320px;
-    max-height: 280px;
+    width: 380px;
     background: rgba(20, 20, 20, 0.88);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
     border-radius: 16px;
     border: 1px solid rgba(255, 255, 255, 0.06);
     z-index: 15;
-    padding: 14px;
+    padding: 14px 14px 10px;
     display: flex;
     flex-direction: column;
 }
@@ -697,12 +696,44 @@ body:has(.map-page) > .alert {
 }
 
 .map-promos-scroll {
-    overflow-y: auto;
-    flex: 1;
+    display: flex;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    gap: 10px;
+}
+
+.map-promos-scroll::-webkit-scrollbar {
+    display: none;
 }
 
 .map-promos-scroll .promo-card {
-    margin-bottom: 8px;
+    flex: 0 0 100%;
+    width: 100%;
+    scroll-snap-align: start;
+    margin-bottom: 0;
+}
+
+.map-promos-dots {
+    display: flex;
+    justify-content: center;
+    gap: 6px;
+    padding-top: 10px;
+}
+
+.map-promos-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.25);
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.map-promos-dot.active {
+    background: var(--light-color);
 }
 
 /* --- Detail card (bottom of map, right of sidebar) --- */
@@ -759,8 +790,7 @@ body:has(.map-page) > .alert {
         top: 12px;
         bottom: auto;
         right: 12px;
-        width: 260px;
-        max-height: 200px;
+        width: 280px;
     }
 }
 
