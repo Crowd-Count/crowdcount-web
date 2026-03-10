@@ -135,6 +135,12 @@ export default function PeopleCounter() {
     };
   }, [updateCounter]);
 
+  // Don't render odometer digits until we have real data —
+  // this ensures ALL digits mount fresh together and spin uniformly
+  if (displayCount === 0) {
+    return <div id="peopleCounter" ref={counterRef}>0</div>;
+  }
+
   const formatted = formatNumberWithCommas(displayCount);
   const chars = formatted.split('');
   const totalDigits = chars.filter(c => c !== ',').length;
@@ -147,8 +153,8 @@ export default function PeopleCounter() {
           return <span key={`c-${i}`} className="odometer-comma">,</span>;
         }
         const posFromRight = totalDigits - 1 - digitIndex;
-        // Rightmost digits spin more: ones=3 rotations, tens=2, hundreds=1, rest=0
-        const spins = Math.max(0, 3 - posFromRight);
+        // Every digit spins at least 1 full rotation; rightmost spin more
+        const spins = Math.max(1, 3 - posFromRight);
         digitIndex++;
         return (
           <OdometerDigit
