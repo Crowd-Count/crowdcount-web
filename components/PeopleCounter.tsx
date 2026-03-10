@@ -7,43 +7,35 @@ function formatNumberWithCommas(num: number): string {
   return num.toLocaleString('en-US');
 }
 
-// 4 full rotations of 0-9 (40 slots) + trailing 0 for wrap = 41 slots
-// Enough room for rightmost digits to spin through 3 full rotations on first load
-const REPETITIONS = 4;
-const TOTAL_SLOTS = REPETITIONS * 10 + 1;
-const DIGIT_SLOTS = Array.from({ length: TOTAL_SLOTS }, (_, i) => i % 10);
-const SLOT_PERCENT = 100 / TOTAL_SLOTS;
+// 11 slots: 0-9 plus a duplicate 0 at position 10 so 9→0 rolls forward
+const DIGIT_SLOTS = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0];
+const SLOT_PERCENT = 100 / DIGIT_SLOTS.length;
 
-function OdometerDigit({ digit, firstLoad, spins }: { digit: number; firstLoad: boolean; spins: number }) {
-  const prevDigitRef = useRef(0);
-  const [position, setPosition] = useState(0);
+function OdometerDigit({ digit, smooth }: { digit: number; smooth: boolean }) {
+  const prevDigitRef = useRef(digit);
+  const [position, setPosition] = useState(digit);
   const [animate, setAnimate] = useState(false);
-  const hasAnimatedRef = useRef(false);
 
   useEffect(() => {
     const prev = prevDigitRef.current;
     prevDigitRef.current = digit;
 
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        setAnimate(true);
-        if (!hasAnimatedRef.current) {
-          // First load: spin through full rotations then land on target
-          hasAnimatedRef.current = true;
-          setPosition(spins * 10 + digit);
-        } else if (prev > digit) {
-          // Wrap case (e.g. 9→0): roll forward to next 0 at slot 10
-          setPosition(10);
-        } else {
-          setPosition(digit);
-        }
-      });
-    });
-  }, [digit, spins]);
+    if (!smooth) {
+      // During count-up: just snap, no CSS transition
+      setAnimate(false);
+      setPosition(digit);
+    } else if (prev > digit) {
+      // Wrap (9→0): roll forward to slot 10
+      setAnimate(true);
+      setPosition(10);
+    } else if (prev !== digit) {
+      setAnimate(true);
+      setPosition(digit);
+    }
+  }, [digit, smooth]);
 
-  // After first-load spin or wrap, silently snap back to base position (0-9)
   const handleTransitionEnd = useCallback(() => {
-    if (position > 9) {
+    if (position === 10) {
       setAnimate(false);
       setPosition(digit);
     }
@@ -56,7 +48,7 @@ function OdometerDigit({ digit, firstLoad, spins }: { digit: number; firstLoad: 
         onTransitionEnd={handleTransitionEnd}
         style={{
           transform: `translateY(-${position * SLOT_PERCENT}%)`,
-          transitionDuration: animate ? (firstLoad ? '1.2s' : '0.8s') : '0s',
+          transitionDuration: animate ? '0.8s' : '0s',
         }}
       >
         {DIGIT_SLOTS.map((n, i) => (
@@ -85,10 +77,48 @@ function scaleCounterFont(el: HTMLElement, count: number) {
 
 export default function PeopleCounter() {
   const [displayCount, setDisplayCount] = useState(0);
-  const [isFirstLoad, setIsFirstLoad] = useState(true);
+  const [smooth, setSmooth] = useState(false); // CSS transitions off during count-up
   const counterRef = useRef<HTMLDivElement>(null);
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const animRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const currentCountRef = useRef(0);
   const isFirstLoadRef = useRef(true);
+
+  const animateCountUp = useCallback((target: number, callback?: () => void) => {
+    if (animRef.current) clearInterval(animRef.current);
+
+    setSmooth(false);
+    const start = currentCountRef.current;
+    const duration = 2000;
+    const frameRate = 30;
+    const totalFrames = duration / frameRate;
+    let frame = 0;
+
+    // Set font size for the target immediately so it doesn't jump at the end
+    if (counterRef.current) {
+      scaleCounterFont(counterRef.current, target);
+    }
+
+    animRef.current = setInterval(() => {
+      frame++;
+      const progress = frame / totalFrames;
+      // Ease-out: fast start, slow end
+      const eased = 1 - Math.pow(1 - progress, 3);
+      const current = Math.round(start + (target - start) * eased);
+      currentCountRef.current = current;
+      setDisplayCount(current);
+
+      if (frame >= totalFrames) {
+        if (animRef.current) clearInterval(animRef.current);
+        animRef.current = null;
+        currentCountRef.current = target;
+        setDisplayCount(target);
+        // Enable CSS transitions for future small updates
+        setSmooth(true);
+        if (callback) callback();
+      }
+    }, frameRate);
+  }, []);
 
   const updateCounter = useCallback(() => {
     fetch(`${API_BASE_URL}/totalcount`, {
@@ -100,71 +130,61 @@ export default function PeopleCounter() {
       })
       .then(data => {
         const target = data.total_count;
-        if (counterRef.current) {
-          scaleCounterFont(counterRef.current, target);
-        }
-        setDisplayCount(target);
         if (isFirstLoadRef.current) {
+          // First load: count up from 0
           isFirstLoadRef.current = false;
-          setTimeout(() => setIsFirstLoad(false), 1500);
+          animateCountUp(target, () => {
+            timeoutRef.current = setTimeout(updateCounter, 3000);
+          });
+        } else {
+          // Subsequent updates: just set the value, CSS transitions handle the roll
+          if (counterRef.current) {
+            scaleCounterFont(counterRef.current, target);
+          }
+          currentCountRef.current = target;
+          setDisplayCount(target);
+          timeoutRef.current = setTimeout(updateCounter, 5000);
         }
-        timeoutRef.current = setTimeout(updateCounter, 5000);
       })
       .catch(() => {
         if (counterRef.current) {
           scaleCounterFont(counterRef.current, 404);
         }
+        currentCountRef.current = 404;
         setDisplayCount(404);
         timeoutRef.current = setTimeout(updateCounter, 5000);
       });
-  }, []);
+  }, [animateCountUp]);
 
   useEffect(() => {
     updateCounter();
 
     const handleResize = () => {
-      if (counterRef.current && displayCount > 0) {
-        scaleCounterFont(counterRef.current, displayCount);
+      if (counterRef.current && currentCountRef.current > 0) {
+        scaleCounterFont(counterRef.current, currentCountRef.current);
       }
     };
     window.addEventListener('resize', handleResize);
 
     return () => {
       if (timeoutRef.current) clearTimeout(timeoutRef.current);
+      if (animRef.current) clearInterval(animRef.current);
       window.removeEventListener('resize', handleResize);
     };
   }, [updateCounter]);
 
-  // Don't render odometer digits until we have real data —
-  // this ensures ALL digits mount fresh together and spin uniformly
-  if (displayCount === 0) {
-    return <div id="peopleCounter" ref={counterRef}>0</div>;
-  }
-
   const formatted = formatNumberWithCommas(displayCount);
   const chars = formatted.split('');
-  const totalDigits = chars.filter(c => c !== ',').length;
-  let digitIndex = 0;
 
   return (
     <div id="peopleCounter" ref={counterRef}>
-      {chars.map((char, i) => {
-        if (char === ',') {
-          return <span key={`c-${i}`} className="odometer-comma">,</span>;
-        }
-        const posFromRight = totalDigits - 1 - digitIndex;
-        // Every digit spins at least 1 full rotation; rightmost spin more
-        const spins = Math.max(1, 3 - posFromRight);
-        digitIndex++;
-        return (
-          <OdometerDigit
-            key={`d-${i}`}
-            digit={parseInt(char, 10)}
-            firstLoad={isFirstLoad}
-            spins={spins}
-          />
-        );
-      })}
+      {chars.map((char, i) =>
+        char === ',' ? (
+          <span key={`c-${i}`} className="odometer-comma">,</span>
+        ) : (
+          <OdometerDigit key={`d-${i}`} digit={parseInt(char, 10)} smooth={smooth} />
+        )
+      )}
     </div>
   );
 }
