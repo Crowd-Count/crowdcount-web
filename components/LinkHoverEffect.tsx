@@ -5,7 +5,7 @@ import { useEffect } from 'react';
 const SELECTOR = [
   '.text-box a',
   '.text-box-legal a:not(#big-red-button):not(.text-box-a)',
-  '#center a:not(#big-red-button)',
+  '#center a:not(#big-red-button):not(.text-box-a)',
 ].join(', ');
 
 const RANGE = 80;
