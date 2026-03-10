@@ -137,7 +137,7 @@ export default function StatusPage() {
       <br />
 
       {/* Server Health */}
-      <div id="center" data-aos="fade-up">
+      <div id="center" data-aos="fade-up" data-aos-delay="0">
         <div className="text-box-legal">
           <div id="primaryTitleBold">Server Health</div>
           <br /><br />
@@ -173,7 +173,7 @@ export default function StatusPage() {
       </div>
 
       {/* Status History */}
-      <div id="center" data-aos="fade-up">
+      <div id="center" data-aos="fade-up" data-aos-delay="150">
         <div className="text-box-legal">
           <div id="primaryTitleBold">Status History</div>
           <br /><br />
@@ -210,7 +210,7 @@ export default function StatusPage() {
       </div>
 
       {/* iOS App Notice */}
-      <div id="center" data-aos="fade-up">
+      <div id="center" data-aos="fade-up" data-aos-delay="300">
         <div className="text-box-legal">
           <div id="primaryTitleBold">iOS App Notice - Please Update</div>
           <br /><br />

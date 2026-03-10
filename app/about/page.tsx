@@ -25,7 +25,7 @@ export default function AboutPage() {
           <p data-aos="fade-up">
             Our mission is to provide businesses and locations with accurate crowd population count. This can be used as simple analytical data, to inform customers of store population, to ensure that a location is not overpopulated, and much more...
           </p>
-          <div data-aos="fade-up">
+          <div data-aos="fade-up" data-aos-delay="0">
             <div className="text-box">
               <img src="/assets/Icons/bubble.left.and.text.bubble.right.fill.png" alt="Contact Bubble" className="scaled-image" /><br />
               Feel absolutely free to contact us at <a href="mailto:info@crowdcount.tech" id="primary">info@crowdcount.tech</a>
@@ -33,7 +33,7 @@ export default function AboutPage() {
             </div>
           </div>
 
-          <div data-aos="fade-up">
+          <div data-aos="fade-up" data-aos-delay="100">
             <div className="text-box">
               <img src="/assets/Icons/person.3.fill.png" alt="Team Icon" className="scaled-image" /><br />
               Our small startup team consists of the following:
@@ -47,21 +47,21 @@ export default function AboutPage() {
             </div>
           </div>
 
-          <div data-aos="fade-up">
+          <div data-aos="fade-up" data-aos-delay="200">
             <div className="text-box">
               <img src="/assets/Icons/hand.raised.fill.png" alt="Privacy Icon" className="scaled-image-hand" /><br />
               <div id="primary">Your privacy is important to us.</div> We collect as little information about you as possible to make your (and frankly our) experience even better. See how your data is managed in our <a href="/legal/privacy-policy" id="primary">Privacy Policy</a>.
             </div>
           </div>
 
-          <div data-aos="fade-up">
+          <div data-aos="fade-up" data-aos-delay="300">
             <div className="text-box">
               <img src="/assets/Icons/leaf.fill.png" alt="Leaf Icon" className="scaled-image-leaf" /><br />
               <div id="primary">We are committed to remaining carbon neutral.</div> We are building toward net zero or better by reducing our emissions where we can and offsetting the remainder of our footprint, such as server usage, through high quality carbon reduction and removal projects. More information and details to come.
             </div>
           </div>
 
-          <div data-aos="fade-up">
+          <div data-aos="fade-up" data-aos-delay="400">
             <div className="text-box">
               <img src="/assets/Icons/building-columns-solid.png" alt="Building with Columns" className="scaled-image" /><br />
               If you would like to see our legal documents such as our Terms of Use, please click here: <br /><a href="/legal" id="primary"> crowdcount.tech/legal</a>

@@ -55,7 +55,7 @@ export default function ProductsPage() {
       <h3 id="center" data-aos="fade-up">
         <div id="secondary">
           {/* Crowd Counter 1 */}
-          <div className="text-box-legal" data-aos="fade-up">
+          <div className="text-box-legal" data-aos="fade-up" data-aos-delay="0">
             <img src="/assets/Icons/ellipsis.rectangle.fill.png" alt="Crowd Counter Icon" className="scaled-image-counter" /><br />
             <div id="primaryTitleBold">Crowd Counter 1</div>
             <br /><br />
@@ -81,7 +81,7 @@ export default function ProductsPage() {
           </div>
 
           {/* CrowdCount App */}
-          <div className="text-box-legal" data-aos="fade-up">
+          <div className="text-box-legal" data-aos="fade-up" data-aos-delay="200">
             <img src="/assets/Logos/CrowdCount App Logo-iOS-Default-1024x1024@2x.png" alt="App Logo" className="scaled-image-app" /><br />
             <div id="primaryTitleBold">CrowdCount App</div><br /><br />
             <div id="primary">Our very own mobile App</div>, your personal companion for your Crowd Counter.

@@ -3000,3 +3000,257 @@ video {
         padding: 16px 20px 24px;
     }
 }
+
+/* ===== 1. Animated Gradient Text ===== */
+
+.gradient-text {
+    background: linear-gradient(90deg, #fd4040, #ffffff, #fd4040);
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: gradient-shift 6s linear infinite;
+    display: inline;
+}
+
+@keyframes gradient-shift {
+    0% { background-position: 0% center; }
+    100% { background-position: 200% center; }
+}
+
+/* ===== 3. Interactive Button Hover Effects ===== */
+
+@media (hover: hover) {
+    #menu li a {
+        transition: background-color 0.3s ease, transform 0.25s ease, box-shadow 0.3s ease;
+    }
+
+    #menu li a:hover {
+        transform: scale(1.08);
+        box-shadow: 0 4px 25px rgba(253, 64, 64, 0.4);
+    }
+
+    .nav-menu li a {
+        transition: background-color 0.3s ease, transform 0.25s ease, box-shadow 0.3s ease;
+    }
+
+    .nav-menu li a:hover {
+        transform: scale(1.05);
+        box-shadow: 0 4px 20px rgba(253, 64, 64, 0.3);
+    }
+
+    #big-red-button {
+        transition: background-color 0.3s ease, transform 0.25s ease, box-shadow 0.3s ease;
+    }
+
+    #big-red-button:hover {
+        transform: scale(1.05);
+        box-shadow: 0 4px 25px rgba(253, 64, 64, 0.5);
+    }
+}
+
+/* ===== 4. Scroll Progress Bar ===== */
+
+.scroll-progress {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 3px;
+    background: var(--accent-color);
+    z-index: 9999;
+    transition: width 0.1s linear;
+    pointer-events: none;
+}
+
+/* ===== 6. Loading Screen ===== */
+
+.loading-screen {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 60vh;
+    gap: 24px;
+}
+
+.loading-logo-pulse {
+    font-size: 3rem;
+    font-weight: bold;
+    color: var(--light-color);
+    animation: logo-pulse 2s ease-in-out infinite;
+}
+
+@keyframes logo-pulse {
+    0%, 100% { opacity: 0.4; transform: scale(0.97); }
+    50% { opacity: 1; transform: scale(1); }
+}
+
+.loading-bar-track {
+    width: 200px;
+    height: 3px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.loading-bar {
+    height: 100%;
+    width: 40%;
+    background: var(--accent-color);
+    border-radius: 2px;
+    animation: loading-slide 1.2s ease-in-out infinite;
+}
+
+@keyframes loading-slide {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(350%); }
+}
+
+/* ===== 7. Cursor Glow ===== */
+
+.cursor-glow {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    pointer-events: none;
+    z-index: 9998;
+}
+
+/* ===== 8. Odometer Number Ticker ===== */
+
+.odometer {
+    display: inline-flex;
+    align-items: baseline;
+    overflow: hidden;
+    font-weight: bold;
+    color: var(--light-color);
+}
+
+.odometer-digit-wrapper {
+    display: inline-block;
+    height: 1em;
+    overflow: hidden;
+    line-height: 1;
+}
+
+.odometer-digit-column {
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.8s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.odometer-digit-column span {
+    display: block;
+    height: 1em;
+    line-height: 1;
+    text-align: center;
+}
+
+.odometer-comma {
+    display: inline-block;
+    line-height: 1;
+}
+
+/* ===== 9. View Transitions ===== */
+
+::view-transition-old(root) {
+    animation: fade-out 0.2s ease-in forwards;
+}
+
+::view-transition-new(root) {
+    animation: fade-in 0.3s ease-out forwards;
+}
+
+@keyframes fade-out {
+    from { opacity: 1; }
+    to { opacity: 0; }
+}
+
+@keyframes fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+/* ===== 10. Parallax Background Orbs ===== */
+
+.parallax-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 0;
+    overflow: hidden;
+}
+
+.parallax-orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(80px);
+    opacity: 0.08;
+}
+
+.parallax-orb-red {
+    width: 500px;
+    height: 500px;
+    background: radial-gradient(circle, var(--accent-color), transparent 70%);
+    top: 20%;
+    left: -10%;
+}
+
+.parallax-orb-white {
+    width: 400px;
+    height: 400px;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.8), transparent 70%);
+    top: 60%;
+    right: -10%;
+}
+
+/* ===== 5. Custom 404 Page ===== */
+
+.not-found-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 80vh;
+    text-align: center;
+    gap: 20px;
+}
+
+.not-found-counter {
+    font-size: min(15rem, 80vw);
+    font-weight: bold;
+    color: var(--light-color);
+    line-height: 1;
+}
+
+.not-found-subtitle {
+    font-size: 1.5rem;
+    color: var(--gray-color);
+}
+
+.not-found-home-btn {
+    display: inline-block;
+    text-decoration: none;
+    color: var(--light-color);
+    padding: 12px 40px;
+    border-radius: 15px;
+    background-color: var(--accent-color);
+    font-size: 1.2rem;
+    transition: background-color 0.3s ease, transform 0.25s ease, box-shadow 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+@media (hover: hover) {
+    .not-found-home-btn:hover {
+        background-color: #f56363;
+        transform: scale(1.05);
+        box-shadow: 0 4px 25px rgba(253, 64, 64, 0.5);
+        color: var(--light-color);
+    }
+}
