@@ -1299,24 +1299,28 @@ button:focus {
     border: none !important;
     border-radius: 0 !important;
     box-shadow: none !important;
+}
+
+/* Frame is the sizing element — full width of wrapper */
+.phone-frame-wrapper .phone-frame-overlay {
+    display: block;
     width: 100% !important;
     height: auto !important;
-}
-
-.phone-frame-wrapper .phone-frame-screenshot {
-    display: block;
-    border-radius: 38px !important;
-    clip-path: inset(0 round 38px);
-}
-
-.phone-frame-wrapper .phone-frame-overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100% !important;
-    height: 100% !important;
     pointer-events: none;
-    object-fit: fill;
+    position: relative;
+    z-index: 2;
+}
+
+/* Screenshot sits behind the frame, inset to the screen area */
+.phone-frame-wrapper .phone-frame-screenshot {
+    position: absolute;
+    z-index: 1;
+    top: 1.8%;
+    left: 3.8%;
+    width: 92.4% !important;
+    height: 96.4% !important;
+    object-fit: cover;
+    border-radius: 30px !important;
 }
 
 /* Updated #dots-container styles */

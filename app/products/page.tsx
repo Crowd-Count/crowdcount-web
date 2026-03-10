@@ -88,6 +88,7 @@ export default function ProductsPage() {
                   <tr><td className="specs-label">App Support</td><td className="specs-value">iOS, Web</td></tr>
                   <tr><td className="specs-label">Data</td><td className="specs-value">Live count, entries, history, insights</td></tr>
                   <tr><td className="specs-label">Generation</td><td className="specs-value">Gen 1.3 (Jan 2026)</td></tr>
+                  <tr><td className="specs-label">Price</td><td className="specs-value"><span className="specs-highlight">$39.99/mo</span> <span style={{ color: 'rgba(255,255,255,0.4)', fontSize: '0.8rem' }}>(free during pilot program)</span></td></tr>
                 </tbody>
               </table>
             </div>
