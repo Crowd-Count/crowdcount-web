@@ -3057,7 +3057,7 @@ video {
     height: 1em;
     overflow: hidden;
     line-height: 1;
-    vertical-align: text-bottom;
+    vertical-align: -0.1em;
 }
 
 .odometer-digit-column {
