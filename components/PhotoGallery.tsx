@@ -31,15 +31,16 @@ export default function PhotoGallery({ images, galleryId, imageClassName, speed 
     });
 
     let prev = 0;
-    currentSpeed.current = speed;
+    currentSpeed.current = 0;
 
     const tick = (time: number) => {
       if (prev) {
         const dt = Math.min(time - prev, 50); // cap to avoid jumps on tab-switch
 
-        // Ease toward target
+        // Smooth ease toward target (~1.5s to reach full speed or stop)
         const target = hovering.current ? 0 : speed;
-        currentSpeed.current += (target - currentSpeed.current) * 0.15;
+        const factor = 1 - Math.pow(0.03, dt / 1000);
+        currentSpeed.current += (target - currentSpeed.current) * factor;
 
         // Avoid sub-pixel drift when nearly stopped
         if (Math.abs(currentSpeed.current) > 0.5) {
