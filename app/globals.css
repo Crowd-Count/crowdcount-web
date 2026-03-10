@@ -462,6 +462,12 @@ body:has(.map-page) > .alert {
     border-bottom: 1px solid rgba(255, 255, 255, 0.08);
     z-index: 100;
     flex-shrink: 0;
+    animation: topbar-slide-down 0.3s ease-out both;
+}
+
+@keyframes topbar-slide-down {
+    from { opacity: 0; transform: translateY(-100%); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
 .map-topbar-brand {
@@ -504,6 +510,25 @@ body:has(.map-page) > .alert {
     color: var(--light-color);
 }
 
+.map-topbar-info {
+    background: none;
+    border: none;
+    color: rgba(255, 255, 255, 0.55);
+    cursor: pointer;
+    padding: 6px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.2s ease, background-color 0.2s ease;
+    margin-left: 4px;
+}
+
+.map-topbar-info:hover {
+    color: var(--light-color);
+    background: rgba(255, 255, 255, 0.1);
+}
+
 .map-body {
     flex: 1;
     position: relative;
@@ -532,6 +557,8 @@ body:has(.map-page) > .alert {
     display: flex;
     flex-direction: column;
     overflow: hidden;
+    animation: sidebar-slide-in 0.4s ease-out both;
+    animation-delay: 0.3s;
     transition: width 0.25s ease;
     border: 1px solid rgba(255, 255, 255, 0.06);
 }
@@ -670,6 +697,27 @@ body:has(.map-page) > .alert {
     flex-shrink: 0;
 }
 
+/* --- Page load animations --- */
+@keyframes sidebar-slide-in {
+    from { opacity: 0; transform: translateX(-20px); }
+    to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes controls-slide-in {
+    from { opacity: 0; transform: translate(12px, -50%); }
+    to { opacity: 1; transform: translate(0, -50%); }
+}
+
+@keyframes promos-fade-up {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes filter-slide-in {
+    from { opacity: 0; transform: translate(12px, -50%); }
+    to { opacity: 1; transform: translate(0, -50%); }
+}
+
 /* --- Map control buttons (right-edge vertical stack) --- */
 .map-controls {
     position: absolute;
@@ -680,6 +728,8 @@ body:has(.map-page) > .alert {
     display: flex;
     flex-direction: column;
     gap: 8px;
+    animation: controls-slide-in 0.4s ease-out both;
+    animation-delay: 0.5s;
 }
 
 .map-control-btn {
@@ -733,7 +783,7 @@ body:has(.map-page) > .alert {
     border: 1px solid rgba(255, 255, 255, 0.08);
     padding: 14px;
     width: 200px;
-    animation: detail-card-slide-up 0.2s ease-out;
+    animation: filter-slide-in 0.25s ease-out both;
 }
 
 .map-filter-header {
@@ -820,6 +870,16 @@ body:has(.map-page) > .alert {
     }
 }
 
+/* --- Promotions container (wrapper for fade animation) --- */
+.map-promos-container {
+    transition: opacity 0.3s ease;
+}
+
+.map-promos-container.fade-out {
+    opacity: 0;
+    pointer-events: none;
+}
+
 /* --- Promotions floating panel (bottom-right carousel) --- */
 .map-promos-panel {
     position: absolute;
@@ -835,6 +895,8 @@ body:has(.map-page) > .alert {
     padding: 14px 14px 10px;
     display: flex;
     flex-direction: column;
+    animation: promos-fade-up 0.4s ease-out both;
+    animation-delay: 0.6s;
 }
 
 .map-promos-title {
@@ -1956,7 +2018,9 @@ video {
    ============================================ */
 
 .promo-modal-overlay {
-    display: none;
+    display: flex;
+    visibility: hidden;
+    opacity: 0;
     position: fixed;
     top: 0;
     left: 0;
@@ -1971,7 +2035,7 @@ video {
 }
 
 .promo-modal-overlay.visible {
-    display: flex;
+    visibility: visible;
     opacity: 1;
 }
 
@@ -1983,12 +2047,14 @@ video {
     max-height: 85vh;
     overflow-y: auto;
     position: relative;
-    transform: scale(0.9);
-    transition: transform 0.3s ease;
+    transform: scale(0.85) translateY(30px);
+    opacity: 0;
+    transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.25s ease;
 }
 
 .promo-modal-overlay.visible .promo-modal {
-    transform: scale(1);
+    transform: scale(1) translateY(0);
+    opacity: 1;
 }
 
 .promo-modal-close {
@@ -2363,7 +2429,7 @@ video {
     background: rgba(28, 28, 30, 0.85);
     backdrop-filter: blur(30px) saturate(1.5);
     -webkit-backdrop-filter: blur(30px) saturate(1.5);
-    z-index: 10;
+    z-index: 16;
     padding: 20px 24px 40px;
     padding-bottom: calc(40px + env(safe-area-inset-bottom, 0px));
     animation: detail-card-slide-up 0.3s ease-out;
@@ -2512,5 +2578,193 @@ video {
     .location-detail-directions {
         padding: 8px 14px !important;
         font-size: 0.8rem;
+    }
+}
+
+/* ============================================
+   MAP INFO MODAL
+   ============================================ */
+
+.map-info-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    z-index: 2000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    animation: map-info-fade-in 0.25s ease;
+}
+
+@keyframes map-info-fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.map-info-modal {
+    background: rgba(28, 28, 30, 0.92);
+    backdrop-filter: blur(40px) saturate(1.5);
+    -webkit-backdrop-filter: blur(40px) saturate(1.5);
+    border-radius: 24px;
+    max-width: 460px;
+    width: 90%;
+    max-height: 80vh;
+    overflow-y: auto;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    transform: scale(0.9) translateY(20px);
+    animation: map-info-modal-in 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+@keyframes map-info-modal-in {
+    from {
+        opacity: 0;
+        transform: scale(0.9) translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+.map-info-modal::-webkit-scrollbar {
+    display: none;
+}
+
+.map-info-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 24px 0;
+    position: sticky;
+    top: 0;
+    z-index: 1;
+}
+
+.map-info-title {
+    color: var(--light-color);
+    font-size: 1.2rem;
+    font-weight: 700;
+}
+
+.map-info-close {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.1);
+    border: none;
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 1.3rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 !important;
+    margin: 0 !important;
+    transition: background-color 0.2s ease;
+    line-height: 1;
+}
+
+.map-info-close:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.map-info-body {
+    padding: 20px 24px 28px;
+}
+
+.map-info-intro {
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 0.9rem;
+    line-height: 1.5;
+    margin-bottom: 20px;
+}
+
+.map-info-section {
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+    padding: 14px 0;
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.map-info-section p {
+    color: rgba(255, 255, 255, 0.55);
+    font-size: 0.85rem;
+    line-height: 1.5;
+    margin: 4px 0 0;
+}
+
+.map-info-section a {
+    color: #007AFF;
+    text-decoration: none;
+}
+
+.map-info-section a:hover {
+    text-decoration: underline;
+}
+
+.map-info-icons {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    flex-shrink: 0;
+    width: 44px;
+    justify-content: center;
+    padding-top: 2px;
+}
+
+.map-info-icon {
+    font-size: 1.3rem;
+    font-weight: 700;
+    line-height: 1;
+}
+
+.map-info-section-title {
+    color: var(--light-color);
+    font-size: 0.95rem;
+    font-weight: 600;
+}
+
+.map-info-footer {
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+    margin-top: 12px;
+    padding-top: 16px;
+    text-align: center;
+}
+
+.map-info-footer p {
+    color: rgba(255, 255, 255, 0.3);
+    font-size: 0.75rem;
+    margin: 4px 0;
+}
+
+.map-info-footer a {
+    color: rgba(255, 255, 255, 0.4);
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+.map-info-footer a:hover {
+    color: rgba(255, 255, 255, 0.7);
+}
+
+@media (max-width: 480px) {
+    .map-info-modal {
+        width: 95%;
+        border-radius: 20px;
+        max-height: 85vh;
+    }
+
+    .map-info-header {
+        padding: 16px 20px 0;
+    }
+
+    .map-info-body {
+        padding: 16px 20px 24px;
     }
 }

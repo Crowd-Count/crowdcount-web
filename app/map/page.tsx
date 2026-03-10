@@ -118,6 +118,16 @@ function getMarkerColor(colorName: string): string {
   return colorMap[colorName?.toLowerCase()] || '#007AFF';
 }
 
+const CATEGORY_LABELS: Record<string, string> = {
+  red: 'General',
+  orange: 'Restaurants & Bars',
+  yellow: 'Grocery & Market',
+  green: 'Fashion & Accessories',
+  blue: 'Retail & Home Goods',
+  purple: 'Government & Organizations',
+  pink: 'Entertainment & Venues',
+};
+
 function calculateDistance(lat1: number, lon1: number, lat2: number, lon2: number): number {
   const R = 6371;
   const dLat = (lat2 - lat1) * Math.PI / 180;
@@ -305,12 +315,12 @@ function MapControls({ onRefresh, onCenterUser, onToggleList, onToggleFilter }: 
           <path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01" />
         </svg>
       </button>
-      <button className="map-control-btn" aria-label="Report" title="Report">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <a className="map-control-btn" href="https://crowdcount.tech/report" target="_blank" rel="noopener noreferrer" aria-label="Report" title="Report">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FF3B30" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
           <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
           <path d="M12 7v2M12 13h.01" />
         </svg>
-      </button>
+      </a>
     </div>
   );
 }
@@ -336,6 +346,7 @@ export default function MapPage() {
   const [isMobile, setIsMobile] = useState(false);
   const [filterOpen, setFilterOpen] = useState(false);
   const [activeColorFilters, setActiveColorFilters] = useState<Set<string>>(new Set());
+  const [infoOpen, setInfoOpen] = useState(false);
 
   // Derive selected location from live locations state (updates every 30s)
   const selectedLocation = selectedLocationId
@@ -478,26 +489,16 @@ export default function MapPage() {
       const locMap = new Map<string, LocationData>();
       locs.forEach(loc => {
         locMap.set(loc.location_id, loc);
-        let subtitle: string;
-        if (loc.is_closed) {
-          subtitle = 'Closed';
-        } else {
-          subtitle = `${loc.current_count}`;
-          if (loc.overcrowding_limit != null) subtitle += ` / ${loc.overcrowding_limit}`;
-          const sym = getComparisonSymbol(loc.location_comparison);
-          if (sym) subtitle += ` ${sym}`;
-        }
         const annotation = new mapkit.MarkerAnnotation(
           new mapkit.Coordinate(loc.location_latitude, loc.location_longitude),
           {
             title: loc.location_name,
-            subtitle,
             color: getMarkerColor(loc.location_color),
             displayPriority: 1000,
             collisionMode: mapkit.Annotation.CollisionMode.None,
           }
         );
-        annotation.data = { locationId: loc.location_id };
+        annotation.data = { locationId: loc.location_id, color: loc.location_color };
         map.addAnnotation(annotation);
       });
 
@@ -566,26 +567,16 @@ export default function MapPage() {
       const map = mapRef.current;
       map.removeAnnotations(map.annotations);
       locs.forEach(loc => {
-        let subtitle: string;
-        if (loc.is_closed) {
-          subtitle = 'Closed';
-        } else {
-          subtitle = `${loc.current_count}`;
-          if (loc.overcrowding_limit != null) subtitle += ` / ${loc.overcrowding_limit}`;
-          const sym = getComparisonSymbol(loc.location_comparison);
-          if (sym) subtitle += ` ${sym}`;
-        }
         const annotation = new mapkit.MarkerAnnotation(
           new mapkit.Coordinate(loc.location_latitude, loc.location_longitude),
           {
             title: loc.location_name,
-            subtitle,
             color: getMarkerColor(loc.location_color),
             displayPriority: 1000,
             collisionMode: mapkit.Annotation.CollisionMode.None,
           }
         );
-        annotation.data = { locationId: loc.location_id };
+        annotation.data = { locationId: loc.location_id, color: loc.location_color };
         map.addAnnotation(annotation);
       });
     }
@@ -599,7 +590,7 @@ export default function MapPage() {
       if (mapRef.current) {
         mapRef.current.setRegionAnimated(new mapkit.CoordinateRegion(
           new mapkit.Coordinate(loc.lat, loc.lon),
-          new mapkit.CoordinateSpan(0.05, 0.05)
+          new mapkit.CoordinateSpan(0.005, 0.005)
         ));
       }
     } catch { /* location not available */ }
@@ -617,7 +608,7 @@ export default function MapPage() {
     // Only offset if sidebar is visible (desktop)
     const isMobile = window.innerWidth <= 768;
     const offsetFraction = isMobile ? 0 : sidebarWidth / mapWidth / 2;
-    const currentSpan = 0.003;
+    const currentSpan = 0.001;
     const lngOffset = currentSpan * offsetFraction * (mapWidth / viewableWidth);
 
     map.setRegionAnimated(new mapkit.CoordinateRegion(
@@ -649,6 +640,10 @@ export default function MapPage() {
   /* ---- Close detail card ---- */
   const handleCloseDetailCard = useCallback(() => {
     setSelectedLocationId(null);
+    // Deselect the map annotation
+    if (mapRef.current?.selectedAnnotation) {
+      mapRef.current.selectedAnnotation = null;
+    }
   }, []);
 
   const handleCloseDetailCardRef = useRef(handleCloseDetailCard);
@@ -687,6 +682,15 @@ export default function MapPage() {
 
   const uniqueColors = [...new Set(locations.map(l => l.location_color).filter(Boolean))];
 
+  /* ---- Apply color filter to map annotations ---- */
+  useEffect(() => {
+    if (!mapRef.current) return;
+    mapRef.current.annotations.forEach((a: any) => {
+      if (!a.data?.color) return;
+      a.visible = activeColorFilters.size === 0 || activeColorFilters.has(a.data.color);
+    });
+  }, [activeColorFilters]);
+
   /* ---- Filter & sort locations ---- */
   const filteredLocations = locations
     .filter(l => !searchTerm || l.location_name.toLowerCase().includes(searchTerm.toLowerCase()))
@@ -723,6 +727,12 @@ export default function MapPage() {
               <Link key={link.href} href={link.href}>{link.label}</Link>
             )
           )}
+          <button className="map-topbar-info" onClick={() => setInfoOpen(true)} aria-label="Map Information" title="Map Information">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="12" cy="12" r="10" />
+              <path d="M12 16v-4M12 8h.01" />
+            </svg>
+          </button>
         </div>
       </nav>
 
@@ -817,7 +827,7 @@ export default function MapPage() {
                   onClick={() => toggleColorFilter(color)}
                 >
                   <span className="location-color-dot" style={{ backgroundColor: getMarkerColor(color) }} />
-                  {color.charAt(0).toUpperCase() + color.slice(1)}
+                  {CATEGORY_LABELS[color] || color.charAt(0).toUpperCase() + color.slice(1)}
                 </button>
               ))}
             </div>
@@ -840,9 +850,11 @@ export default function MapPage() {
           />
         )}
 
-        {/* Promotions — hidden on mobile when list is open */}
+        {/* Promotions — hidden on mobile when list is open, fades when detail card shown on mobile */}
         {ads.length > 0 && !(isMobile && listVisible) && (
-          <PromosPanel ads={ads} onCardClick={handleAdCtaClick} />
+          <div className={`map-promos-container${isMobile && selectedLocation ? ' fade-out' : ''}`}>
+            <PromosPanel ads={ads} onCardClick={handleAdCtaClick} />
+          </div>
         )}
       </div>
 
@@ -853,6 +865,11 @@ export default function MapPage() {
           adLocation={getAdLocation(modalAd)}
           onClose={() => setModalAd(null)}
         />
+      )}
+
+      {/* Map Info Modal */}
+      {infoOpen && (
+        <MapInfoModal onClose={() => setInfoOpen(false)} />
       )}
     </div>
   );
@@ -1180,10 +1197,91 @@ function PromoModal({ ad, adLocation, onClose }: {
           <div className="promo-modal-label">Sponsored Content</div>
           <div className="promo-modal-title">{ad.title}</div>
           <div className="promo-modal-description">{ad.description}</div>
-          {adLocation && (
-            <button className="promo-modal-directions" onClick={openDirections}>Get Directions</button>
-          )}
+          <button className="promo-modal-directions" onClick={openDirections}>Get Directions</button>
           <div className="promo-modal-reference">{generateReferenceNumber(ad.id || '')}</div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/*  Map Info Modal                                                      */
+/* ------------------------------------------------------------------ */
+function MapInfoModal({ onClose }: { onClose: () => void }) {
+  useEffect(() => {
+    const handleKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
+    document.addEventListener('keydown', handleKey);
+    return () => document.removeEventListener('keydown', handleKey);
+  }, [onClose]);
+
+  return (
+    <div className="map-info-overlay" onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}>
+      <div className="map-info-modal" onClick={(e) => e.stopPropagation()}>
+        <div className="map-info-header">
+          <span className="map-info-title">Map Information</span>
+          <button className="map-info-close" onClick={onClose}>&times;</button>
+        </div>
+        <div className="map-info-body">
+          <p className="map-info-intro">
+            {"Let us explain a bit how the map works and what some of the features are."}
+          </p>
+
+          <div className="map-info-section">
+            <div className="map-info-icons">
+              <span className="map-info-icon" style={{ color: '#34C759' }}>&uarr;</span>
+              <span className="map-info-icon" style={{ color: '#FF3B30' }}>&darr;</span>
+            </div>
+            <div>
+              <div className="map-info-section-title">Comparisons</div>
+              <p>These arrows indicate whether the current location population is more or less crowded than usual (&plusmn;25%).</p>
+            </div>
+          </div>
+
+          <div className="map-info-section">
+            <div className="map-info-icons">
+              <span className="map-info-icon" style={{ color: 'rgba(255,255,255,0.5)' }}>/</span>
+              <span className="map-info-icon" style={{ color: 'rgba(255,255,255,0.5)' }}>#</span>
+            </div>
+            <div>
+              <div className="map-info-section-title">Overcrowding Indicator</div>
+              <p>The number displayed after the slash on certain locations shows the maximum amount of people that this location can hold (it is inputted by the business and is in no way an official or legal limit).</p>
+            </div>
+          </div>
+
+          <div className="map-info-section">
+            <div className="map-info-icons">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#007AFF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+                <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+              </svg>
+            </div>
+            <div>
+              <div className="map-info-section-title">Promotions</div>
+              <p>The promotions carousel at the bottom of the map displays sponsored content from local businesses. All promotions are reviewed and approved by our team before appearing. Each promotion runs for a set duration shown by the countdown timer. Promotions are sorted by distance, so you{"'"}ll see the closest ones first.</p>
+            </div>
+          </div>
+
+          <div className="map-info-section">
+            <div className="map-info-icons">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FF3B30" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1zM4 22v-7" />
+              </svg>
+            </div>
+            <div>
+              <div className="map-info-section-title">Bug or Issue?</div>
+              <p>If a location is having an issue, please report it at <a href="https://crowdcount.tech/report" target="_blank" rel="noopener noreferrer">crowdcount.tech/report</a>. If it{"'"}s an issue on our end, feel free to send an email at <a href="mailto:info@crowdcount.tech">info@crowdcount.tech</a>.</p>
+            </div>
+          </div>
+
+          <div className="map-info-footer">
+            <p>&copy; 2026 CrowdCount LLC. All rights reserved.</p>
+            <p>
+              <a href="https://crowdcount.tech/legal/privacy-policy" target="_blank" rel="noopener noreferrer">Privacy Policy</a>
+              {' | '}
+              <a href="https://crowdcount.tech/legal/terms-of-use" target="_blank" rel="noopener noreferrer">Terms of Use</a>
+            </p>
+          </div>
         </div>
       </div>
     </div>
