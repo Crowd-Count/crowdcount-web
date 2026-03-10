@@ -481,7 +481,8 @@ body:has(.map-page) > .alert {
 }
 
 .map-topbar-logo {
-    border-radius: 6px;
+    height: 28px;
+    width: auto;
 }
 
 .map-topbar-links {
@@ -669,6 +670,55 @@ body:has(.map-page) > .alert {
     flex-shrink: 0;
 }
 
+/* --- Map control buttons (right-edge vertical stack) --- */
+.map-controls {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 25;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.map-control-btn {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    background: rgba(40, 40, 40, 0.7);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: rgba(255, 255, 255, 0.85);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.2s ease, transform 0.15s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    padding: 0 !important;
+    margin: 0 !important;
+}
+
+.map-control-btn:hover {
+    background: rgba(60, 60, 60, 0.8);
+    transform: scale(1.05);
+}
+
+.map-control-btn:active {
+    transform: scale(0.95);
+}
+
+/* --- Location icon circle (36x36 colored circle with SVG icon) --- */
+.location-icon-circle {
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
 /* --- Promotions floating panel (bottom-right carousel) --- */
 .map-promos-panel {
     position: absolute;
@@ -739,12 +789,12 @@ body:has(.map-page) > .alert {
 /* --- Detail card (bottom of map, right of sidebar) --- */
 .map-body .location-detail-card {
     position: absolute;
-    bottom: 12px;
+    bottom: 0;
     left: 384px;
-    right: 12px;
     max-width: 480px;
-    border-radius: 16px;
-    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 20px 20px 0 0;
+    border: none;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 /* --- Mobile: sidebar becomes bottom sheet, panels stack --- */
@@ -2190,12 +2240,14 @@ video {
     bottom: 0;
     left: 0;
     right: 0;
-    background: rgba(20, 20, 20, 0.92);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
+    background: rgba(28, 28, 30, 0.85);
+    backdrop-filter: blur(30px) saturate(1.5);
+    -webkit-backdrop-filter: blur(30px) saturate(1.5);
     z-index: 10;
-    padding: 20px 24px 24px;
+    padding: 20px 24px 40px;
+    padding-bottom: calc(40px + env(safe-area-inset-bottom, 0px));
     animation: detail-card-slide-up 0.3s ease-out;
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.25);
 }
 
 @keyframes detail-card-slide-up {
@@ -2234,37 +2286,56 @@ video {
 }
 
 .location-detail-close {
-    width: 32px;
-    height: 32px;
+    width: 28px;
+    height: 28px;
     border-radius: 50%;
-    background: rgba(255, 255, 255, 0.1);
+    background: none;
     border: none;
-    color: var(--light-color);
-    font-size: 1.2rem;
     cursor: pointer;
-    transition: background-color 0.3s ease;
+    transition: opacity 0.2s ease;
     display: flex;
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
     padding: 0 !important;
     margin: 0 !important;
-    line-height: 1;
+    opacity: 0.8;
 }
 
 .location-detail-close:hover {
-    background: rgba(255, 255, 255, 0.2);
+    opacity: 1;
 }
 
-.location-detail-stats {
+/* HStack: count on left, directions capsule on right */
+.location-detail-body {
     display: flex;
-    align-items: baseline;
-    gap: 8px;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 16px;
     margin-bottom: 14px;
 }
 
+.location-detail-count-section {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+}
+
+.location-detail-label {
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.5);
+    font-weight: 400;
+}
+
+.location-detail-count-row {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+}
+
 .location-detail-count {
-    font-size: 2.2rem;
+    font-size: 2.4rem;
     font-weight: 700;
     color: var(--light-color);
     line-height: 1;
@@ -2272,39 +2343,42 @@ video {
 
 .location-detail-overcrowding {
     color: var(--gray-color);
-    font-size: 1.3rem;
+    font-size: 1.4rem;
+    font-weight: 500;
 }
 
 .location-detail-card .popular-times-panel {
     background: transparent;
     margin-top: 0;
-    padding: 0 0 12px;
+    padding: 0 0 0;
 }
 
 .location-detail-directions {
-    display: block;
-    width: 100%;
-    background: rgba(0, 122, 255, 0.15);
-    color: #007AFF;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: white;
     border: none;
-    padding: 12px 20px !important;
+    padding: 10px 18px !important;
     margin: 0 !important;
-    border-radius: 12px;
-    font-size: 0.95rem;
-    font-weight: 500;
+    border-radius: 100px;
+    font-size: 0.85rem;
+    font-weight: 600;
     cursor: pointer;
-    transition: background-color 0.3s ease;
-    text-align: center;
+    transition: filter 0.2s ease;
     text-decoration: none;
+    white-space: nowrap;
+    flex-shrink: 0;
 }
 
 .location-detail-directions:hover {
-    background: rgba(0, 122, 255, 0.25);
+    filter: brightness(1.15);
 }
 
 @media (max-width: 480px) {
     .location-detail-card {
-        padding: 14px 16px 18px;
+        padding: 14px 16px 32px;
+        padding-bottom: calc(32px + env(safe-area-inset-bottom, 0px));
     }
 
     .location-detail-name {
@@ -2316,7 +2390,16 @@ video {
     }
 
     .location-detail-directions {
-        padding: 10px 16px !important;
-        font-size: 0.9rem;
+        padding: 8px 14px !important;
+        font-size: 0.8rem;
+    }
+
+    .map-controls {
+        right: 8px;
+    }
+
+    .map-control-btn {
+        width: 40px;
+        height: 40px;
     }
 }

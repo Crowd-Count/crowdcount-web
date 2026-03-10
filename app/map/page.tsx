@@ -54,6 +54,7 @@ interface LocationData {
   current_count: number;
   location_comparison: string;
   location_color: string;
+  location_icon?: string;
   overcrowding_limit: number | null;
   is_closed: boolean;
   devices?: [string, ...unknown[]][];
@@ -173,6 +174,45 @@ async function trackAdClick(adId: string) {
   } catch { /* silent */ }
 }
 
+/* ---- Location icon SVG path mapping (SF Symbol → web) ---- */
+function getLocationIconPath(iconName?: string): string {
+  if (!iconName) return '';
+  const b = iconName.toLowerCase().replace(/\.fill$/, '').replace(/\.circle$/, '');
+  if (b.includes('flag')) return 'M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1zM4 22V15';
+  if (b.includes('tree') || b.includes('leaf')) return 'M12 3L5 13h4v8h6v-8h4z';
+  if (b.includes('fish')) return 'M6.5 12c3-5 11-5 14 0-3 5-11 5-14 0zM3 12l2-1.5M3 12l2 1.5';
+  if (b.includes('mug') || b.includes('cup')) return 'M17 8h1a4 4 0 0 1 0 8h-1M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V8z';
+  if (b.includes('building')) return 'M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18M10 6h4M10 10h4M10 14h4M10 18h4';
+  if (b.includes('house') || b.includes('home')) return 'M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2zM9 22V12h6v10';
+  if (b.includes('person') || b.includes('figure')) return 'M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2M12 3a4 4 0 1 0 0 8 4 4 0 0 0 0-8z';
+  if (b.includes('cart')) return 'M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6';
+  if (b.includes('fork') || b.includes('knife')) return 'M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2M7 2v20M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3v7';
+  if (b.includes('heart')) return 'M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z';
+  if (b.includes('star')) return 'M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z';
+  if (b.includes('music')) return 'M9 18V5l12-2v13M6 21a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM18 19a3 3 0 1 0 0-6 3 3 0 0 0 0 6z';
+  if (b.includes('book')) return 'M4 19.5A2.5 2.5 0 0 1 6.5 17H20M4 4.5A2.5 2.5 0 0 1 6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15z';
+  if (b.includes('bag')) return 'M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4zM3 6h18M16 10a4 4 0 0 1-8 0';
+  if (b.includes('car')) return 'M7 17a2 2 0 1 0 0-4 2 2 0 0 0 0 4zM17 17a2 2 0 1 0 0-4 2 2 0 0 0 0 4zM5 9l2-4h10l2 4M3 9h18v6H3z';
+  if (b.includes('graduationcap')) return 'M22 10L12 5 2 10l10 5zM6 12v5c3 3 9 3 12 0v-5';
+  if (b.includes('sportscourt') || b.includes('dumbbell')) return 'M6.5 6.5v8M17.5 6.5v8M6.5 10.5h11M4 6.5h2.5M4 14.5h2.5M17.5 6.5H20M17.5 14.5H20';
+  return '';
+}
+
+function LocationIcon({ iconName, color, size = 36 }: { iconName?: string; color: string; size?: number }) {
+  const s = size * 0.5;
+  const path = getLocationIconPath(iconName);
+  const isFilled = iconName?.includes('.fill') ?? false;
+  const defaultPin = 'M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0zM15 10a3 3 0 1 1-6 0 3 3 0 0 1 6 0z';
+
+  return (
+    <div className="location-icon-circle" style={{ backgroundColor: color, width: size, height: size, minWidth: size }}>
+      <svg width={s} height={s} viewBox="0 0 24 24" fill={isFilled && path ? 'white' : 'none'} stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d={path || defaultPin} />
+      </svg>
+    </div>
+  );
+}
+
 /* ---- Dominant color extraction (port of iOS algorithm) ---- */
 function extractDominantColor(imageUrl: string): Promise<string> {
   return new Promise((resolve) => {
@@ -261,6 +301,49 @@ function extractDominantColor(imageUrl: string): Promise<string> {
     img.onerror = () => resolve('#fd4040');
     img.src = imageUrl;
   });
+}
+
+/* ------------------------------------------------------------------ */
+/*  Map Control Buttons (right-edge floating stack)                     */
+/* ------------------------------------------------------------------ */
+function MapControls({ onRefresh, onCenterUser, onToggleList }: {
+  onRefresh: () => void;
+  onCenterUser: () => void;
+  onToggleList: () => void;
+}) {
+  return (
+    <div className="map-controls">
+      <button className="map-control-btn" onClick={onRefresh} aria-label="Refresh" title="Refresh">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M23 4v6h-6" />
+          <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10" />
+        </svg>
+      </button>
+      <button className="map-control-btn" onClick={onCenterUser} aria-label="My Location" title="My Location">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <circle cx="12" cy="12" r="4" />
+          <path d="M12 2v4M12 18v4M2 12h4M18 12h4" />
+        </svg>
+      </button>
+      <button className="map-control-btn" onClick={onToggleList} aria-label="Search" title="Search">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <circle cx="11" cy="11" r="8" />
+          <path d="M21 21l-4.35-4.35" />
+        </svg>
+      </button>
+      <button className="map-control-btn" aria-label="Filter" title="Filter">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01" />
+        </svg>
+      </button>
+      <button className="map-control-btn" aria-label="Report" title="Report">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+          <path d="M12 7v2M12 13h.01" />
+        </svg>
+      </button>
+    </div>
+  );
 }
 
 /* ------------------------------------------------------------------ */
@@ -395,14 +478,24 @@ export default function MapPage() {
 
     mapkit.init({ authorizationCallback: (done) => done(MAPKIT_TOKEN) });
 
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
     const map = new mapkit.Map('map', {
       center: new mapkit.Coordinate(39.8283, -98.5795),
-      colorScheme: mapkit.Map.ColorSchemes.Dark,
+      colorScheme: prefersDark ? mapkit.Map.ColorSchemes.Dark : mapkit.Map.ColorSchemes.Light,
       showsZoomControl: false,
       showsMapTypeControl: false,
       showsPointsOfInterest: false,
     });
     mapRef.current = map;
+
+    // Follow system color scheme changes
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    const handleSchemeChange = (e: MediaQueryListEvent) => {
+      if (mapRef.current) {
+        (mapRef.current as any).colorScheme = e.matches ? mapkit.Map.ColorSchemes.Dark : mapkit.Map.ColorSchemes.Light;
+      }
+    };
+    mediaQuery.addEventListener('change', handleSchemeChange);
 
     (async () => {
       const locs = await fetchLocations();
@@ -479,6 +572,53 @@ export default function MapPage() {
     }, 30000);
     return () => clearInterval(interval);
   }, [fetchLocations]);
+
+  /* ---- Refresh: re-fetch locations + update map annotations ---- */
+  const handleRefresh = useCallback(async () => {
+    const locs = await fetchLocations();
+    setLocations(locs);
+    if (mapRef.current) {
+      const map = mapRef.current;
+      map.removeAnnotations(map.annotations);
+      locs.forEach(loc => {
+        let subtitle: string;
+        if (loc.is_closed) {
+          subtitle = 'Closed';
+        } else {
+          subtitle = `${loc.current_count}`;
+          if (loc.overcrowding_limit != null) subtitle += ` / ${loc.overcrowding_limit}`;
+          const sym = getComparisonSymbol(loc.location_comparison);
+          if (sym) subtitle += ` ${sym}`;
+        }
+        const annotation = new mapkit.MarkerAnnotation(
+          new mapkit.Coordinate(loc.location_latitude, loc.location_longitude),
+          {
+            title: loc.location_name,
+            subtitle,
+            color: getMarkerColor(loc.location_color),
+            displayPriority: 750,
+            collisionMode: mapkit.Annotation.CollisionMode.Circle,
+          }
+        );
+        annotation.data = { locationId: loc.location_id };
+        map.addAnnotation(annotation);
+      });
+    }
+  }, [fetchLocations]);
+
+  /* ---- Center on user location ---- */
+  const handleCenterUser = useCallback(async () => {
+    try {
+      const loc = await getUserLocation();
+      setUserLocation(loc);
+      if (mapRef.current) {
+        mapRef.current.setRegionAnimated(new mapkit.CoordinateRegion(
+          new mapkit.Coordinate(loc.lat, loc.lon),
+          new mapkit.CoordinateSpan(0.05, 0.05)
+        ));
+      }
+    } catch { /* location not available */ }
+  }, [getUserLocation]);
 
   /* ---- Center map on a location, offset for sidebar ---- */
   const centerMapOnLocation = useCallback((lat: number, lon: number) => {
@@ -575,7 +715,7 @@ export default function MapPage() {
       <nav className="map-topbar">
         <Link href="/" className="map-topbar-brand">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/assets/Logos/CrowdCount-Rounded-Logo.png" alt="" width={28} height={28} className="map-topbar-logo" />
+          <img src="/assets/Logos/TransparentLogoCropped.png" alt="" width={28} height={28} className="map-topbar-logo" />
           CrowdCount
         </Link>
         <div className="map-topbar-links">
@@ -657,6 +797,13 @@ export default function MapPage() {
           )}
         </div>
 
+        {/* Map control buttons — right edge */}
+        <MapControls
+          onRefresh={handleRefresh}
+          onCenterUser={handleCenterUser}
+          onToggleList={() => setListVisible(v => !v)}
+        />
+
         {/* Detail card — overlays bottom of map */}
         {selectedLocation && (
           <LocationDetailCard
@@ -668,8 +815,8 @@ export default function MapPage() {
           />
         )}
 
-        {/* Promotions — separate floating panel bottom-right */}
-        {ads.length > 0 && (
+        {/* Promotions — mutually exclusive with detail card (matches iOS) */}
+        {ads.length > 0 && !selectedLocation && (
           <PromosPanel ads={ads} onCardClick={handleAdCtaClick} />
         )}
       </div>
@@ -695,50 +842,67 @@ function LocationDetailCard({ location, popularTimesData, popularTimesLoading, o
   popularTimesLoading: boolean;
   onClose: () => void;
 }) {
+  const pinColor = getMarkerColor(location.location_color || '');
   const directionsUrl = `https://maps.apple.com/?daddr=${location.location_latitude},${location.location_longitude}&dirflg=d&t=m`;
 
   return (
     <div className="location-detail-card">
+      {/* Header: icon + name + close */}
       <div className="location-detail-header">
         <div className="location-detail-title-row">
-          <span className="location-color-dot" style={{ backgroundColor: getMarkerColor(location.location_color || '') }} />
+          <LocationIcon iconName={location.location_icon} color={pinColor} />
           <span className="location-detail-name">{location.location_name}</span>
         </div>
-        <button className="location-detail-close" onClick={onClose}>&times;</button>
+        <button className="location-detail-close" onClick={onClose} aria-label="Close">
+          <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+            <circle cx="14" cy="14" r="14" fill="rgba(255,255,255,0.15)" />
+            <path d="M10 10l8 8M18 10l-8 8" stroke="rgba(255,255,255,0.6)" strokeWidth="2" strokeLinecap="round" />
+          </svg>
+        </button>
       </div>
 
-      <div className="location-detail-stats">
-        {location.is_closed ? (
-          <span className="location-closed">Closed</span>
-        ) : (
-          <>
-            <span className="location-detail-count">{location.current_count}</span>
-            {location.overcrowding_limit != null && (
-              <span className="location-detail-overcrowding">/ {location.overcrowding_limit}</span>
-            )}
-            {getComparisonSymbol(location.location_comparison) && (
-              <span className={getComparisonClass(location.location_comparison)}>
-                {getComparisonSymbol(location.location_comparison)}
-              </span>
-            )}
-          </>
-        )}
+      {/* Count + Directions HStack (matches iOS layout) */}
+      <div className="location-detail-body">
+        <div className="location-detail-count-section">
+          {location.is_closed ? (
+            <span className="location-detail-count" style={{ color: 'rgba(255,255,255,0.5)' }}>Closed</span>
+          ) : (
+            <>
+              <span className="location-detail-label">Current count</span>
+              <div className="location-detail-count-row">
+                <span className="location-detail-count">{location.current_count}</span>
+                {location.overcrowding_limit != null && (
+                  <span className="location-detail-overcrowding">/ {location.overcrowding_limit}</span>
+                )}
+                {getComparisonSymbol(location.location_comparison) && (
+                  <span className={getComparisonClass(location.location_comparison)}>
+                    {getComparisonSymbol(location.location_comparison)}
+                  </span>
+                )}
+              </div>
+            </>
+          )}
+        </div>
+        <a
+          className="location-detail-directions"
+          href={directionsUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{ backgroundColor: pinColor }}
+        >
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M5 12h14M12 5l7 7-7 7" />
+          </svg>
+          Directions
+        </a>
       </div>
 
       <PopularTimesPanel
         data={popularTimesData}
         loading={popularTimesLoading}
         currentCount={location.current_count}
+        pinColor={pinColor}
       />
-
-      <a
-        className="location-detail-directions"
-        href={directionsUrl}
-        target="_blank"
-        rel="noopener noreferrer"
-      >
-        Get Directions
-      </a>
     </div>
   );
 }
@@ -748,10 +912,11 @@ function LocationDetailCard({ location, popularTimesData, popularTimesLoading, o
 /* ------------------------------------------------------------------ */
 const SKELETON_HEIGHTS = Array.from({ length: 24 }, () => 20 + Math.random() * 60);
 
-function PopularTimesPanel({ data, loading, currentCount }: {
+function PopularTimesPanel({ data, loading, currentCount, pinColor }: {
   data: PopularTimesResponse | null | undefined;
   loading: boolean;
   currentCount: number;
+  pinColor?: string;
 }) {
   if (loading || data === undefined) {
     return (
@@ -802,7 +967,10 @@ function PopularTimesPanel({ data, loading, currentCount }: {
           <div key={hour} className="popular-times-bar-wrapper">
             <div
               className={`popular-times-bar${hour === localHour ? ' current' : ''}`}
-              style={{ height: `${Math.max((value / maxValue) * 100, 2)}%` }}
+              style={{
+                height: `${Math.max((value / maxValue) * 100, 2)}%`,
+                ...(hour === localHour && pinColor ? { backgroundColor: pinColor } : {}),
+              }}
             />
           </div>
         ))}
