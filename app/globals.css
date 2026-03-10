@@ -111,6 +111,7 @@ header {
     font-size: min(15rem, 90vw); /* Max 15rem, scales down to fit screen width */
     font-weight: bold; /* Make the counter bold */
     color: var(--light-color); /* Ensure the counter text is white */
+    white-space: nowrap;
 }
 
 #LargeHomeText {

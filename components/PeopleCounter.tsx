@@ -7,8 +7,8 @@ function formatNumberWithCommas(num: number): string {
   return num.toLocaleString('en-US');
 }
 
-// 4 full rotations of 0-9 + trailing 0 for wrap = 41 slots
-const REPETITIONS = 4;
+// 7 full rotations of 0-9 + trailing 0 for wrap = 71 slots
+const REPETITIONS = 7;
 const TOTAL_SLOTS = REPETITIONS * 10 + 1;
 const DIGIT_SLOTS = Array.from({ length: TOTAL_SLOTS }, (_, i) => i % 10);
 const SLOT_PERCENT = 100 / TOTAL_SLOTS;
@@ -166,8 +166,8 @@ export default function PeopleCounter() {
           return <span key={`c-${i}`} className="odometer-comma">,</span>;
         }
         const posFromRight = totalDigits - 1 - digitIndex;
-        // Every digit spins at least 1 full rotation; rightmost spin more
-        const spins = isFirstLoad ? Math.max(1, 3 - posFromRight) : 0;
+        // Every digit spins at least 1 rotation; rightmost spin much more
+        const spins = isFirstLoad ? Math.max(1, 6 - posFromRight) : 0;
         digitIndex++;
         return (
           <OdometerDigit
