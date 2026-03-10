@@ -63,6 +63,12 @@
       "namedRegex": "^/about(?:/)?$"
     },
     {
+      "page": "/icon.png",
+      "regex": "^/icon\\.png(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/icon\\.png(?:/)?$"
+    },
+    {
       "page": "/legal",
       "regex": "^/legal(?:/)?$",
       "routeKeys": {},

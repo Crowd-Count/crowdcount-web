@@ -1186,11 +1186,11 @@ function PopularTimesPanel({ data, loading, currentCount, pinColor, isClosed }: 
           }
 
           if (isCurrentHour && currentCount > avgValue) {
-            // Current > usual: accent bar behind, gray bar overlays showing usual
+            // Current > usual: accent bar behind, gray overlay showing usual
             return (
               <div key={hour} className="popular-times-bar-wrapper">
-                <div className="popular-times-bar popular-times-bar-accent" style={{ height: barPct(currentCount), backgroundColor: pinColor, opacity: 0.8 }} />
-                <div className="popular-times-bar popular-times-bar-overlay" style={{ height: barPct(avgValue), backgroundColor: 'rgba(255,255,255,0.45)' }} />
+                <div className="popular-times-bar" style={{ height: barPct(currentCount), backgroundColor: pinColor, opacity: 0.8 }} />
+                <div className="popular-times-bar popular-times-bar-overlay" style={{ height: barPct(avgValue), backgroundColor: 'rgba(255,255,255,0.65)' }} />
               </div>
             );
           }
@@ -1199,9 +1199,7 @@ function PopularTimesPanel({ data, loading, currentCount, pinColor, isClosed }: 
             // Current <= usual: gray bar behind, accent bar on top
             return (
               <div key={hour} className="popular-times-bar-wrapper">
-                {avgValue > currentCount && (
-                  <div className="popular-times-bar popular-times-bar-usual" style={{ height: barPct(avgValue), backgroundColor: 'rgba(255,255,255,0.2)' }} />
-                )}
+                <div className="popular-times-bar" style={{ height: barPct(avgValue), backgroundColor: 'rgba(255,255,255,0.3)' }} />
                 <div className="popular-times-bar popular-times-bar-overlay" style={{ height: barPct(currentCount), backgroundColor: pinColor }} />
               </div>
             );
@@ -1210,7 +1208,7 @@ function PopularTimesPanel({ data, loading, currentCount, pinColor, isClosed }: 
           // Non-current hour: gray bar
           return (
             <div key={hour} className="popular-times-bar-wrapper">
-              <div className="popular-times-bar" style={{ height: barPct(avgValue), backgroundColor: 'rgba(255,255,255,0.2)' }} />
+              <div className="popular-times-bar" style={{ height: barPct(avgValue), backgroundColor: 'rgba(255,255,255,0.3)' }} />
             </div>
           );
         })}

@@ -2489,10 +2489,6 @@ video {
     transition: height 0.3s ease;
 }
 
-/* For non-layered (single bar) wrappers, use relative positioning */
-.popular-times-bar:only-child {
-    position: relative;
-}
 
 /* Overlay bar sits on top of the accent/usual bar */
 .popular-times-bar-overlay {
