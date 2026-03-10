@@ -16,17 +16,17 @@ export default function ApiPage() {
         <MenuLinks />
       </header>
 
-      <h1 id="center" data-aos="fade-up">
+      <h1 id="center" data-aos="fade-up" data-aos-delay="0">
         <div id="primary">CrowdCount API</div>
         <br />
         <div id="secondary">for </div><a href="https://api.crowdcount.tech" id="primary">api.crowdcount.tech</a>
       </h1>
-      <h3 id="center" data-aos="fade-up">
+      <h3 id="center" data-aos="fade-up" data-aos-delay="100">
         <div id="secondary">Integrate CrowdCount data into your own application using these public API endpoints.</div>
       </h3>
 
       {/* How It Works */}
-      <div className="container mt-4" data-aos="fade-up">
+      <div className="container mt-4" data-aos="fade-up" data-aos-delay="200">
         <h3 id="center">
           <div id="LargeHomeText"><div id="primary">How It Works</div></div>
           <br />
@@ -43,7 +43,7 @@ export default function ApiPage() {
       </div>
 
       {/* General */}
-      <div className="container mt-4" data-aos="fade-up">
+      <div className="container mt-4" data-aos="fade-up" data-aos-delay="300">
         <div id="table-wrapper">
           <h2 className="mb-3" style={{ color: 'white', textAlign: 'center' }}>General</h2>
           <table className="table table-bordered">
@@ -366,7 +366,7 @@ export default function ApiPage() {
       </div>
 
       <br />
-      <h3 id="center">
+      <h3 id="center" data-aos="fade-up" data-aos-delay="400">
         <div id="LargeHomeText"><div id="primary">Important Notes</div></div>
         <br /><br />
         <div id="secondary">The <div id="primary">credentials</div> parameter is a JSON array of <code>{`{"device_id", "password"}`}</code> objects for all devices in the location:</div>
