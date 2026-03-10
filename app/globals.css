@@ -434,13 +434,14 @@ a:hover {
 #map-container {
     padding: 0px;
     font-variation-settings: "wght" 600;
+    position: relative;
+    border-radius: 40px;
+    overflow: hidden;
 }
 
 #map {
     height: 500px; /* Adjust the height as needed */
     width: 100%;
-    border-radius: 40px;
-    overflow: hidden; /* Ensure the map respects the border radius */
 }
 
 
@@ -1727,20 +1728,6 @@ video {
     background: rgba(255, 255, 255, 0.03);
     border-radius: 12px;
     margin-top: 8px;
-    animation: popular-times-slide-down 0.25s ease-out;
-}
-
-@keyframes popular-times-slide-down {
-    from {
-        opacity: 0;
-        max-height: 0;
-        transform: translateY(-8px);
-    }
-    to {
-        opacity: 1;
-        max-height: 300px;
-        transform: translateY(0);
-    }
 }
 
 .popular-times-chart {
@@ -1829,15 +1816,6 @@ video {
     padding: 20px 0;
 }
 
-/* Location item wrapper for expansion */
-.location-item-wrapper {
-    margin-bottom: 5px;
-}
-
-.location-item-wrapper .location-item {
-    margin-bottom: 0;
-}
-
 @media (max-width: 480px) {
     .popular-times-chart,
     .popular-times-skeleton {
@@ -1850,5 +1828,150 @@ video {
 
     .popular-times-comparison {
         font-size: 0.8rem;
+    }
+}
+
+/* ============================================
+   LOCATION DETAIL CARD (overlays bottom of map)
+   ============================================ */
+
+.location-detail-card {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(20, 20, 20, 0.92);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    z-index: 10;
+    padding: 20px 24px 24px;
+    animation: detail-card-slide-up 0.3s ease-out;
+}
+
+@keyframes detail-card-slide-up {
+    from {
+        opacity: 0;
+        transform: translateY(100%);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.location-detail-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+}
+
+.location-detail-title-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+    flex: 1;
+}
+
+.location-detail-name {
+    color: var(--light-color);
+    font-size: 1.1rem;
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.location-detail-close {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.1);
+    border: none;
+    color: var(--light-color);
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    padding: 0 !important;
+    margin: 0 !important;
+    line-height: 1;
+}
+
+.location-detail-close:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.location-detail-stats {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    margin-bottom: 14px;
+}
+
+.location-detail-count {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--light-color);
+}
+
+.location-detail-overcrowding {
+    color: var(--gray-color);
+    font-size: 1rem;
+}
+
+.location-detail-card .popular-times-panel {
+    background: transparent;
+    margin-top: 0;
+    padding: 0 0 12px;
+}
+
+.location-detail-directions {
+    display: block;
+    width: 100%;
+    background: rgba(0, 122, 255, 0.15);
+    color: #007AFF;
+    border: none;
+    padding: 12px 20px !important;
+    margin: 0 !important;
+    border-radius: 12px;
+    font-size: 0.95rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    text-align: center;
+    text-decoration: none;
+}
+
+.location-detail-directions:hover {
+    background: rgba(0, 122, 255, 0.25);
+}
+
+/* Selected highlight for location list items */
+.location-item.selected {
+    background: rgba(255, 255, 255, 0.12);
+    border-left: 3px solid var(--accent-color);
+}
+
+@media (max-width: 480px) {
+    .location-detail-card {
+        padding: 14px 16px 18px;
+    }
+
+    .location-detail-name {
+        font-size: 1rem;
+    }
+
+    .location-detail-count {
+        font-size: 1.3rem;
+    }
+
+    .location-detail-directions {
+        padding: 10px 16px !important;
+        font-size: 0.9rem;
     }
 }

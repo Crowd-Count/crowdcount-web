@@ -183,11 +183,16 @@ export default function MapPage() {
   const [userLocation, setUserLocation] = useState<{ lat: number; lon: number } | null>(null);
   const [ads, setAds] = useState<Ad[]>([]);
   const [modalAd, setModalAd] = useState<Ad | null>(null);
-  const [expandedLocationId, setExpandedLocationId] = useState<string | null>(null);
+  const [selectedLocationId, setSelectedLocationId] = useState<string | null>(null);
   const [popularTimesData, setPopularTimesData] = useState<Record<string, PopularTimesResponse | null>>({});
   const [popularTimesLoading, setPopularTimesLoading] = useState<Record<string, boolean>>({});
   const popularTimesDataRef = useRef(popularTimesData);
   popularTimesDataRef.current = popularTimesData;
+
+  // Derive selected location from live locations state (updates every 30s)
+  const selectedLocation = selectedLocationId
+    ? locations.find(l => l.location_id === selectedLocationId) ?? null
+    : null;
 
   /* ---- Fetch locations ---- */
   const fetchLocations = useCallback(async (): Promise<LocationData[]> => {
@@ -331,12 +336,17 @@ export default function MapPage() {
         map.addAnnotation(annotation);
       });
 
-      // Handle annotation select → expand popular times
+      // Handle annotation select → show detail card
       map.addEventListener('select', (e: any) => {
         const annotation = e.annotation;
         if (!annotation?.data?.locationId) return;
         const loc = locMap.get(annotation.data.locationId);
-        if (loc) handleLocationClickRef.current(loc, true);
+        if (loc) handleLocationClickRef.current(loc);
+      });
+
+      // Handle deselect → dismiss detail card
+      map.addEventListener('deselect', () => {
+        handleCloseDetailCardRef.current();
       });
 
       // Try user location for map center + sorting
@@ -380,24 +390,23 @@ export default function MapPage() {
     document.getElementById('map-container')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
   }, []);
 
-  /* ---- Toggle location expansion ---- */
-  const handleLocationClick = useCallback((loc: LocationData, fromMap?: boolean) => {
-    if (!fromMap) {
-      centerMapOnLocation(loc.location_latitude, loc.location_longitude);
-    }
-    setExpandedLocationId(prev => {
-      if (prev === loc.location_id) return null;
-      fetchPopularTimes(loc.location_id);
-      return loc.location_id;
-    });
-    // Scroll the location item into view (useful when triggered from map)
-    setTimeout(() => {
-      document.getElementById(`location-${loc.location_id}`)?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-    }, 100);
+  /* ---- Select location → show detail card ---- */
+  const handleLocationClick = useCallback((loc: LocationData) => {
+    centerMapOnLocation(loc.location_latitude, loc.location_longitude);
+    setSelectedLocationId(loc.location_id);
+    fetchPopularTimes(loc.location_id);
   }, [fetchPopularTimes, centerMapOnLocation]);
 
   const handleLocationClickRef = useRef(handleLocationClick);
   handleLocationClickRef.current = handleLocationClick;
+
+  /* ---- Close detail card ---- */
+  const handleCloseDetailCard = useCallback(() => {
+    setSelectedLocationId(null);
+  }, []);
+
+  const handleCloseDetailCardRef = useRef(handleCloseDetailCard);
+  handleCloseDetailCardRef.current = handleCloseDetailCard;
 
   /* ---- Get ad location from allLocations ---- */
   const getAdLocation = useCallback((ad: Ad): { name: string; lat: number; lon: number } | null => {
@@ -459,6 +468,15 @@ export default function MapPage() {
         <div id="secondary">
           <div id="map-container">
             <div id="map" data-aos="fade-up"></div>
+            {selectedLocation && (
+              <LocationDetailCard
+                key={selectedLocationId}
+                location={selectedLocation}
+                popularTimesData={popularTimesData[selectedLocation.location_id]}
+                popularTimesLoading={!!popularTimesLoading[selectedLocation.location_id]}
+                onClose={handleCloseDetailCard}
+              />
+            )}
           </div>
         </div>
       </h3>
@@ -497,39 +515,31 @@ export default function MapPage() {
                     </div>
                   ) : (
                     sortedLocations.map(loc => (
-                      <div key={loc.location_id} id={`location-${loc.location_id}`} className="location-item-wrapper">
-                        <div
-                          className="location-item"
-                          onClick={() => handleLocationClick(loc)}
-                        >
-                          <span className="location-color-dot" style={{ backgroundColor: getMarkerColor(loc.location_color || '') }}></span>
-                          <span className="location-name">{loc.location_name}</span>
-                          <div className="location-stats">
-                            {loc.is_closed ? (
-                              <span className="location-closed">Closed</span>
-                            ) : (
-                              <>
-                                <span className="location-count-label">Count:</span>
-                                <span className="location-count-number">{loc.current_count}</span>
-                                {loc.overcrowding_limit != null && (
-                                  <span className="location-overcrowding"> / {loc.overcrowding_limit}</span>
-                                )}
-                                {getComparisonSymbol(loc.location_comparison) && (
-                                  <span className={getComparisonClass(loc.location_comparison)}>
-                                    {getComparisonSymbol(loc.location_comparison)}
-                                  </span>
-                                )}
-                              </>
-                            )}
-                          </div>
+                      <div
+                        key={loc.location_id}
+                        className={`location-item${selectedLocationId === loc.location_id ? ' selected' : ''}`}
+                        onClick={() => handleLocationClick(loc)}
+                      >
+                        <span className="location-color-dot" style={{ backgroundColor: getMarkerColor(loc.location_color || '') }}></span>
+                        <span className="location-name">{loc.location_name}</span>
+                        <div className="location-stats">
+                          {loc.is_closed ? (
+                            <span className="location-closed">Closed</span>
+                          ) : (
+                            <>
+                              <span className="location-count-label">Count:</span>
+                              <span className="location-count-number">{loc.current_count}</span>
+                              {loc.overcrowding_limit != null && (
+                                <span className="location-overcrowding"> / {loc.overcrowding_limit}</span>
+                              )}
+                              {getComparisonSymbol(loc.location_comparison) && (
+                                <span className={getComparisonClass(loc.location_comparison)}>
+                                  {getComparisonSymbol(loc.location_comparison)}
+                                </span>
+                              )}
+                            </>
+                          )}
                         </div>
-                        {expandedLocationId === loc.location_id && (
-                          <PopularTimesPanel
-                            data={popularTimesData[loc.location_id]}
-                            loading={!!popularTimesLoading[loc.location_id]}
-                            currentCount={loc.current_count}
-                          />
-                        )}
                       </div>
                     ))
                   )}
@@ -576,6 +586,63 @@ export default function MapPage() {
         />
       )}
     </>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/*  Location Detail Card (overlays bottom of map)                      */
+/* ------------------------------------------------------------------ */
+function LocationDetailCard({ location, popularTimesData, popularTimesLoading, onClose }: {
+  location: LocationData;
+  popularTimesData: PopularTimesResponse | null | undefined;
+  popularTimesLoading: boolean;
+  onClose: () => void;
+}) {
+  const directionsUrl = `https://maps.apple.com/?daddr=${location.location_latitude},${location.location_longitude}&dirflg=d&t=m`;
+
+  return (
+    <div className="location-detail-card">
+      <div className="location-detail-header">
+        <div className="location-detail-title-row">
+          <span className="location-color-dot" style={{ backgroundColor: getMarkerColor(location.location_color || '') }} />
+          <span className="location-detail-name">{location.location_name}</span>
+        </div>
+        <button className="location-detail-close" onClick={onClose}>&times;</button>
+      </div>
+
+      <div className="location-detail-stats">
+        {location.is_closed ? (
+          <span className="location-closed">Closed</span>
+        ) : (
+          <>
+            <span className="location-detail-count">{location.current_count}</span>
+            {location.overcrowding_limit != null && (
+              <span className="location-detail-overcrowding">/ {location.overcrowding_limit}</span>
+            )}
+            {getComparisonSymbol(location.location_comparison) && (
+              <span className={getComparisonClass(location.location_comparison)}>
+                {getComparisonSymbol(location.location_comparison)}
+              </span>
+            )}
+          </>
+        )}
+      </div>
+
+      <PopularTimesPanel
+        data={popularTimesData}
+        loading={popularTimesLoading}
+        currentCount={location.current_count}
+      />
+
+      <a
+        className="location-detail-directions"
+        href={directionsUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        Get Directions
+      </a>
+    </div>
   );
 }
 
