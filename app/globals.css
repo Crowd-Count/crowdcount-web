@@ -148,7 +148,7 @@ header {
     padding: 5px 15px;
     border-radius: 15px;
     background-color: rgba(255, 255, 255, 0.2); /* Semi-transparent background */
-    transition: background-color 0.3s ease;
+    transition: background-color 0.3s ease, color 0.3s ease;
     position: relative;
     overflow: hidden;
     margin-bottom: 10px;
@@ -1455,7 +1455,7 @@ select::-ms-expand {
     padding: 8px 16px;
     border-radius: 15px;
     background-color: rgba(255, 255, 255, 0.1);
-    transition: background-color 0.3s ease;
+    transition: background-color 0.3s ease, color 0.3s ease;
     font-size: 1rem;
     position: relative;
     overflow: hidden;
@@ -3003,6 +3003,19 @@ video {
     }
 }
 
+/* ===== Content Link Hover Color ===== */
+
+.link-hover-active {
+    background: radial-gradient(
+        circle 40px at var(--mx, 50%) var(--my, 50%),
+        var(--accent-color),
+        var(--light-color) 100%
+    ) !important;
+    -webkit-background-clip: text !important;
+    background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
+}
+
 /* ===== 1. Animated Gradient Text ===== */
 
 .gradient-text {
@@ -3034,7 +3047,7 @@ video {
     }
 
     .nav-menu li a {
-        transition: background-color 0.3s ease, transform 0.25s ease, box-shadow 0.3s ease;
+        transition: background-color 0.3s ease, color 0.3s ease, transform 0.25s ease, box-shadow 0.3s ease;
     }
 
     .nav-menu li a:hover {

@@ -8,6 +8,7 @@ import AlertBanner from '@/components/AlertBanner';
 import AosInit from '@/components/AosInit';
 import BootstrapJs from '@/components/BootstrapJs';
 import BodyIdSetter from '@/components/BodyIdSetter';
+import LinkHoverEffect from '@/components/LinkHoverEffect';
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://crowdcount.tech'),
@@ -46,6 +47,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <AosInit />
         <BootstrapJs />
         <BodyIdSetter />
+        <LinkHoverEffect />
         <AlertBanner />
         <Navigation />
         {children}
