@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useCallback, useRef, useMemo } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import Script from 'next/script';
 import Link from 'next/link';
 import MenuLinks from '@/components/MenuLinks';
@@ -29,11 +29,13 @@ declare global {
       addAnnotation(annotation: any): void;
       removeAnnotations(annotations: any[]): void;
       setRegionAnimated(region: CoordinateRegion, animate?: boolean): void;
+      addEventListener(type: string, handler: (e: any) => void): void;
       annotations: any[];
       static readonly ColorSchemes: { Dark: string; Light: string };
     }
     class MarkerAnnotation {
       constructor(coordinate: Coordinate, options?: any);
+      data: any;
     }
   }
 }
@@ -54,10 +56,9 @@ interface LocationData {
   devices?: [string, ...unknown[]][];
 }
 
-interface PopularTimeEntry {
-  day_of_week: number;
-  hour: number;
-  average_count: number;
+interface PopularTimesResponse {
+  day_of_week: string;
+  popular_times: Record<string, number>;
 }
 
 interface Ad {
@@ -183,7 +184,7 @@ export default function MapPage() {
   const [ads, setAds] = useState<Ad[]>([]);
   const [modalAd, setModalAd] = useState<Ad | null>(null);
   const [expandedLocationId, setExpandedLocationId] = useState<string | null>(null);
-  const [popularTimesData, setPopularTimesData] = useState<Record<string, PopularTimeEntry[]>>({});
+  const [popularTimesData, setPopularTimesData] = useState<Record<string, PopularTimesResponse | null>>({});
   const [popularTimesLoading, setPopularTimesLoading] = useState<Record<string, boolean>>({});
   const popularTimesDataRef = useRef(popularTimesData);
   popularTimesDataRef.current = popularTimesData;
@@ -222,15 +223,15 @@ export default function MapPage() {
 
   /* ---- Fetch popular times ---- */
   const fetchPopularTimes = useCallback(async (locationId: string) => {
-    if (popularTimesDataRef.current[locationId]) return;
+    if (locationId in popularTimesDataRef.current) return;
     setPopularTimesLoading(prev => ({ ...prev, [locationId]: true }));
     try {
       const res = await fetch(`${API_BASE_URL}/get_popular_times?location_id=${locationId}`);
       if (!res.ok) throw new Error('Failed');
-      const data = await res.json();
-      setPopularTimesData(prev => ({ ...prev, [locationId]: data.popular_times || [] }));
+      const data: PopularTimesResponse = await res.json();
+      setPopularTimesData(prev => ({ ...prev, [locationId]: data.popular_times ? data : null }));
     } catch {
-      setPopularTimesData(prev => ({ ...prev, [locationId]: [] }));
+      setPopularTimesData(prev => ({ ...prev, [locationId]: null }));
     } finally {
       setPopularTimesLoading(prev => ({ ...prev, [locationId]: false }));
     }
@@ -310,7 +311,9 @@ export default function MapPage() {
       const adsList = await fetchAds();
 
       // Add annotations
+      const locMap = new Map<string, LocationData>();
       locs.forEach(loc => {
+        locMap.set(loc.location_id, loc);
         let subtitle: string;
         if (loc.is_closed) {
           subtitle = 'Closed';
@@ -320,10 +323,20 @@ export default function MapPage() {
           const sym = getComparisonSymbol(loc.location_comparison);
           if (sym) subtitle += ` ${sym}`;
         }
-        map.addAnnotation(new mapkit.MarkerAnnotation(
+        const annotation = new mapkit.MarkerAnnotation(
           new mapkit.Coordinate(loc.location_latitude, loc.location_longitude),
           { title: loc.location_name, subtitle, color: getMarkerColor(loc.location_color) }
-        ));
+        );
+        annotation.data = { locationId: loc.location_id };
+        map.addAnnotation(annotation);
+      });
+
+      // Handle annotation select → expand popular times
+      map.addEventListener('select', (e: any) => {
+        const annotation = e.annotation;
+        if (!annotation?.data?.locationId) return;
+        const loc = locMap.get(annotation.data.locationId);
+        if (loc) handleLocationClickRef.current(loc, true);
       });
 
       // Try user location for map center + sorting
@@ -368,14 +381,23 @@ export default function MapPage() {
   }, []);
 
   /* ---- Toggle location expansion ---- */
-  const handleLocationClick = useCallback((loc: LocationData) => {
-    centerMapOnLocation(loc.location_latitude, loc.location_longitude);
+  const handleLocationClick = useCallback((loc: LocationData, fromMap?: boolean) => {
+    if (!fromMap) {
+      centerMapOnLocation(loc.location_latitude, loc.location_longitude);
+    }
     setExpandedLocationId(prev => {
       if (prev === loc.location_id) return null;
       fetchPopularTimes(loc.location_id);
       return loc.location_id;
     });
+    // Scroll the location item into view (useful when triggered from map)
+    setTimeout(() => {
+      document.getElementById(`location-${loc.location_id}`)?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }, 100);
   }, [fetchPopularTimes, centerMapOnLocation]);
+
+  const handleLocationClickRef = useRef(handleLocationClick);
+  handleLocationClickRef.current = handleLocationClick;
 
   /* ---- Get ad location from allLocations ---- */
   const getAdLocation = useCallback((ad: Ad): { name: string; lat: number; lon: number } | null => {
@@ -475,7 +497,7 @@ export default function MapPage() {
                     </div>
                   ) : (
                     sortedLocations.map(loc => (
-                      <div key={loc.location_id} className="location-item-wrapper">
+                      <div key={loc.location_id} id={`location-${loc.location_id}`} className="location-item-wrapper">
                         <div
                           className="location-item"
                           onClick={() => handleLocationClick(loc)}
@@ -563,11 +585,11 @@ export default function MapPage() {
 const SKELETON_HEIGHTS = Array.from({ length: 24 }, () => 20 + Math.random() * 60);
 
 function PopularTimesPanel({ data, loading, currentCount }: {
-  data: PopularTimeEntry[] | undefined;
+  data: PopularTimesResponse | null | undefined;
   loading: boolean;
   currentCount: number;
 }) {
-  if (loading || !data) {
+  if (loading || data === undefined) {
     return (
       <div className="popular-times-panel">
         <div className="popular-times-skeleton">
@@ -583,15 +605,7 @@ function PopularTimesPanel({ data, loading, currentCount }: {
     );
   }
 
-  const now = new Date();
-  const localDayOfWeek = now.getDay(); // 0 = Sunday
-  const localHour = now.getHours();
-  const offsetMinutes = -now.getTimezoneOffset();
-  const offsetHours = offsetMinutes / 60;
-
-  const todayData = data.filter(d => d.day_of_week === localDayOfWeek);
-
-  if (todayData.length === 0) {
+  if (!data || !data.popular_times || Object.keys(data.popular_times).length === 0) {
     return (
       <div className="popular-times-panel">
         <div className="popular-times-no-data">No popular times data available</div>
@@ -599,11 +613,17 @@ function PopularTimesPanel({ data, loading, currentCount }: {
     );
   }
 
-  // Build 24-hour array with UTC → local conversion
+  const now = new Date();
+  const localHour = now.getHours();
+  const offsetHours = -now.getTimezoneOffset() / 60;
+
+  // Build 24-hour array: API keys are UTC hours, convert to local
   const hourlyValues = new Array(24).fill(0);
-  todayData.forEach(entry => {
-    const localH = (entry.hour + offsetHours + 24) % 24;
-    hourlyValues[Math.floor(localH) % 24] = entry.average_count;
+  Object.entries(data.popular_times).forEach(([utcHourStr, value]) => {
+    const utcHour = parseInt(utcHourStr, 10);
+    if (isNaN(utcHour)) return;
+    const localH = Math.floor(((utcHour + offsetHours) % 24 + 24) % 24);
+    hourlyValues[localH] = value;
   });
 
   const maxValue = Math.max(...hourlyValues, 1);
