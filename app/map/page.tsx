@@ -1073,6 +1073,7 @@ function LocationDetailCard({ location, popularTimesData, popularTimesLoading, o
         loading={popularTimesLoading}
         currentCount={location.current_count}
         pinColor={pinColor}
+        isClosed={location.is_closed}
       />
     </div>
   );
@@ -1083,11 +1084,12 @@ function LocationDetailCard({ location, popularTimesData, popularTimesLoading, o
 /* ------------------------------------------------------------------ */
 const SKELETON_HEIGHTS = Array.from({ length: 24 }, () => 20 + Math.random() * 60);
 
-function PopularTimesPanel({ data, loading, currentCount, pinColor }: {
+function PopularTimesPanel({ data, loading, currentCount, pinColor, isClosed }: {
   data: PopularTimesResponse | null | undefined;
   loading: boolean;
   currentCount: number;
   pinColor?: string;
+  isClosed?: boolean;
 }) {
   if (loading || data === undefined) {
     return (
@@ -1116,6 +1118,8 @@ function PopularTimesPanel({ data, loading, currentCount, pinColor }: {
   const now = new Date();
   const localHour = now.getHours();
   const offsetHours = -now.getTimezoneOffset() / 60;
+  const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+  const localDay = dayNames[now.getDay()];
 
   // Build 24-hour array: API keys are UTC hours, convert to local
   const hourlyValues = new Array(24).fill(0);
@@ -1126,35 +1130,108 @@ function PopularTimesPanel({ data, loading, currentCount, pinColor }: {
     hourlyValues[localH] = value;
   });
 
-  const maxValue = Math.max(...hourlyValues, 1);
+  const peakValue = Math.max(...hourlyValues, currentCount, 1);
   const usualAtCurrentHour = hourlyValues[localHour];
 
+  // Live comparison label (matches iOS logic)
+  let comparisonText = '';
+  let comparisonColor = '';
+  if (!isClosed && usualAtCurrentHour > 0) {
+    const diff = currentCount - usualAtCurrentHour;
+    const pct = Math.round(Math.abs(diff / usualAtCurrentHour) * 100);
+    if (Math.abs(diff) < 3 || pct < 10) {
+      comparisonText = 'About as busy as usual';
+      comparisonColor = 'rgba(255,255,255,0.5)';
+    } else if (diff > 0) {
+      comparisonText = `${pct}% busier than usual`;
+      comparisonColor = '#34C759';
+    } else {
+      comparisonText = `${pct}% less busy than usual`;
+      comparisonColor = '#FF3B30';
+    }
+  }
+
   const hourLabels = ['12a', '', '', '3a', '', '', '6a', '', '', '9a', '', '', '12p', '', '', '3p', '', '', '6p', '', '', '9p', '', ''];
+  const showCurrentBar = !isClosed && data.day_of_week;
 
   return (
     <div className="popular-times-panel">
+      {/* Header: title + day */}
+      <div className="popular-times-header">
+        <span className="popular-times-title">Popular times</span>
+        <span className="popular-times-day">{localDay}</span>
+      </div>
+
+      {/* Live comparison */}
+      {comparisonText && (
+        <div className="popular-times-live" style={{ color: comparisonColor }}>
+          <span className="popular-times-live-dot" style={{ backgroundColor: comparisonColor }} />
+          {comparisonText}
+        </div>
+      )}
+
+      {/* Chart with layered bars */}
       <div className="popular-times-chart">
-        {hourlyValues.map((value, hour) => (
-          <div key={hour} className="popular-times-bar-wrapper">
-            <div
-              className={`popular-times-bar${hour === localHour ? ' current' : ''}`}
-              style={{
-                height: `${Math.max((value / maxValue) * 100, 2)}%`,
-                ...(hour === localHour && pinColor ? { backgroundColor: pinColor } : {}),
-              }}
-            />
-          </div>
-        ))}
+        {hourlyValues.map((avgValue, hour) => {
+          const isCurrentHour = hour === localHour && showCurrentBar;
+          const barPct = (v: number) => `${Math.max((v / peakValue) * 100, 2)}%`;
+
+          if (isCurrentHour && avgValue <= 0) {
+            // No usual data: just accent bar
+            return (
+              <div key={hour} className="popular-times-bar-wrapper">
+                <div className="popular-times-bar" style={{ height: barPct(currentCount), backgroundColor: pinColor }} />
+              </div>
+            );
+          }
+
+          if (isCurrentHour && currentCount > avgValue) {
+            // Current > usual: accent bar behind, gray bar overlays showing usual
+            return (
+              <div key={hour} className="popular-times-bar-wrapper">
+                <div className="popular-times-bar popular-times-bar-accent" style={{ height: barPct(currentCount), backgroundColor: pinColor, opacity: 0.8 }} />
+                <div className="popular-times-bar popular-times-bar-overlay" style={{ height: barPct(avgValue), backgroundColor: 'rgba(255,255,255,0.45)' }} />
+              </div>
+            );
+          }
+
+          if (isCurrentHour) {
+            // Current <= usual: gray bar behind, accent bar on top
+            return (
+              <div key={hour} className="popular-times-bar-wrapper">
+                {avgValue > currentCount && (
+                  <div className="popular-times-bar popular-times-bar-usual" style={{ height: barPct(avgValue), backgroundColor: 'rgba(255,255,255,0.2)' }} />
+                )}
+                <div className="popular-times-bar popular-times-bar-overlay" style={{ height: barPct(currentCount), backgroundColor: pinColor }} />
+              </div>
+            );
+          }
+
+          // Non-current hour: gray bar
+          return (
+            <div key={hour} className="popular-times-bar-wrapper">
+              <div className="popular-times-bar" style={{ height: barPct(avgValue), backgroundColor: 'rgba(255,255,255,0.2)' }} />
+            </div>
+          );
+        })}
       </div>
       <div className="popular-times-labels">
         {hourLabels.map((label, i) => (
           <div key={i} className="popular-times-label">{label}</div>
         ))}
       </div>
-      <div className="popular-times-comparison">
-        <strong>Currently: {currentCount}</strong>
-        {usualAtCurrentHour > 0 && (
-          <> &mdash; Usually: {Math.round(usualAtCurrentHour)} around this time</>
+
+      {/* Legend */}
+      <div className="popular-times-legend">
+        <div className="popular-times-legend-item">
+          <span className="popular-times-legend-swatch" style={{ backgroundColor: 'rgba(255,255,255,0.2)' }} />
+          <span>Usual</span>
+        </div>
+        {!isClosed && (
+          <div className="popular-times-legend-item">
+            <span className="popular-times-legend-swatch" style={{ backgroundColor: pinColor }} />
+            <span>Right now</span>
+          </div>
         )}
       </div>
     </div>

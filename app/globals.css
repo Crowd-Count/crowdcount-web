@@ -2430,6 +2430,39 @@ video {
     margin-top: 8px;
 }
 
+.popular-times-header {
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+    margin-bottom: 4px;
+}
+
+.popular-times-title {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--light-color);
+}
+
+.popular-times-day {
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.popular-times-live {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.75rem;
+    margin-bottom: 8px;
+}
+
+.popular-times-live-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
 .popular-times-chart {
     display: flex;
     align-items: flex-end;
@@ -2440,24 +2473,30 @@ video {
 
 .popular-times-bar-wrapper {
     flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+    position: relative;
     height: 100%;
-    justify-content: flex-end;
     min-width: 0;
 }
 
+/* All bars inside a wrapper are positioned from the bottom */
 .popular-times-bar {
-    width: 100%;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
     min-height: 2px;
     border-radius: 3px 3px 0 0;
-    background: rgba(255, 255, 255, 0.2);
     transition: height 0.3s ease;
 }
 
-.popular-times-bar.current {
-    background: var(--accent-color);
+/* For non-layered (single bar) wrappers, use relative positioning */
+.popular-times-bar:only-child {
+    position: relative;
+}
+
+/* Overlay bar sits on top of the accent/usual bar */
+.popular-times-bar-overlay {
+    z-index: 1;
 }
 
 .popular-times-labels {
@@ -2475,17 +2514,25 @@ video {
     overflow: hidden;
 }
 
-.popular-times-comparison {
-    text-align: center;
-    margin-top: 12px;
-    font-size: 0.85rem;
-    color: var(--gray-color);
-    line-height: 1.4;
+.popular-times-legend {
+    display: flex;
+    gap: 12px;
+    margin-top: 10px;
 }
 
-.popular-times-comparison strong {
-    color: var(--light-color);
-    font-weight: 600;
+.popular-times-legend-item {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.65rem;
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.popular-times-legend-swatch {
+    width: 10px;
+    height: 10px;
+    border-radius: 2px;
+    flex-shrink: 0;
 }
 
 .popular-times-skeleton {
@@ -2524,10 +2571,6 @@ video {
 
     .popular-times-label {
         font-size: 0.5rem;
-    }
-
-    .popular-times-comparison {
-        font-size: 0.8rem;
     }
 }
 
