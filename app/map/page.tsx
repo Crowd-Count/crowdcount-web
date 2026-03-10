@@ -1283,7 +1283,7 @@ function PromosPanel({ ads, onCardClick }: { ads: Ad[]; onCardClick: (ad: Ad) =>
             disabled={activeIndex === 0}
             aria-label="Previous promotion"
           >
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6" /></svg>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z" /></svg>
           </button>
           <div className="map-promos-dots">
             {ads.map((_, i) => (
@@ -1300,7 +1300,7 @@ function PromosPanel({ ads, onCardClick }: { ads: Ad[]; onCardClick: (ad: Ad) =>
             disabled={activeIndex === ads.length - 1}
             aria-label="Next promotion"
           >
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 18l6-6-6-6" /></svg>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M8.59 16.59L10 18l6-6-6-6-1.41 1.41L13.17 12z" /></svg>
           </button>
         </div>
       )}
