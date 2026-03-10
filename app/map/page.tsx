@@ -170,12 +170,15 @@ function formatCountdown(expirationDate: string | undefined): { text: string; is
 }
 
 function generateReferenceNumber(adId: string): string {
+  // Match iOS: 12-digit hash grouped 3-3-3-3, stable per ad
   let hash = 0;
   for (let i = 0; i < adId.length; i++) {
     hash = ((hash << 5) - hash) + adId.charCodeAt(i);
     hash = hash & hash;
   }
-  return 'REF-' + Math.abs(hash).toString().slice(0, 8).padStart(8, '0');
+  const positive = Math.abs(hash) % 1_000_000_000_000;
+  const formatted = positive.toString().padStart(12, '0');
+  return `${formatted.slice(0, 3)}-${formatted.slice(3, 6)}-${formatted.slice(6, 9)}-${formatted.slice(9, 12)}`;
 }
 
 async function trackAdClick(adId: string) {
@@ -1433,8 +1436,15 @@ function PromoModal({ ad, adLocation, onClose }: {
           <div className="promo-modal-label">Sponsored Content</div>
           <div className="promo-modal-title">{ad.title}</div>
           <div className="promo-modal-description">{ad.description}</div>
-          <button className="promo-modal-directions" style={{ backgroundColor: accentColor }} onClick={openDirections}>Get Directions</button>
-          <div className="promo-modal-reference">{generateReferenceNumber(ad.id || '')}</div>
+          <button className="promo-modal-directions" style={{ backgroundColor: `${accentColor}26`, color: accentColor }} onClick={openDirections}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill={accentColor} style={{ marginRight: 8 }}><path d="M21.71 11.29l-9-9a1 1 0 0 0-1.42 0l-9 9a1 1 0 0 0 0 1.42l9 9a1 1 0 0 0 1.42 0l9-9a1 1 0 0 0 0-1.42zM14 14.5V12h-4v3H8v-4a1 1 0 0 1 1-1h5V7.5l3.5 3.5-3.5 3.5z" /></svg>
+            Get Directions
+          </button>
+          <div className="promo-modal-divider-horizontal"></div>
+          <div className="promo-modal-ref-section">
+            <div className="promo-modal-ref-label">Reference Number</div>
+            <div className="promo-modal-ref-value">{generateReferenceNumber(ad.id || '')}</div>
+          </div>
         </div>
       </div>
     </div>
