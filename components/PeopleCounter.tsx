@@ -88,13 +88,13 @@ export default function PeopleCounter() {
     if (animRef.current) clearInterval(animRef.current);
 
     setSmooth(false);
-    const start = currentCountRef.current;
+    let currentCount = currentCountRef.current;
     const duration = 2000;
-    const frameRate = 30;
+    const frameRate = 50;
     const totalFrames = duration / frameRate;
     let frame = 0;
 
-    // Set font size for the target immediately so it doesn't jump at the end
+    // Scale font for target count at the start
     if (counterRef.current) {
       scaleCounterFont(counterRef.current, target);
     }
@@ -102,11 +102,9 @@ export default function PeopleCounter() {
     animRef.current = setInterval(() => {
       frame++;
       const progress = frame / totalFrames;
-      // Ease-out: fast start, slow end
-      const eased = 1 - Math.pow(1 - progress, 3);
-      const current = Math.round(start + (target - start) * eased);
-      currentCountRef.current = current;
-      setDisplayCount(current);
+      currentCount = Math.round(currentCount + (target - currentCount) * progress);
+      currentCountRef.current = currentCount;
+      setDisplayCount(currentCount);
 
       if (frame >= totalFrames) {
         if (animRef.current) clearInterval(animRef.current);
