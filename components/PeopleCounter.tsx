@@ -7,42 +7,47 @@ function formatNumberWithCommas(num: number): string {
   return num.toLocaleString('en-US');
 }
 
-// 11 slots: 0-9 plus a duplicate 0 at position 10 so 9→0 rolls forward
-const DIGIT_SLOTS = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0];
-const SLOT_PERCENT = 100 / DIGIT_SLOTS.length; // ~9.09% per slot
+// 4 full rotations of 0-9 (40 slots) + trailing 0 for wrap = 41 slots
+// Enough room for rightmost digits to spin through 3 full rotations on first load
+const REPETITIONS = 4;
+const TOTAL_SLOTS = REPETITIONS * 10 + 1;
+const DIGIT_SLOTS = Array.from({ length: TOTAL_SLOTS }, (_, i) => i % 10);
+const SLOT_PERCENT = 100 / TOTAL_SLOTS;
 
-function OdometerDigit({ digit, firstLoad }: { digit: number; firstLoad: boolean }) {
+function OdometerDigit({ digit, firstLoad, spins }: { digit: number; firstLoad: boolean; spins: number }) {
   const prevDigitRef = useRef(0);
-  const [position, setPosition] = useState(0); // always mount at 0
-  const [animate, setAnimate] = useState(false); // no transition on mount
+  const [position, setPosition] = useState(0);
+  const [animate, setAnimate] = useState(false);
+  const hasAnimatedRef = useRef(false);
 
   useEffect(() => {
     const prev = prevDigitRef.current;
     prevDigitRef.current = digit;
 
-    // Use double rAF to ensure the browser paints position 0 first,
-    // then we animate to the target digit
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {
-        if (prev > digit && prev !== 0) {
-          // Wrap case (e.g. 9→0): roll forward to slot 10 (the duplicate 0)
-          setAnimate(true);
+        setAnimate(true);
+        if (!hasAnimatedRef.current) {
+          // First load: spin through full rotations then land on target
+          hasAnimatedRef.current = true;
+          setPosition(spins * 10 + digit);
+        } else if (prev > digit) {
+          // Wrap case (e.g. 9→0): roll forward to next 0 at slot 10
           setPosition(10);
         } else {
-          setAnimate(true);
           setPosition(digit);
         }
       });
     });
-  }, [digit]);
+  }, [digit, spins]);
 
-  // After wrapping to slot 10, silently snap back to slot 0
+  // After first-load spin or wrap, silently snap back to base position (0-9)
   const handleTransitionEnd = useCallback(() => {
-    if (position === 10) {
+    if (position > 9) {
       setAnimate(false);
-      setPosition(0);
+      setPosition(digit);
     }
-  }, [position]);
+  }, [position, digit]);
 
   return (
     <span className="odometer-digit-wrapper">
@@ -132,16 +137,28 @@ export default function PeopleCounter() {
 
   const formatted = formatNumberWithCommas(displayCount);
   const chars = formatted.split('');
+  const totalDigits = chars.filter(c => c !== ',').length;
+  let digitIndex = 0;
 
   return (
     <div id="peopleCounter" ref={counterRef}>
-      {chars.map((char, i) =>
-        char === ',' ? (
-          <span key={`c-${i}`} className="odometer-comma">,</span>
-        ) : (
-          <OdometerDigit key={`d-${i}`} digit={parseInt(char, 10)} firstLoad={isFirstLoad} />
-        )
-      )}
+      {chars.map((char, i) => {
+        if (char === ',') {
+          return <span key={`c-${i}`} className="odometer-comma">,</span>;
+        }
+        const posFromRight = totalDigits - 1 - digitIndex;
+        // Rightmost digits spin more: ones=3 rotations, tens=2, hundreds=1, rest=0
+        const spins = Math.max(0, 3 - posFromRight);
+        digitIndex++;
+        return (
+          <OdometerDigit
+            key={`d-${i}`}
+            digit={parseInt(char, 10)}
+            firstLoad={isFirstLoad}
+            spins={spins}
+          />
+        );
+      })}
     </div>
   );
 }
