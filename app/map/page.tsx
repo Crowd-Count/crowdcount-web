@@ -701,6 +701,10 @@ export default function MapPage() {
       closingLocationRef.current = null;
     }
     setIsTrackingUser(false);
+    // On mobile, close the list when selecting from it
+    if (!fromMap && isMobile) {
+      setListVisible(false);
+    }
     centerMapOnLocation(loc.location_latitude, loc.location_longitude);
     setSelectedLocationId(loc.location_id);
     fetchPopularTimes(loc.location_id);
@@ -714,7 +718,7 @@ export default function MapPage() {
         mapRef.current.selectedAnnotation = annotation;
       }
     }
-  }, [fetchPopularTimes, centerMapOnLocation]);
+  }, [fetchPopularTimes, centerMapOnLocation, isMobile]);
 
   const handleLocationClickRef = useRef(handleLocationClick);
   handleLocationClickRef.current = handleLocationClick;
