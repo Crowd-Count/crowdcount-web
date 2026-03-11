@@ -89,9 +89,7 @@ export default function PhotoGallery({ images, galleryId, imageClassName, speed 
       startTransition(0);
     };
     const onLeave = () => {
-      resumeTimer.current = setTimeout(() => {
-        startTransition(speed);
-      }, 1000);
+      startTransition(speed);
     };
 
     track.addEventListener('mouseenter', onEnter);
