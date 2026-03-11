@@ -10,13 +10,13 @@ interface PhotoGalleryProps {
   phoneFrame?: boolean;
 }
 
-// Cubic ease-in-out (smoothstep)
-function smoothstep(t: number): number {
+// Quadratic ease-in-out
+function easeInOutQuad(t: number): number {
   t = Math.max(0, Math.min(1, t));
-  return t * t * (3 - 2 * t);
+  return t < 0.5 ? 2 * t * t : 1 - 2 * (1 - t) * (1 - t);
 }
 
-const TRANSITION_DURATION = 2.0; // seconds
+const TRANSITION_DURATION = 1.0; // seconds
 
 export default function PhotoGallery({ images, galleryId, imageClassName, speed = 100, phoneFrame }: PhotoGalleryProps) {
   const trackRef = useRef<HTMLDivElement>(null);
@@ -46,7 +46,7 @@ export default function PhotoGallery({ images, galleryId, imageClassName, speed 
     });
 
     function getCurrentSpeed(): number {
-      const t = smoothstep(trans.progress);
+      const t = easeInOutQuad(trans.progress);
       return trans.from + (trans.to - trans.from) * t;
     }
 
@@ -85,7 +85,6 @@ export default function PhotoGallery({ images, galleryId, imageClassName, speed 
     }
 
     const onEnter = () => {
-      if (resumeTimer.current) clearTimeout(resumeTimer.current);
       startTransition(0);
     };
     const onLeave = () => {
