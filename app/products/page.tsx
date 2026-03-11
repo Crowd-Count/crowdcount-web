@@ -137,7 +137,7 @@ export default function ProductsPage() {
             </div>
             Now available on the App Store!
             <br />
-            <br /><a href="https://www.crowdcount.tech/app" target="_blank" rel="noopener noreferrer" id="big-red-button" className="ripple">Download Now</a>
+            <br /><a href="https://www.crowdcount.tech/app" target="_blank" rel="noopener noreferrer" id="big-red-button" className="ripple">Download</a>
             <br />
             <br />
             <div id="secondarySmall" style={{ display: 'block' }}>Want to help improve our app? <a href="https://www.crowdcount.tech/beta-app" target="_blank" rel="noopener noreferrer">Join our beta</a></div>
