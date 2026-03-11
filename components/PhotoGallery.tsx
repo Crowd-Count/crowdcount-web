@@ -42,9 +42,9 @@ export default function PhotoGallery({ images, galleryId, imageClassName, speed 
 
       // Skip huge gaps
       if (dt < 0.1) {
-        // Exponential ease: 5% of remaining gap per frame (~1s smooth ramp)
+        // Exponential ease (~1.5s smooth ramp)
         const diff = targetSpeed.current - currentSpeed.current;
-        currentSpeed.current += diff * (1 - Math.exp(-3 * dt));
+        currentSpeed.current += diff * (1 - Math.exp(-1.5 * dt));
 
         // Snap when close enough
         if (Math.abs(diff) < 0.5) currentSpeed.current = targetSpeed.current;

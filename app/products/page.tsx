@@ -67,6 +67,8 @@ export default function ProductsPage() {
             <img src="/assets/Icons/ellipsis.rectangle.fill.png" alt="Crowd Counter Icon" className="scaled-image-counter" /><br />
             <div id="primaryTitleBold">Crowd Counter 1</div>
             <br /><br />
+            <div id="primary">Our flagship product</div>, complete and available to anyone. The Crowd Counter 1 is engineered to allow seamless install and use by anybody.
+            <br /><br />
             <div className="specs-layout" data-aos="fade-up">
               <div className="specs-table-wrapper">
                 <div id="primary" style={{ marginBottom: '12px', fontSize: '1.1rem' }}>Technical Specs</div>
@@ -85,9 +87,7 @@ export default function ProductsPage() {
                 </table>
               </div>
               <div className="specs-text">
-                <div id="primary">Our flagship product</div>, complete and available to anyone. The Crowd Counter 1 is engineered to allow seamless install and use by anybody.
-                <br />
-                <br />The Crowd Counter 1 counts the number of people entering and exiting your location, <div id="primary">providing you with a live count of the number of people inside and the amount of entries.</div>
+                The Crowd Counter 1 counts the number of people entering and exiting your location, <div id="primary">providing you with a live count of the number of people inside and the amount of entries.</div>
                 <br />
                 <br />Simply <div id="primary">place the small device above your door and let it do the rest.</div> Using its camera, it sends the footage to our powerful custom built in house NVIDIA servers for us to do the processing. That way, the device can remain inexpensive and reliable for our customers. In addition, we restrict our own access to the footage, ensuring your privacy is maintained at all times.
                 <br />
