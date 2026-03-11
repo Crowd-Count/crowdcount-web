@@ -938,7 +938,7 @@ export default function MapPage() {
           onCenterUser={handleCenterUser}
           onToggleList={() => { setListVisible(v => !v); setFilterOpen(false); }}
           onToggleFilter={() => { setFilterOpen(v => !v); }}
-          className={isMobile && listVisible ? 'shifted-up' : ''}
+          className={(isMobile && listVisible) || selectedLocation ? 'shifted-up' : ''}
           isTrackingUser={isTrackingUser}
         />
 

@@ -10,7 +10,7 @@ interface PhotoGalleryProps {
   phoneFrame?: boolean;
 }
 
-export default function PhotoGallery({ images, galleryId, imageClassName, speed = 150, phoneFrame }: PhotoGalleryProps) {
+export default function PhotoGallery({ images, galleryId, imageClassName, speed = 100, phoneFrame }: PhotoGalleryProps) {
   const trackRef = useRef<HTMLDivElement>(null);
   const targetSpeed = useRef(speed);
   const currentSpeed = useRef(0);
@@ -42,14 +42,12 @@ export default function PhotoGallery({ images, galleryId, imageClassName, speed 
 
       // Skip huge gaps
       if (dt < 0.1) {
-        // Move currentSpeed toward targetSpeed at 80px/s/s
+        // Exponential ease: 5% of remaining gap per frame (~1s smooth ramp)
         const diff = targetSpeed.current - currentSpeed.current;
-        const step = 150 * dt; // acceleration rate (~1s to full speed)
-        if (Math.abs(diff) < step) {
-          currentSpeed.current = targetSpeed.current;
-        } else {
-          currentSpeed.current += Math.sign(diff) * step;
-        }
+        currentSpeed.current += diff * (1 - Math.exp(-3 * dt));
+
+        // Snap when close enough
+        if (Math.abs(diff) < 0.5) currentSpeed.current = targetSpeed.current;
 
         // Scroll
         track.scrollLeft += currentSpeed.current * dt;
