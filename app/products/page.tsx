@@ -66,13 +66,12 @@ export default function ProductsPage() {
           <div className="text-box-legal" data-aos="fade-up" data-aos-delay="0">
             <img src="/assets/Icons/ellipsis.rectangle.fill.png" alt="Crowd Counter Icon" className="scaled-image-counter" /><br />
             <div id="primaryTitleBold">Crowd Counter 1</div>
-            <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.95rem', marginTop: '4px' }}>$39.99/mo <span style={{ color: 'rgba(255,255,255,0.3)' }}>· free during pilot</span></div>
-            <br /><br />
+            <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.95rem', marginTop: '4px', marginBottom: '8px' }}>$39.99/mo <span style={{ color: 'rgba(255,255,255,0.3)' }}>· free during pilot</span></div>
             <div id="primary">Our flagship product</div>, complete and available to anyone. The Crowd Counter 1 is engineered to allow seamless install and use by anybody.
-            <br /><br />
+            <br />
             <div className="specs-layout" data-aos="fade-up">
               <div className="specs-table-wrapper">
-                <div id="primary" style={{ marginBottom: '12px', fontSize: '1.1rem' }}>Technical Specs</div>
+                <div id="primary" style={{ marginBottom: '16px', fontSize: '1.1rem' }}>Technical Specs</div>
                 <table className="specs-table">
                   <tbody>
                     <tr><td className="specs-label">Accuracy</td><td className="specs-value"><span className="specs-highlight">Up to 99%</span></td></tr>
