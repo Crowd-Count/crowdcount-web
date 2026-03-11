@@ -66,6 +66,7 @@ export default function ProductsPage() {
           <div className="text-box-legal" data-aos="fade-up" data-aos-delay="0">
             <img src="/assets/Icons/ellipsis.rectangle.fill.png" alt="Crowd Counter Icon" className="scaled-image-counter" /><br />
             <div id="primaryTitleBold">Crowd Counter 1</div>
+            <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.95rem', marginTop: '4px' }}>$39.99/mo <span style={{ color: 'rgba(255,255,255,0.3)' }}>· free during pilot</span></div>
             <br /><br />
             <div id="primary">Our flagship product</div>, complete and available to anyone. The Crowd Counter 1 is engineered to allow seamless install and use by anybody.
             <br /><br />
