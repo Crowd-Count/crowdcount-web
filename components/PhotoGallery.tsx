@@ -10,11 +10,20 @@ interface PhotoGalleryProps {
   phoneFrame?: boolean;
 }
 
+// Cubic ease-in-out (smoothstep)
+function smoothstep(t: number): number {
+  t = Math.max(0, Math.min(1, t));
+  return t * t * (3 - 2 * t);
+}
+
+const TRANSITION_DURATION = 2.0; // seconds
+
 export default function PhotoGallery({ images, galleryId, imageClassName, speed = 100, phoneFrame }: PhotoGalleryProps) {
   const trackRef = useRef<HTMLDivElement>(null);
-  const targetSpeed = useRef(speed);
-  const currentSpeed = useRef(0);
   const resumeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Transition state: startSpeed, endSpeed, progress (0→1)
+  const transRef = useRef({ from: 0, to: speed, progress: 0 });
 
   const tripled = [...images, ...images, ...images];
 
@@ -24,10 +33,11 @@ export default function PhotoGallery({ images, galleryId, imageClassName, speed 
 
     let raf: number;
     let lastTime = performance.now();
-    currentSpeed.current = 0;
-    targetSpeed.current = speed;
+    const trans = transRef.current;
+    trans.from = 0;
+    trans.to = speed;
+    trans.progress = 0;
 
-    // Set initial scroll to middle set after layout
     requestAnimationFrame(() => {
       const oneSet = track.scrollWidth / 3;
       if (oneSet > 0) track.scrollLeft = oneSet;
@@ -35,24 +45,35 @@ export default function PhotoGallery({ images, galleryId, imageClassName, speed 
       raf = requestAnimationFrame(loop);
     });
 
+    function getCurrentSpeed(): number {
+      const t = smoothstep(trans.progress);
+      return trans.from + (trans.to - trans.from) * t;
+    }
+
+    function startTransition(newTarget: number) {
+      const current = getCurrentSpeed();
+      trans.from = current;
+      trans.to = newTarget;
+      trans.progress = 0;
+    }
+
     function loop() {
       const now = performance.now();
       const dt = (now - lastTime) / 1000;
       lastTime = now;
 
-      // Skip huge gaps
       if (dt < 0.1) {
-        // Exponential ease (~1.5s smooth ramp)
-        const diff = targetSpeed.current - currentSpeed.current;
-        currentSpeed.current += diff * (1 - Math.exp(-1.5 * dt));
+        // Advance transition progress
+        if (trans.progress < 1) {
+          trans.progress = Math.min(1, trans.progress + dt / TRANSITION_DURATION);
+        }
 
-        // Snap when close enough
-        if (Math.abs(diff) < 0.5) currentSpeed.current = targetSpeed.current;
+        const v = getCurrentSpeed();
 
         // Scroll
-        track.scrollLeft += currentSpeed.current * dt;
+        track.scrollLeft += v * dt;
 
-        // Loop
+        // Seamless loop
         const setW = track.scrollWidth / 3;
         if (setW > 0) {
           if (track.scrollLeft >= setW * 2) track.scrollLeft -= setW;
@@ -63,14 +84,13 @@ export default function PhotoGallery({ images, galleryId, imageClassName, speed 
       raf = requestAnimationFrame(loop);
     }
 
-    // Mouse handlers
     const onEnter = () => {
       if (resumeTimer.current) clearTimeout(resumeTimer.current);
-      targetSpeed.current = 0;
+      startTransition(0);
     };
     const onLeave = () => {
       resumeTimer.current = setTimeout(() => {
-        targetSpeed.current = speed;
+        startTransition(speed);
       }, 1000);
     };
 

@@ -1406,8 +1406,6 @@ function PromoModal({ ad, adLocation, onClose }: {
   const openDirections = () => {
     if (adLocation) {
       window.open(`https://maps.apple.com/?daddr=${adLocation.lat},${adLocation.lon}&dirflg=d&t=m`, '_blank');
-    } else {
-      window.open(`https://maps.apple.com/?q=${encodeURIComponent(ad.title)}`, '_blank');
     }
   };
 
