@@ -620,10 +620,30 @@ export default function MapPage() {
     return () => window.removeEventListener('resize', check);
   }, []);
 
-  /* ---- Refresh: re-fetch locations + update map annotations ---- */
+  /* ---- Refresh: re-fetch locations, ads, and popular times ---- */
   const handleRefresh = useCallback(async () => {
-    const locs = await fetchLocations();
+    const [locs, adsList] = await Promise.all([
+      fetchLocations().catch(() => locations),
+      fetchAds().catch(() => ads),
+    ]);
     setLocations(locs);
+
+    // Re-sort ads by distance if user location is available
+    if (userLocation && locs.length > 0) {
+      setAds(sortAdsByDistance(adsList, userLocation.lat, userLocation.lon, locs));
+    } else {
+      setAds(adsList);
+    }
+
+    // Clear popular times cache so they get re-fetched
+    popularTimesDataRef.current = {};
+    setPopularTimesData({});
+
+    // Re-fetch popular times for currently selected location
+    if (selectedLocationId) {
+      fetchPopularTimes(selectedLocationId);
+    }
+
     if (mapRef.current) {
       const map = mapRef.current;
       const toRemove = map.annotations.filter((a: any) => !a.data?.isUserLocation);
@@ -642,7 +662,7 @@ export default function MapPage() {
         map.addAnnotation(annotation);
       });
     }
-  }, [fetchLocations]);
+  }, [fetchLocations, fetchAds, fetchPopularTimes, sortAdsByDistance, locations, ads, userLocation, selectedLocationId]);
 
   /* ---- Center on user location ---- */
   const handleCenterUser = useCallback(async () => {
