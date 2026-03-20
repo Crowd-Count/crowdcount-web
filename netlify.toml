@@ -2,5 +2,10 @@
   command = "npm run build"
   publish = ".next"
 
+[[redirects]]
+  from = "/order"
+  to = "https://buy.stripe.com/dRm4gBdw03Fc9NFfaB8N203"
+  status = 301
+
 [[plugins]]
   package = "@netlify/plugin-nextjs"
