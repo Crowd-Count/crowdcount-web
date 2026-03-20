@@ -102,9 +102,9 @@ export default function ProductsPage() {
                 <PhotoGallery images={counterPhotos} />
               </div>
             </div>
-            <br />While we are not yet shipping, <div id="primary">we are currently doing free installs in the Boulder/Denver area!</div> Send us an email at <a href="mailto:info@crowdcount.tech">info@crowdcount.tech</a> to learn more about it and potentially receive your own.
+            <br />While we are not yet shipping, <div id="primary">we are currently doing free installs in the Boulder/Denver area!</div>
             <br />
-            <br /><a href="mailto:info@crowdcount.tech" target="_blank" rel="noopener noreferrer" id="big-red-button" className="ripple">Apply</a>
+            <br /><a href="https://crowdcount.tech/order" target="_blank" rel="noopener noreferrer" id="big-red-button" className="ripple">Order</a>
             <br />
             <br />
           </div>
