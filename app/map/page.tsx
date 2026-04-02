@@ -68,6 +68,7 @@ interface LocationData {
 interface PopularTimesResponse {
   day_of_week: string;
   popular_times: Record<string, number>;
+  busyness_level?: number;
 }
 
 interface Ad {
@@ -1096,7 +1097,7 @@ function LocationDetailCard({ location, popularTimesData, popularTimesLoading, o
         </a>
       </div>
 
-      {location.all_devices_online === false && (
+      {location.all_devices_online === false && !location.is_closed && (
         <div className="location-detail-offline-warning">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
@@ -1169,24 +1170,33 @@ function PopularTimesPanel({ data, loading, currentCount, pinColor, isClosed }: 
     hourlyValues[localH] = value;
   });
 
-  const peakValue = Math.max(...hourlyValues, currentCount, 10);
+  const peakValue = Math.max(...hourlyValues, currentCount);
   const usualAtCurrentHour = hourlyValues[localHour];
 
-  // Live comparison label (matches iOS logic)
-  let comparisonText = '';
-  let comparisonColor = '';
-  if (!isClosed && usualAtCurrentHour > 0) {
+  // Busyness level label (server-computed, week percentile)
+  let busynessText = '';
+  let busynessColor = '';
+  if (!isClosed && data.busyness_level) {
+    switch (data.busyness_level) {
+      case 1: busynessText = 'Not busy'; busynessColor = 'rgba(255,255,255,0.5)'; break;
+      case 2: busynessText = 'Less busy than usual'; busynessColor = 'rgba(255,255,255,0.5)'; break;
+      case 3: busynessText = 'As busy as usual'; busynessColor = 'rgba(255,255,255,0.5)'; break;
+      case 4: busynessText = 'Busy'; busynessColor = '#FF9500'; break;
+      case 5: busynessText = 'Very busy'; busynessColor = '#FF3B30'; break;
+    }
+  }
+
+  // Hour comparison label (client-computed, this hour's average)
+  let hourCompText = '';
+  if (!isClosed && currentCount > 0 && usualAtCurrentHour > 0) {
     const diff = currentCount - usualAtCurrentHour;
     const pct = Math.round(Math.abs(diff / usualAtCurrentHour) * 100);
-    if (Math.abs(diff) < 3 || pct < 10) {
-      comparisonText = 'About as busy as usual';
-      comparisonColor = 'rgba(255,255,255,0.5)';
+    if (pct < 10) {
+      hourCompText = 'About as expected right now';
     } else if (diff > 0) {
-      comparisonText = `${pct}% busier than usual`;
-      comparisonColor = '#34C759';
+      hourCompText = `${pct}% more than expected right now`;
     } else {
-      comparisonText = `${pct}% less busy than usual`;
-      comparisonColor = '#FF3B30';
+      hourCompText = `${pct}% less than expected right now`;
     }
   }
 
@@ -1201,11 +1211,18 @@ function PopularTimesPanel({ data, loading, currentCount, pinColor, isClosed }: 
         <span className="popular-times-day">{localDay}</span>
       </div>
 
-      {/* Live comparison */}
-      {comparisonText && (
-        <div className="popular-times-live" style={{ color: comparisonColor }}>
-          <span className="popular-times-live-dot" style={{ backgroundColor: comparisonColor }} />
-          {comparisonText}
+      {/* Busyness level */}
+      {busynessText && (
+        <div className="popular-times-live" style={{ color: busynessColor }}>
+          <span className="popular-times-live-dot" style={{ backgroundColor: busynessColor }} />
+          {busynessText}
+        </div>
+      )}
+
+      {/* Hour comparison */}
+      {hourCompText && (
+        <div className="popular-times-hour-comp">
+          {hourCompText}
         </div>
       )}
 

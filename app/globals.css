@@ -2684,6 +2684,12 @@ video {
     flex-shrink: 0;
 }
 
+.popular-times-hour-comp {
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.5);
+    margin-bottom: 8px;
+}
+
 .popular-times-chart {
     display: flex;
     align-items: flex-end;
