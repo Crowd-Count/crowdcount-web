@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useCallback, useRef } from 'react';
+import { useEffect, useState, useCallback, useRef, type CSSProperties } from 'react';
 import Script from 'next/script';
 import Link from 'next/link';
 import tzlookup from '@photostructure/tz-lookup';
@@ -38,6 +38,22 @@ function currentHourInZone(timeZone?: string): number {
     } catch { /* fall through to browser hour */ }
   }
   return new Date().getHours();
+}
+
+/** Current weekday name (English) in an IANA zone; browser zone when absent/invalid. */
+function currentDayNameInZone(timeZone?: string): string {
+  try {
+    return new Intl.DateTimeFormat('en-US', { timeZone, weekday: 'long' }).format(new Date());
+  } catch {
+    return new Intl.DateTimeFormat('en-US', { weekday: 'long' }).format(new Date());
+  }
+}
+
+/** Selected day for the popular-times chart: 'today' or a weekday name */
+type PopularTimesDay = string;
+
+function popularTimesKey(locationId: string, day: PopularTimesDay): string {
+  return `${locationId}:${day}`;
 }
 
 /* ------------------------------------------------------------------ */
@@ -452,21 +468,22 @@ export default function MapPage() {
   // Passing ?tz= makes the server return hour keys already shifted to the
   // location's own timezone (DST-correct); without it keys are UTC and the
   // panel falls back to browser-tz shifting.
-  const fetchPopularTimes = useCallback(async (loc: LocationData) => {
-    const locationId = loc.location_id;
-    if (locationId in popularTimesDataRef.current) return;
-    setPopularTimesLoading(prev => ({ ...prev, [locationId]: true }));
+  const fetchPopularTimes = useCallback(async (loc: LocationData, day: PopularTimesDay = 'today') => {
+    const key = popularTimesKey(loc.location_id, day);
+    if (key in popularTimesDataRef.current) return;
+    setPopularTimesLoading(prev => ({ ...prev, [key]: true }));
     try {
       const tz = locationTimeZone(loc);
       const tzParam = tz ? `&tz=${encodeURIComponent(tz)}` : '';
-      const res = await fetch(`${API_BASE_URL}/get_popular_times?location_id=${locationId}${tzParam}`);
+      const dayParam = day !== 'today' ? `&day=${encodeURIComponent(day)}` : '';
+      const res = await fetch(`${API_BASE_URL}/get_popular_times?location_id=${loc.location_id}${tzParam}${dayParam}`);
       if (!res.ok) throw new Error('Failed');
       const data: PopularTimesResponse = await res.json();
-      setPopularTimesData(prev => ({ ...prev, [locationId]: data.popular_times ? data : null }));
+      setPopularTimesData(prev => ({ ...prev, [key]: data.popular_times ? data : null }));
     } catch {
-      setPopularTimesData(prev => ({ ...prev, [locationId]: null }));
+      setPopularTimesData(prev => ({ ...prev, [key]: null }));
     } finally {
-      setPopularTimesLoading(prev => ({ ...prev, [locationId]: false }));
+      setPopularTimesLoading(prev => ({ ...prev, [key]: false }));
     }
   }, []);
 
@@ -1041,8 +1058,9 @@ export default function MapPage() {
             <LocationDetailCard
               key={loc.location_id}
               location={loc}
-              popularTimesData={popularTimesData[loc.location_id]}
-              popularTimesLoading={!!popularTimesLoading[loc.location_id]}
+              popularTimesData={popularTimesData}
+              popularTimesLoading={popularTimesLoading}
+              onRequestPopularTimes={fetchPopularTimes}
               onClose={handleCloseDetailCard}
               closing={detailCardClosing}
             />
@@ -1077,13 +1095,21 @@ export default function MapPage() {
 /* ------------------------------------------------------------------ */
 /*  Location Detail Card (overlays bottom of map)                      */
 /* ------------------------------------------------------------------ */
-function LocationDetailCard({ location, popularTimesData, popularTimesLoading, onClose, closing }: {
+function LocationDetailCard({ location, popularTimesData, popularTimesLoading, onRequestPopularTimes, onClose, closing }: {
   location: LocationData;
-  popularTimesData: PopularTimesResponse | null | undefined;
-  popularTimesLoading: boolean;
+  popularTimesData: Record<string, PopularTimesResponse | null>;
+  popularTimesLoading: Record<string, boolean>;
+  onRequestPopularTimes: (loc: LocationData, day: PopularTimesDay) => void;
   onClose: () => void;
   closing?: boolean;
 }) {
+  const [selectedDay, setSelectedDay] = useState<PopularTimesDay>('today');
+  const popKey = popularTimesKey(location.location_id, selectedDay);
+
+  useEffect(() => {
+    onRequestPopularTimes(location, selectedDay);
+  }, [location, selectedDay, onRequestPopularTimes]);
+
   const pinColor = getMarkerColor(location.location_color || '');
   const directionsUrl = `https://maps.apple.com/?daddr=${location.location_latitude},${location.location_longitude}&dirflg=d&t=m`;
 
@@ -1151,12 +1177,14 @@ function LocationDetailCard({ location, popularTimesData, popularTimesLoading, o
       )}
 
       <PopularTimesPanel
-        data={popularTimesData}
-        loading={popularTimesLoading}
+        data={popularTimesData[popKey]}
+        loading={!!popularTimesLoading[popKey]}
         currentCount={location.current_count}
         pinColor={pinColor}
         isClosed={location.is_closed}
         timeZone={locationTimeZone(location)}
+        selectedDay={selectedDay}
+        onSelectDay={setSelectedDay}
       />
     </div>
   );
@@ -1167,7 +1195,7 @@ function LocationDetailCard({ location, popularTimesData, popularTimesLoading, o
 /* ------------------------------------------------------------------ */
 const SKELETON_HEIGHTS = Array.from({ length: 24 }, () => 20 + Math.random() * 60);
 
-function PopularTimesPanel({ data, loading, currentCount, pinColor, isClosed, timeZone }: {
+function PopularTimesPanel({ data, loading, currentCount, pinColor, isClosed, timeZone, selectedDay, onSelectDay }: {
   data: PopularTimesResponse | null | undefined;
   loading: boolean;
   currentCount: number;
@@ -1176,10 +1204,50 @@ function PopularTimesPanel({ data, loading, currentCount, pinColor, isClosed, ti
   /** IANA timezone the popular times are pinned to. When set, the API was
    *  called with ?tz= so hour keys are already local to the location. */
   timeZone?: string;
+  /** 'today' or a weekday name being viewed */
+  selectedDay: PopularTimesDay;
+  onSelectDay: (day: PopularTimesDay) => void;
 }) {
+  const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+  const todayName = currentDayNameInZone(timeZone);
+  const displayedDay = selectedDay === 'today' ? todayName : selectedDay;
+  // Live elements (current-hour bar, busyness, comparison) only apply to today
+  const isToday = displayedDay === todayName;
+
+  const cycleDay = (dir: 1 | -1) => {
+    const idx = dayNames.indexOf(displayedDay);
+    if (idx === -1) return;
+    const next = dayNames[(idx + dir + 7) % 7];
+    onSelectDay(next === todayName ? 'today' : next);
+  };
+
+  const arrowStyle: CSSProperties = {
+    background: 'none',
+    border: 'none',
+    padding: '0 6px',
+    cursor: 'pointer',
+    font: 'inherit',
+    fontSize: '1.1em',
+    lineHeight: 1,
+    color: 'inherit',
+    opacity: 0.7,
+  };
+
+  const header = (
+    <div className="popular-times-header">
+      <span className="popular-times-title">Popular times</span>
+      <span style={{ display: 'inline-flex', alignItems: 'center' }}>
+        <button aria-label="Previous day" style={arrowStyle} onClick={() => cycleDay(-1)}>‹</button>
+        <span className="popular-times-day">{displayedDay}</span>
+        <button aria-label="Next day" style={arrowStyle} onClick={() => cycleDay(1)}>›</button>
+      </span>
+    </div>
+  );
+
   if (loading || data === undefined) {
     return (
       <div className="popular-times-panel">
+        {header}
         <div className="popular-times-skeleton">
           {SKELETON_HEIGHTS.map((h, i) => (
             <div
@@ -1196,16 +1264,18 @@ function PopularTimesPanel({ data, loading, currentCount, pinColor, isClosed, ti
   if (!data || !data.popular_times || Object.keys(data.popular_times).length === 0) {
     return (
       <div className="popular-times-panel">
-        <div className="popular-times-no-data">Popular times will appear after this location has been active for at least a week.</div>
+        {header}
+        <div className="popular-times-no-data">
+          {selectedDay === 'today'
+            ? 'Popular times will appear after this location has been active for at least a week.'
+            : `No popular times data for ${displayedDay} yet.`}
+        </div>
       </div>
     );
   }
 
-  // Current hour and weekday in the location's own timezone (browser tz fallback)
+  // Current hour in the location's own timezone (browser tz fallback)
   const localHour = currentHourInZone(timeZone);
-  const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-  // With a pinned timezone the server computed day_of_week in that zone
-  const localDay = (timeZone && data.day_of_week) || dayNames[new Date().getDay()];
 
   // Build 24-hour array. With a pinned timezone the API keys are already the
   // location's local hours; otherwise they're UTC and get browser-shifted.
@@ -1218,13 +1288,13 @@ function PopularTimesPanel({ data, loading, currentCount, pinColor, isClosed, ti
     hourlyValues[localH] = value;
   });
 
-  const peakValue = Math.max(...hourlyValues, currentCount);
+  const peakValue = Math.max(...hourlyValues, isToday ? currentCount : 0);
   const usualAtCurrentHour = hourlyValues[localHour];
 
-  // Busyness level label (server-computed, week percentile)
+  // Busyness level label (server-computed, week percentile) — live, today only
   let busynessText = '';
   let busynessColor = '';
-  if (!isClosed && data.busyness_level) {
+  if (isToday && !isClosed && data.busyness_level) {
     switch (data.busyness_level) {
       case 1: busynessText = 'Not busy'; busynessColor = 'rgba(255,255,255,0.5)'; break;
       case 2: busynessText = 'Less busy than usual'; busynessColor = 'rgba(255,255,255,0.5)'; break;
@@ -1234,9 +1304,9 @@ function PopularTimesPanel({ data, loading, currentCount, pinColor, isClosed, ti
     }
   }
 
-  // Hour comparison label (client-computed, this hour's average)
+  // Hour comparison label (client-computed, this hour's average) — live, today only
   let hourCompText = '';
-  if (!isClosed && currentCount > 0 && usualAtCurrentHour > 0) {
+  if (isToday && !isClosed && currentCount > 0 && usualAtCurrentHour > 0) {
     const diff = currentCount - usualAtCurrentHour;
     const pct = Math.round(Math.abs(diff / usualAtCurrentHour) * 100);
     if (pct < 10) {
@@ -1249,15 +1319,11 @@ function PopularTimesPanel({ data, loading, currentCount, pinColor, isClosed, ti
   }
 
   const hourLabels = ['12a', '', '', '3a', '', '', '6a', '', '', '9a', '', '', '12p', '', '', '3p', '', '', '6p', '', '', '9p', '', ''];
-  const showCurrentBar = !isClosed && data.day_of_week;
+  const showCurrentBar = isToday && !isClosed && data.day_of_week;
 
   return (
     <div className="popular-times-panel">
-      {/* Header: title + day */}
-      <div className="popular-times-header">
-        <span className="popular-times-title">Popular times</span>
-        <span className="popular-times-day">{localDay}</span>
-      </div>
+      {header}
 
       {/* Busyness level */}
       {busynessText && (
