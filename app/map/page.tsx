@@ -1110,6 +1110,14 @@ function LocationDetailCard({ location, popularTimesData, popularTimesLoading, o
     onRequestPopularTimes(location, selectedDay);
   }, [location, selectedDay, onRequestPopularTimes]);
 
+  // Keep the last loaded chart visible (dimmed) while a newly selected day
+  // fetches, instead of flashing the skeleton — matches the iOS behavior.
+  const entry = popularTimesData[popKey];
+  const lastShownRef = useRef<PopularTimesResponse | null>(null);
+  if (entry) lastShownRef.current = entry;
+  const displayData = entry !== undefined ? entry : lastShownRef.current ?? undefined;
+  const isStale = entry === undefined && displayData !== undefined;
+
   const pinColor = getMarkerColor(location.location_color || '');
   const directionsUrl = `https://maps.apple.com/?daddr=${location.location_latitude},${location.location_longitude}&dirflg=d&t=m`;
 
@@ -1177,8 +1185,9 @@ function LocationDetailCard({ location, popularTimesData, popularTimesLoading, o
       )}
 
       <PopularTimesPanel
-        data={popularTimesData[popKey]}
-        loading={!!popularTimesLoading[popKey]}
+        data={displayData}
+        loading={!!popularTimesLoading[popKey] && displayData === undefined}
+        stale={isStale}
         currentCount={location.current_count}
         pinColor={pinColor}
         isClosed={location.is_closed}
@@ -1195,9 +1204,11 @@ function LocationDetailCard({ location, popularTimesData, popularTimesLoading, o
 /* ------------------------------------------------------------------ */
 const SKELETON_HEIGHTS = Array.from({ length: 24 }, () => 20 + Math.random() * 60);
 
-function PopularTimesPanel({ data, loading, currentCount, pinColor, isClosed, timeZone, selectedDay, onSelectDay }: {
+function PopularTimesPanel({ data, loading, stale, currentCount, pinColor, isClosed, timeZone, selectedDay, onSelectDay }: {
   data: PopularTimesResponse | null | undefined;
   loading: boolean;
+  /** Showing the previous day's chart while the selected day loads */
+  stale?: boolean;
   currentCount: number;
   pinColor?: string;
   isClosed?: boolean;
@@ -1208,6 +1219,10 @@ function PopularTimesPanel({ data, loading, currentCount, pinColor, isClosed, ti
   selectedDay: PopularTimesDay;
   onSelectDay: (day: PopularTimesDay) => void;
 }) {
+  // Last shown live-label texts, kept so the collapse can animate out
+  // (content must stay mounted while its container shrinks to zero height)
+  const lastLiveRef = useRef({ busyText: '', busyColor: '', compText: '' });
+
   const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
   const todayName = currentDayNameInZone(timeZone);
   const displayedDay = selectedDay === 'today' ? todayName : selectedDay;
@@ -1321,27 +1336,47 @@ function PopularTimesPanel({ data, loading, currentCount, pinColor, isClosed, ti
   const hourLabels = ['12a', '', '', '3a', '', '', '6a', '', '', '9a', '', '', '12p', '', '', '3p', '', '', '6p', '', '', '9p', '', ''];
   const showCurrentBar = isToday && !isClosed && data.day_of_week;
 
+  if (busynessText) {
+    lastLiveRef.current = { ...lastLiveRef.current, busyText: busynessText, busyColor: busynessColor };
+  }
+  if (hourCompText) {
+    lastLiveRef.current = { ...lastLiveRef.current, compText: hourCompText };
+  }
+  const showLive = !!(busynessText || hourCompText);
+  // While collapsed/collapsing, keep the last texts mounted so height animates
+  const busyToShow = busynessText || lastLiveRef.current.busyText;
+  const busyColorToShow = busynessColor || lastLiveRef.current.busyColor;
+  const compToShow = hourCompText || lastLiveRef.current.compText;
+
   return (
     <div className="popular-times-panel">
-      {/* Busyness level */}
-      {busynessText && (
-        <div className="popular-times-live" style={{ color: busynessColor }}>
-          <span className="popular-times-live-dot" style={{ backgroundColor: busynessColor }} />
-          {busynessText}
+      {/* Busyness + hour comparison — today only, animated collapse when cycling away */}
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateRows: showLive ? '1fr' : '0fr',
+          transition: 'grid-template-rows 0.25s ease',
+        }}
+      >
+        <div style={{ overflow: 'hidden', opacity: showLive ? 1 : 0, transition: 'opacity 0.25s ease' }}>
+          {busyToShow && (
+            <div className="popular-times-live" style={{ color: busyColorToShow }}>
+              <span className="popular-times-live-dot" style={{ backgroundColor: busyColorToShow }} />
+              {busyToShow}
+            </div>
+          )}
+          {compToShow && (
+            <div className="popular-times-hour-comp">
+              {compToShow}
+            </div>
+          )}
         </div>
-      )}
-
-      {/* Hour comparison */}
-      {hourCompText && (
-        <div className="popular-times-hour-comp">
-          {hourCompText}
-        </div>
-      )}
+      </div>
 
       {header}
 
       {/* Chart with layered bars */}
-      <div className="popular-times-chart">
+      <div className="popular-times-chart" style={{ opacity: stale ? 0.45 : 1, transition: 'opacity 0.2s ease' }}>
         {hourlyValues.map((avgValue, hour) => {
           const isCurrentHour = hour === localHour && showCurrentBar;
           const barPct = (v: number) => `${Math.max((v / peakValue) * 100, 2)}%`;
