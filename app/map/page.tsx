@@ -3,7 +3,42 @@
 import { useEffect, useState, useCallback, useRef } from 'react';
 import Script from 'next/script';
 import Link from 'next/link';
+import tzlookup from '@photostructure/tz-lookup';
 import { API_BASE_URL, MAPKIT_TOKEN, NAV_LINKS } from '@/lib/constants';
+
+/* ------------------------------------------------------------------ */
+/*  Per-location timezone (deduced from coordinates)                   */
+/* ------------------------------------------------------------------ */
+const tzMemo = new Map<string, string | undefined>();
+
+/** IANA timezone for a location's coordinates; undefined if unresolvable
+ *  (callers fall back to browser-timezone behavior). */
+function locationTimeZone(loc: { location_latitude: number; location_longitude: number } | null | undefined): string | undefined {
+  if (!loc || !Number.isFinite(loc.location_latitude) || !Number.isFinite(loc.location_longitude)) return undefined;
+  const key = `${loc.location_latitude},${loc.location_longitude}`;
+  if (tzMemo.has(key)) return tzMemo.get(key);
+  let tz: string | undefined;
+  try {
+    tz = tzlookup(loc.location_latitude, loc.location_longitude);
+  } catch {
+    tz = undefined;
+  }
+  tzMemo.set(key, tz);
+  return tz;
+}
+
+/** Current hour (0-23) in an IANA zone; browser hour when zone is absent/invalid. */
+function currentHourInZone(timeZone?: string): number {
+  if (timeZone) {
+    try {
+      return parseInt(
+        new Intl.DateTimeFormat('en-US', { timeZone, hour: 'numeric', hourCycle: 'h23' }).format(new Date()),
+        10
+      );
+    } catch { /* fall through to browser hour */ }
+  }
+  return new Date().getHours();
+}
 
 /* ------------------------------------------------------------------ */
 /*  MapKit JS global type declarations                                 */
@@ -414,11 +449,17 @@ export default function MapPage() {
   }, []);
 
   /* ---- Fetch popular times ---- */
-  const fetchPopularTimes = useCallback(async (locationId: string) => {
+  // Passing ?tz= makes the server return hour keys already shifted to the
+  // location's own timezone (DST-correct); without it keys are UTC and the
+  // panel falls back to browser-tz shifting.
+  const fetchPopularTimes = useCallback(async (loc: LocationData) => {
+    const locationId = loc.location_id;
     if (locationId in popularTimesDataRef.current) return;
     setPopularTimesLoading(prev => ({ ...prev, [locationId]: true }));
     try {
-      const res = await fetch(`${API_BASE_URL}/get_popular_times?location_id=${locationId}`);
+      const tz = locationTimeZone(loc);
+      const tzParam = tz ? `&tz=${encodeURIComponent(tz)}` : '';
+      const res = await fetch(`${API_BASE_URL}/get_popular_times?location_id=${locationId}${tzParam}`);
       if (!res.ok) throw new Error('Failed');
       const data: PopularTimesResponse = await res.json();
       setPopularTimesData(prev => ({ ...prev, [locationId]: data.popular_times ? data : null }));
@@ -643,7 +684,8 @@ export default function MapPage() {
 
     // Re-fetch popular times for currently selected location
     if (selectedLocationId) {
-      fetchPopularTimes(selectedLocationId);
+      const selectedLoc = locs.find(l => l.location_id === selectedLocationId);
+      if (selectedLoc) fetchPopularTimes(selectedLoc);
     }
 
     if (mapRef.current) {
@@ -736,7 +778,7 @@ export default function MapPage() {
     }
     centerMapOnLocation(loc.location_latitude, loc.location_longitude);
     setSelectedLocationId(loc.location_id);
-    fetchPopularTimes(loc.location_id);
+    fetchPopularTimes(loc);
 
     // If clicked from list, programmatically select the annotation on the map
     if (!fromMap && mapRef.current) {
@@ -1114,6 +1156,7 @@ function LocationDetailCard({ location, popularTimesData, popularTimesLoading, o
         currentCount={location.current_count}
         pinColor={pinColor}
         isClosed={location.is_closed}
+        timeZone={locationTimeZone(location)}
       />
     </div>
   );
@@ -1124,12 +1167,15 @@ function LocationDetailCard({ location, popularTimesData, popularTimesLoading, o
 /* ------------------------------------------------------------------ */
 const SKELETON_HEIGHTS = Array.from({ length: 24 }, () => 20 + Math.random() * 60);
 
-function PopularTimesPanel({ data, loading, currentCount, pinColor, isClosed }: {
+function PopularTimesPanel({ data, loading, currentCount, pinColor, isClosed, timeZone }: {
   data: PopularTimesResponse | null | undefined;
   loading: boolean;
   currentCount: number;
   pinColor?: string;
   isClosed?: boolean;
+  /** IANA timezone the popular times are pinned to. When set, the API was
+   *  called with ?tz= so hour keys are already local to the location. */
+  timeZone?: string;
 }) {
   if (loading || data === undefined) {
     return (
@@ -1155,18 +1201,20 @@ function PopularTimesPanel({ data, loading, currentCount, pinColor, isClosed }: 
     );
   }
 
-  const now = new Date();
-  const localHour = now.getHours();
-  const offsetHours = -now.getTimezoneOffset() / 60;
+  // Current hour and weekday in the location's own timezone (browser tz fallback)
+  const localHour = currentHourInZone(timeZone);
   const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-  const localDay = dayNames[now.getDay()];
+  // With a pinned timezone the server computed day_of_week in that zone
+  const localDay = (timeZone && data.day_of_week) || dayNames[new Date().getDay()];
 
-  // Build 24-hour array: API keys are UTC hours, convert to local
+  // Build 24-hour array. With a pinned timezone the API keys are already the
+  // location's local hours; otherwise they're UTC and get browser-shifted.
+  const offsetHours = timeZone ? 0 : -new Date().getTimezoneOffset() / 60;
   const hourlyValues = new Array(24).fill(0);
-  Object.entries(data.popular_times).forEach(([utcHourStr, value]) => {
-    const utcHour = parseInt(utcHourStr, 10);
-    if (isNaN(utcHour)) return;
-    const localH = Math.floor(((utcHour + offsetHours) % 24 + 24) % 24);
+  Object.entries(data.popular_times).forEach(([hourStr, value]) => {
+    const hour = parseInt(hourStr, 10);
+    if (isNaN(hour)) return;
+    const localH = Math.floor(((hour + offsetHours) % 24 + 24) % 24);
     hourlyValues[localH] = value;
   });
 
