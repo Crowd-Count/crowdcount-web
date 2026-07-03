@@ -120,6 +120,8 @@ interface PopularTimesResponse {
   day_of_week: string;
   popular_times: Record<string, number>;
   busyness_level?: number;
+  /** Peak average across the whole week — pins a stable y-axis across days */
+  week_peak?: number;
 }
 
 interface Ad {
@@ -1303,7 +1305,9 @@ function PopularTimesPanel({ data, loading, stale, currentCount, pinColor, isClo
     hourlyValues[localH] = value;
   });
 
-  const peakValue = Math.max(...hourlyValues, isToday ? currentCount : 0);
+  // Scale against the week-wide peak (when the server provides it) so bar
+  // heights stay comparable while cycling through days
+  const peakValue = Math.max(...hourlyValues, data.week_peak ?? 0, isToday ? currentCount : 0);
   const usualAtCurrentHour = hourlyValues[localHour];
 
   // Busyness level label (server-computed, week percentile) — live, today only
