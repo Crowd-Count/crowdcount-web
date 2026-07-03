@@ -1323,8 +1323,6 @@ function PopularTimesPanel({ data, loading, currentCount, pinColor, isClosed, ti
 
   return (
     <div className="popular-times-panel">
-      {header}
-
       {/* Busyness level */}
       {busynessText && (
         <div className="popular-times-live" style={{ color: busynessColor }}>
@@ -1339,6 +1337,8 @@ function PopularTimesPanel({ data, loading, currentCount, pinColor, isClosed, ti
           {hourCompText}
         </div>
       )}
+
+      {header}
 
       {/* Chart with layered bars */}
       <div className="popular-times-chart">
