@@ -14,32 +14,32 @@ const counterPhotos = [
 ];
 
 const appPhotos = [
+  { src: '/assets/AppPhotos/MapView.png', alt: 'Live map showing nearby locations and their crowds' },
+  { src: '/assets/AppPhotos/MapAds.png', alt: 'A business promotion running on the public map' },
+  { src: '/assets/AppPhotos/AdDetailView.png', alt: 'Detailed view of a promotion on the map' },
+  { src: '/assets/AppPhotos/CreateAd.png', alt: 'Creating a promotion from the app' },
+  { src: '/assets/AppPhotos/CreateAdLower.png', alt: 'Creating a promotion, scrolled down' },
+  { src: '/assets/AppPhotos/MapListView.png', alt: 'Map list view of nearby locations' },
   { src: '/assets/AppPhotos/WelcomePage.png', alt: 'Welcome Page' },
-  { src: '/assets/AppPhotos/MapView.png', alt: 'Map View' },
-  { src: '/assets/AppPhotos/MapAds.png', alt: 'Map View with Ad' },
-  { src: '/assets/AppPhotos/AdDetailView.png', alt: 'Detailed View of Promotions on Map' },
-  { src: '/assets/AppPhotos/MapListView.png', alt: 'Map List View' },
-  { src: '/assets/AppPhotos/DeviceView.png', alt: 'Device View' },
+  { src: '/assets/AppPhotos/DeviceView.png', alt: 'Live count for your location' },
   { src: '/assets/AppPhotos/HistoricView.png', alt: 'Count History View' },
-  { src: '/assets/AppPhotos/InsightsViewTop.png', alt: 'Info for Historic View Average' },
-  { src: '/assets/AppPhotos/InsightsViewBottom.png', alt: 'Info for Historic View Average' },
-  { src: '/assets/AppPhotos/OvercrowdingView.png', alt: 'Historic Count Page, scrolled down' },
-  { src: '/assets/AppPhotos/LocationSettings.png', alt: 'Total Count from multiple devices' },
+  { src: '/assets/AppPhotos/InsightsViewTop.png', alt: 'Insights: averages and trends' },
+  { src: '/assets/AppPhotos/InsightsViewBottom.png', alt: 'Insights: averages and trends, scrolled down' },
+  { src: '/assets/AppPhotos/OvercrowdingView.png', alt: 'Overcrowding limit view' },
+  { src: '/assets/AppPhotos/LocationSettings.png', alt: 'Total count from multiple devices' },
   { src: '/assets/AppPhotos/SettingsView.png', alt: 'Settings Page' },
   { src: '/assets/AppPhotos/AddDevice.png', alt: 'Add Device View' },
-  { src: '/assets/AppPhotos/CreateAd.png', alt: 'View to Create a Promotion' },
-  { src: '/assets/AppPhotos/CreateAdLower.png', alt: 'View to Create a Promotion, scrolled down' },
   { src: '/assets/AppPhotos/MapInfo.png', alt: 'Map Info Page' },
   { src: '/assets/AppPhotos/InfoPage.png', alt: 'Information Page' },
 ];
 
 const appFeatures = [
+  { title: 'Get Discovered', desc: 'Your business on the live public map' },
+  { title: 'Run Promotions', desc: 'Put your specials in front of people picking a spot' },
   { title: 'Live Data', desc: 'Real-time counts from anywhere' },
-  { title: 'Insights', desc: 'Historical trends & averages' },
-  { title: 'Map View', desc: 'See all public counters' },
-  { title: 'Multi-Location', desc: 'Manage multiple locations' },
-  { title: 'Promotions', desc: 'Run ads on the public map' },
-  { title: 'CSV Export', desc: 'Download your data' },
+  { title: 'Insights', desc: 'Know your peak hours & slow nights' },
+  { title: 'Multi-Location', desc: 'Every venue in one place' },
+  { title: 'CSV Export', desc: 'Your data, yours to keep' },
 ];
 
 export default function ProductsPage() {
@@ -56,18 +56,55 @@ export default function ProductsPage() {
       <br />
 
       <h3 id="center" data-aos="fade-up">
-        <div id="secondary">We are <div id="primary">proud</div> to present...</div>
+        <div id="secondary">Built to bring <div id="primary">more people</div> through your door.</div>
       </h3>
       <br />
       <h3 id="center">
         <div id="secondary">
-          {/* Crowd Counter 1 */}
+          {/* CrowdCount App & Map */}
           <div className="text-box-legal" data-aos="fade-up" data-aos-delay="0">
-            <img src="/assets/Icons/ellipsis.rectangle.fill.png" alt="Crowd Counter Icon" className="scaled-image-counter" /><br />
-            <div id="primaryTitleBold">Crowd Counter 1</div>
-            <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.95rem', marginTop: '4px', marginBottom: '8px' }}>$39.99/mo <span style={{ color: 'rgba(255,255,255,0.3)' }}>· free during pilot</span></div>
+            <img src="/assets/Logos/CrowdCount App Logo-iOS-Default-1024x1024@2x.png" alt="App Logo" className="scaled-image-app" /><br />
+            <div id="primaryTitleBold">Get On The Map</div>
+            <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.95rem', marginTop: '4px', marginBottom: '8px' }}>The CrowdCount App</div>
             <br />
-            <div id="primary">Our flagship product</div>, complete and available to anyone. The Crowd Counter 1 is engineered to allow seamless install and use by anybody.
+            When people decide where to go out, <div id="primary">they check where the crowd is.</div> The CrowdCount map shows every public location live: how busy it is right now, and when it usually fills up. If your bar or business is on the map, you&apos;re part of that decision.
+            <br />
+            <br /><div id="primary">Run promotions right where people are looking.</div> Happy hour, live music, game night: your specials appear on the map at the exact moment someone nearby is choosing their next stop. Create one from the app in minutes and watch the night fill up.
+
+            {/* Feature cards */}
+            <div className="feature-grid" data-aos="fade-up">
+              {appFeatures.map((f, i) => (
+                <div key={i} className="feature-card" data-aos="fade-up" data-aos-delay={i * 80}>
+                  <div className="feature-card-title">{f.title}</div>
+                  <div className="feature-card-desc">{f.desc}</div>
+                </div>
+              ))}
+            </div>
+
+            Everything you need to run the night is in there too: live counts from anywhere, history and insights, totals across multiple entrances or venues, and your data exportable anytime.
+            <br />
+            <div data-aos="fade-up">
+              <div className="text-box-legal gallery-container" id="app-gallery">
+                <PhotoGallery images={appPhotos} galleryId="photo-gallery" />
+              </div>
+            </div>
+            Now available on the App Store!
+            <br />
+            <br /><a href="https://www.crowdcount.tech/app" target="_blank" rel="noopener noreferrer" id="big-red-button" className="ripple">Download</a>
+            <br />
+            <br />
+            <div id="secondarySmall" style={{ display: 'block' }}>Your spot on the map starts with a <a href="#counter">Crowd Counter</a></div>
+            <div id="secondarySmall" style={{ display: 'block', marginTop: '5px' }}>Want to help improve our app? <a href="https://www.crowdcount.tech/beta-app" target="_blank" rel="noopener noreferrer">Join our beta</a></div>
+            <div id="secondarySmall" style={{ display: 'block', marginTop: '5px' }}>Want to manage your counters without the app? <a href="https://counter.crowdcount.tech" target="_blank" rel="noopener noreferrer">Use our web interface</a></div>
+          </div>
+
+          {/* Crowd Counter 1 */}
+          <div className="text-box-legal" id="counter" data-aos="fade-up" data-aos-delay="200">
+            <img src="/assets/Icons/ellipsis.rectangle.fill.png" alt="Crowd Counter Icon" className="scaled-image-counter" /><br />
+            <div id="primaryTitleBold">Know Your Numbers</div>
+            <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.95rem', marginTop: '4px', marginBottom: '8px' }}>Crowd Counter 1 · $39.99/mo <span style={{ color: 'rgba(255,255,255,0.3)' }}>· free during pilot</span></div>
+            <br />
+            Your live spot on the map, and every insight behind it, is powered by <div id="primary">the Crowd Counter 1.</div> It sits above your door and counts everyone walking in and out, so you always know exactly how many people are inside.
             <br />
             <div className="specs-layout" data-aos="fade-up">
               <div className="specs-table-wrapper">
@@ -87,11 +124,11 @@ export default function ProductsPage() {
                 </table>
               </div>
               <div className="specs-text">
-                The Crowd Counter 1 counts the number of people entering and exiting your location, <div id="primary">providing you with a live count of the number of people inside and the amount of entries.</div>
+                That one number changes how you run the place. <div id="primary">Staff the nights that are actually busy,</div> spot your true peak hours and slow ones, keep an eye on capacity, and see in the data whether last week&apos;s promotion actually brought people in.
                 <br />
-                <br />Simply <div id="primary">place the small device above your door and let it do the rest.</div> Using its camera, it sends the footage to our powerful custom built in house NVIDIA servers for us to do the processing. That way, the device can remain inexpensive and reliable for our customers. In addition, we restrict our own access to the footage, ensuring your privacy is maintained at all times.
+                <br />Setup is simple: <div id="primary">place the small device above your door and let it do the rest.</div> Its camera sends footage to our powerful custom built in-house NVIDIA servers for processing, which keeps the device inexpensive and reliable. We restrict our own access to the footage, ensuring your privacy is maintained at all times.
                 <br />
-                <br />Integrated with our wonderful <a id="primary" href="https://crowdcount.tech/app">iOS App</a> which allows you to access this information from anywhere and anytime. The app also serves as a tool to help you set it up for the first time, and add multiple if you have multiple entrances. If you would like to manage your existing counter on desktop or without the mobile app, we also have a <a href="https://counter.crowdcount.tech" target="_blank" rel="noopener noreferrer" id="primary">web interface</a> at your disposal.
+                <br />Manage everything from our wonderful <a id="primary" href="https://crowdcount.tech/app">iOS App</a>, from first-time setup to adding counters for extra entrances, or use the <a href="https://counter.crowdcount.tech" target="_blank" rel="noopener noreferrer" id="primary">web interface</a> if you prefer desktop.
               </div>
             </div>
 
@@ -106,42 +143,6 @@ export default function ProductsPage() {
             <br /><a href="https://crowdcount.tech/order" target="_blank" rel="noopener noreferrer" id="big-red-button" className="ripple">Order</a>
             <br />
             <br />
-          </div>
-
-          {/* CrowdCount App */}
-          <div className="text-box-legal" data-aos="fade-up" data-aos-delay="200">
-            <img src="/assets/Logos/CrowdCount App Logo-iOS-Default-1024x1024@2x.png" alt="App Logo" className="scaled-image-app" /><br />
-            <div id="primaryTitleBold">CrowdCount App</div><br /><br />
-            <div id="primary">Our very own mobile App</div>, your personal companion for your Crowd Counter.
-
-            {/* Feature cards */}
-            <div className="feature-grid" data-aos="fade-up">
-              {appFeatures.map((f, i) => (
-                <div key={i} className="feature-card" data-aos="fade-up" data-aos-delay={i * 80}>
-                  <div className="feature-card-title">{f.title}</div>
-                  <div className="feature-card-desc">{f.desc}</div>
-                </div>
-              ))}
-            </div>
-
-            The beautiful app, available for iOS, lets you seamlessly interact with your devices.
-            <br />
-            <br /><div id="primary">Features included</div> are, the ability to set up one or multiple devices, view live and historic counter data, modify it if needed, see total counts if you have multiple devices, run business promotions on the map, etc... <div id="primary">The list goes on.</div>
-            <br />
-            <br />Additionally, you can <div id="primary">view all public Crowd Counters on a map!</div> And be able to see how many people are in that location!
-            <br />
-            <div data-aos="fade-up">
-              <div className="text-box-legal gallery-container" id="app-gallery">
-                <PhotoGallery images={appPhotos} galleryId="photo-gallery" />
-              </div>
-            </div>
-            Now available on the App Store!
-            <br />
-            <br /><a href="https://www.crowdcount.tech/app" target="_blank" rel="noopener noreferrer" id="big-red-button" className="ripple">Download</a>
-            <br />
-            <br />
-            <div id="secondarySmall" style={{ display: 'block' }}>Want to help improve our app? <a href="https://www.crowdcount.tech/beta-app" target="_blank" rel="noopener noreferrer">Join our beta</a></div>
-            <div id="secondarySmall" style={{ display: 'block', marginTop: '5px' }}>Want to manage your counters without the app? <a href="https://counter.crowdcount.tech" target="_blank" rel="noopener noreferrer">Use our web interface</a></div>
           </div>
         </div>
       </h3>
