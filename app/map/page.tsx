@@ -1204,6 +1204,7 @@ function LocationDetailCard({ location, popularTimesData, popularTimesLoading, o
         loading={!!popularTimesLoading[popKey] && displayData === undefined}
         stale={isStale}
         currentCount={location.current_count}
+        overcrowdingLimit={location.overcrowding_limit}
         pinColor={pinColor}
         isClosed={location.is_closed}
         timeZone={locationTimeZone(location)}
@@ -1224,12 +1225,13 @@ function formatTooltipHour(hour: number): string {
   return `${h12} ${hour < 12 ? 'AM' : 'PM'}`;
 }
 
-function PopularTimesPanel({ data, loading, stale, currentCount, pinColor, isClosed, timeZone, selectedDay, onSelectDay }: {
+function PopularTimesPanel({ data, loading, stale, currentCount, overcrowdingLimit, pinColor, isClosed, timeZone, selectedDay, onSelectDay }: {
   data: PopularTimesResponse | null | undefined;
   loading: boolean;
   /** Showing the previous day's chart while the selected day loads */
   stale?: boolean;
   currentCount: number;
+  overcrowdingLimit?: number | null;
   pinColor?: string;
   isClosed?: boolean;
   /** IANA timezone the popular times are pinned to. When set, the API was
@@ -1242,6 +1244,10 @@ function PopularTimesPanel({ data, loading, stale, currentCount, pinColor, isClo
   // Last shown live-label texts, kept so the collapse can animate out
   // (content must stay mounted while its container shrinks to zero height)
   const lastLiveRef = useRef({ busyText: '', busyColor: '', compText: '' });
+
+  // Cursor-following tooltip: hovered hour + cursor position within the chart
+  const chartRef = useRef<HTMLDivElement>(null);
+  const [hoverInfo, setHoverInfo] = useState<{ hour: number; x: number; y: number } | null>(null);
 
   const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
   const todayName = currentDayNameInZone(timeZone);
@@ -1398,7 +1404,12 @@ function PopularTimesPanel({ data, loading, stale, currentCount, pinColor, isClo
       {header}
 
       {/* Chart with layered bars */}
-      <div className="popular-times-chart" style={{ opacity: stale ? 0.45 : 1, transition: 'opacity 0.2s ease' }}>
+      <div
+        ref={chartRef}
+        className="popular-times-chart"
+        style={{ opacity: stale ? 0.45 : 1, transition: 'opacity 0.2s ease' }}
+        onPointerLeave={() => setHoverInfo(null)}
+      >
         {hourlyValues.map((avgValue, hour) => {
           const isCurrentHour = hour === localHour && showCurrentBar;
           const barPct = (v: number) => `${Math.max((v / peakValue) * 100, 2)}%`;
@@ -1434,29 +1445,56 @@ function PopularTimesPanel({ data, loading, stale, currentCount, pinColor, isClo
 
           const usual = Math.round(avgValue);
           const hourLabel = formatTooltipHour(hour);
-          // Keep edge tooltips inside the card instead of centering them off it
-          const edgeClass = hour <= 2 ? ' popular-times-tooltip-left' : hour >= 21 ? ' popular-times-tooltip-right' : '';
+          const limitText = overcrowdingLimit != null ? ` of ${overcrowdingLimit}` : '';
           const ariaLabel = isCurrentHour && !isClosed
-            ? `${hourLabel}: ${currentCount} now, usually ${usual}`
-            : `${hourLabel}: usually ${usual}`;
+            ? `${hourLabel}: ${currentCount}${limitText} now, usually ${usual}${limitText}`
+            : `${hourLabel}: usually ${usual}${limitText}`;
 
           return (
-            <div key={hour} className="popular-times-bar-wrapper" tabIndex={0} aria-label={ariaLabel}>
+            <div
+              key={hour}
+              className="popular-times-bar-wrapper"
+              tabIndex={0}
+              aria-label={ariaLabel}
+              onPointerMove={(e) => {
+                const rect = chartRef.current?.getBoundingClientRect();
+                if (!rect) return;
+                setHoverInfo({ hour, x: e.clientX - rect.left, y: e.clientY - rect.top });
+              }}
+            >
               {bars}
-              <div className={`popular-times-tooltip${edgeClass}`} role="tooltip">
-                {isCurrentHour && !isClosed && (
-                  <div className="popular-times-tooltip-row">
-                    <span className="popular-times-tooltip-value">{currentCount}</span> now
-                  </div>
-                )}
-                <div className="popular-times-tooltip-row">
-                  <span className="popular-times-tooltip-value">{usual}</span> usually
-                </div>
-                <div className="popular-times-tooltip-hour">{hourLabel}</div>
-              </div>
             </div>
           );
         })}
+
+        {hoverInfo && (() => {
+          const usual = Math.round(hourlyValues[hoverInfo.hour]);
+          const isCurrentHour = hoverInfo.hour === localHour && showCurrentBar;
+          const limit = overcrowdingLimit != null ? <span className="popular-times-tooltip-limit"> / {overcrowdingLimit}</span> : null;
+          // Flip to the left of the cursor near the right edge so the box stays on the card
+          const flip = chartRef.current !== null && hoverInfo.x > chartRef.current.clientWidth - 110;
+          return (
+            <div
+              className="popular-times-tooltip"
+              role="tooltip"
+              style={{
+                left: hoverInfo.x,
+                top: hoverInfo.y,
+                transform: `translate(${flip ? 'calc(-100% - 14px)' : '14px'}, calc(-100% - 10px))`,
+              }}
+            >
+              {isCurrentHour && !isClosed && (
+                <div className="popular-times-tooltip-row">
+                  <span className="popular-times-tooltip-value">{currentCount}</span>{limit} now
+                </div>
+              )}
+              <div className="popular-times-tooltip-row">
+                <span className="popular-times-tooltip-value">{usual}</span>{limit} usually
+              </div>
+              <div className="popular-times-tooltip-hour">{formatTooltipHour(hoverInfo.hour)}</div>
+            </div>
+          );
+        })()}
       </div>
       <div className="popular-times-labels">
         {hourLabels.map((label, i) => (
