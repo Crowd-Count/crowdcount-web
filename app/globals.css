@@ -2722,6 +2722,71 @@ video {
     z-index: 1;
 }
 
+/* Hovered/focused column lifts so the reader sees it respond */
+.popular-times-bar-wrapper:hover .popular-times-bar,
+.popular-times-bar-wrapper:focus-visible .popular-times-bar {
+    filter: brightness(1.35);
+}
+
+.popular-times-bar-wrapper:focus-visible {
+    outline: none;
+}
+
+/* Value tooltip floating above the hovered column */
+.popular-times-tooltip {
+    position: absolute;
+    bottom: calc(100% + 6px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(50, 50, 54, 0.97);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+    padding: 5px 9px;
+    white-space: nowrap;
+    text-align: left;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.12s ease;
+    z-index: 5;
+}
+
+.popular-times-bar-wrapper:hover .popular-times-tooltip,
+.popular-times-bar-wrapper:focus-visible .popular-times-tooltip {
+    opacity: 1;
+}
+
+/* Edge columns: pin the tooltip to the chart edge instead of centering */
+.popular-times-tooltip-left {
+    left: 0;
+    transform: none;
+}
+
+.popular-times-tooltip-right {
+    left: auto;
+    right: 0;
+    transform: none;
+}
+
+.popular-times-tooltip-row {
+    font-size: 0.7rem;
+    line-height: 1.35;
+    color: rgba(255, 255, 255, 0.55);
+}
+
+.popular-times-tooltip-value {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: #fff;
+    font-variant-numeric: tabular-nums;
+}
+
+.popular-times-tooltip-hour {
+    font-size: 0.6rem;
+    color: rgba(255, 255, 255, 0.4);
+    margin-top: 1px;
+}
+
 .popular-times-labels {
     display: flex;
     width: 100%;
