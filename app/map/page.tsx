@@ -59,8 +59,13 @@ function popularTimesKey(locationId: string, day: PopularTimesDay): string {
 /* ------------------------------------------------------------------ */
 /*  MapKit JS global type declarations                                 */
 /* ------------------------------------------------------------------ */
+/* eslint-disable @typescript-eslint/no-namespace, @typescript-eslint/no-explicit-any --
+   Ambient globals for Apple's MapKit JS, which ships untyped; `declare
+   global` + namespace is the only way to describe a script-injected global,
+   and its surface is modeled loosely on purpose. */
 declare global {
   namespace mapkit {
+    const FeatureVisibility: { Hidden: string; Visible: string; Adaptive: string };
     function init(options: { authorizationCallback: (done: (token: string) => void) => void }): void;
     class Coordinate {
       constructor(latitude: number, longitude: number);
@@ -82,21 +87,28 @@ declare global {
       addEventListener(type: string, handler: (e: any) => void): void;
       annotations: any[];
       selectedAnnotation: any;
+      colorScheme: string;
       static readonly ColorSchemes: { Dark: string; Light: string };
     }
     class Annotation {
       constructor(coordinate: Coordinate, factory: (coordinate: Coordinate, options: any) => Element, options?: any);
       data: any;
+      visible: boolean;
     }
     class MarkerAnnotation {
       constructor(coordinate: Coordinate, options?: any);
       data: any;
+      visible: boolean;
     }
     namespace Annotation {
       enum CollisionMode { Rectangle, Circle, None }
     }
   }
 }
+/* eslint-enable @typescript-eslint/no-namespace, @typescript-eslint/no-explicit-any */
+
+/** Either annotation flavor this page puts on the map. */
+type AnyAnnotation = mapkit.Annotation | mapkit.MarkerAnnotation;
 
 /* ------------------------------------------------------------------ */
 /*  Types                                                              */
@@ -148,7 +160,8 @@ interface Ad {
 /*  Helpers                                                            */
 /* ------------------------------------------------------------------ */
 function getAdField(ad: Ad, camelCase: string, snakeCase: string): string | undefined {
-  return (ad as any)[camelCase] ?? (ad as any)[snakeCase];
+  const record = ad as unknown as Record<string, string | undefined>;
+  return record[camelCase] ?? record[snakeCase];
 }
 
 function getComparisonSymbol(comparison: string): string {
@@ -419,7 +432,7 @@ export default function MapPage() {
   const [filterOpen, setFilterOpen] = useState(false);
   const [activeColorFilters, setActiveColorFilters] = useState<Set<string>>(new Set());
   const [infoOpen, setInfoOpen] = useState(false);
-  const userAnnotationRef = useRef<any>(null);
+  const userAnnotationRef = useRef<AnyAnnotation | null>(null);
   const [detailCardClosing, setDetailCardClosing] = useState(false);
   const closingLocationRef = useRef<LocationData | null>(null);
   const closeTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -556,7 +569,7 @@ export default function MapPage() {
       showsZoomControl: false,
       showsMapTypeControl: false,
       showsPointsOfInterest: false,
-      showsCompass: (mapkit as any).FeatureVisibility.Hidden,
+      showsCompass: mapkit.FeatureVisibility.Hidden,
     });
     mapRef.current = map;
 
@@ -564,7 +577,7 @@ export default function MapPage() {
     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
     const handleSchemeChange = (e: MediaQueryListEvent) => {
       if (mapRef.current) {
-        (mapRef.current as any).colorScheme = e.matches ? mapkit.Map.ColorSchemes.Dark : mapkit.Map.ColorSchemes.Light;
+        mapRef.current.colorScheme = e.matches ? mapkit.Map.ColorSchemes.Dark : mapkit.Map.ColorSchemes.Light;
       }
     };
     mediaQuery.addEventListener('change', handleSchemeChange);
@@ -592,7 +605,7 @@ export default function MapPage() {
       });
 
       // Handle annotation select → show detail card
-      map.addEventListener('select', (e: any) => {
+      map.addEventListener('select', (e: { annotation?: AnyAnnotation }) => {
         const annotation = e.annotation;
         if (!annotation?.data?.locationId) return;
         const loc = locMap.get(annotation.data.locationId);
@@ -709,7 +722,7 @@ export default function MapPage() {
 
     if (mapRef.current) {
       const map = mapRef.current;
-      const toRemove = map.annotations.filter((a: any) => !a.data?.isUserLocation);
+      const toRemove = map.annotations.filter((a: AnyAnnotation) => !a.data?.isUserLocation);
       map.removeAnnotations(toRemove);
       locs.forEach(loc => {
         const annotation = new mapkit.MarkerAnnotation(
@@ -802,7 +815,7 @@ export default function MapPage() {
     // If clicked from list, programmatically select the annotation on the map
     if (!fromMap && mapRef.current) {
       const annotation = mapRef.current.annotations.find(
-        (a: any) => a.data?.locationId === loc.location_id
+        (a: AnyAnnotation) => a.data?.locationId === loc.location_id
       );
       if (annotation) {
         mapRef.current.selectedAnnotation = annotation;
@@ -870,7 +883,7 @@ export default function MapPage() {
   /* ---- Apply color filter to map annotations ---- */
   useEffect(() => {
     if (!mapRef.current) return;
-    mapRef.current.annotations.forEach((a: any) => {
+    mapRef.current.annotations.forEach((a: AnyAnnotation) => {
       if (!a.data?.color) return;
       a.visible = activeColorFilters.size === 0 || activeColorFilters.has(a.data.color);
     });

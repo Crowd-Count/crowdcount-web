@@ -49,9 +49,10 @@ export default function ReportPage() {
         const text = await res.text();
         throw new Error(text);
       }
-    } catch (err: any) {
+    } catch (err) {
       clearForm();
-      setErrorMsg('Failed to submit report: ' + err.message);
+      const message = err instanceof Error ? err.message : String(err);
+      setErrorMsg('Failed to submit report: ' + message);
       setTimeout(() => setErrorMsg(''), 3000);
     }
   };

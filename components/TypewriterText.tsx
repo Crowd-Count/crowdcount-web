@@ -14,7 +14,12 @@ export default function TypewriterText({ text, hideCursorAfter = 3800, id }: Typ
   useEffect(() => {
     if (!ref.current) return;
 
-    let tw: any;
+    // typewriter-effect ships no types; model just the chain we use.
+    let tw: {
+      typeString: (s: string) => typeof tw;
+      callFunction: (fn: () => void) => typeof tw;
+      start: () => typeof tw;
+    };
     import('typewriter-effect/dist/core').then((Typewriter) => {
       const TypewriterClass = Typewriter.default || Typewriter;
       tw = new TypewriterClass(ref.current!, {
