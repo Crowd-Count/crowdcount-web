@@ -1219,6 +1219,11 @@ function LocationDetailCard({ location, popularTimesData, popularTimesLoading, o
 /* ------------------------------------------------------------------ */
 const SKELETON_HEIGHTS = Array.from({ length: 24 }, () => 20 + Math.random() * 60);
 
+function formatTooltipHour(hour: number): string {
+  const h12 = hour % 12 === 0 ? 12 : hour % 12;
+  return `${h12} ${hour < 12 ? 'AM' : 'PM'}`;
+}
+
 function PopularTimesPanel({ data, loading, stale, currentCount, pinColor, isClosed, timeZone, selectedDay, onSelectDay }: {
   data: PopularTimesResponse | null | undefined;
   loading: boolean;
@@ -1398,39 +1403,57 @@ function PopularTimesPanel({ data, loading, stale, currentCount, pinColor, isClo
           const isCurrentHour = hour === localHour && showCurrentBar;
           const barPct = (v: number) => `${Math.max((v / peakValue) * 100, 2)}%`;
 
+          let bars;
           if (isCurrentHour && avgValue <= 0) {
             // No usual data: just accent bar
-            return (
-              <div key={hour} className="popular-times-bar-wrapper">
-                <div className="popular-times-bar" style={{ height: barPct(currentCount), backgroundColor: pinColor }} />
-              </div>
+            bars = (
+              <div className="popular-times-bar" style={{ height: barPct(currentCount), backgroundColor: pinColor }} />
             );
-          }
-
-          if (isCurrentHour && currentCount > avgValue) {
+          } else if (isCurrentHour && currentCount > avgValue) {
             // Current > usual: accent bar behind, gray overlay showing usual
-            return (
-              <div key={hour} className="popular-times-bar-wrapper">
+            bars = (
+              <>
                 <div className="popular-times-bar" style={{ height: barPct(currentCount), backgroundColor: pinColor, opacity: 0.8 }} />
                 <div className="popular-times-bar popular-times-bar-overlay" style={{ height: barPct(avgValue), backgroundColor: 'rgba(255,255,255,0.65)' }} />
-              </div>
+              </>
             );
-          }
-
-          if (isCurrentHour) {
+          } else if (isCurrentHour) {
             // Current <= usual: gray bar behind, accent bar on top
-            return (
-              <div key={hour} className="popular-times-bar-wrapper">
+            bars = (
+              <>
                 <div className="popular-times-bar" style={{ height: barPct(avgValue), backgroundColor: 'rgba(255,255,255,0.3)' }} />
                 <div className="popular-times-bar popular-times-bar-overlay" style={{ height: barPct(currentCount), backgroundColor: pinColor }} />
-              </div>
+              </>
+            );
+          } else {
+            // Non-current hour: gray bar
+            bars = (
+              <div className="popular-times-bar" style={{ height: barPct(avgValue), backgroundColor: 'rgba(255,255,255,0.3)' }} />
             );
           }
 
-          // Non-current hour: gray bar
+          const usual = Math.round(avgValue);
+          const hourLabel = formatTooltipHour(hour);
+          // Keep edge tooltips inside the card instead of centering them off it
+          const edgeClass = hour <= 2 ? ' popular-times-tooltip-left' : hour >= 21 ? ' popular-times-tooltip-right' : '';
+          const ariaLabel = isCurrentHour && !isClosed
+            ? `${hourLabel}: ${currentCount} now, usually ${usual}`
+            : `${hourLabel}: usually ${usual}`;
+
           return (
-            <div key={hour} className="popular-times-bar-wrapper">
-              <div className="popular-times-bar" style={{ height: barPct(avgValue), backgroundColor: 'rgba(255,255,255,0.3)' }} />
+            <div key={hour} className="popular-times-bar-wrapper" tabIndex={0} aria-label={ariaLabel}>
+              {bars}
+              <div className={`popular-times-tooltip${edgeClass}`} role="tooltip">
+                {isCurrentHour && !isClosed && (
+                  <div className="popular-times-tooltip-row">
+                    <span className="popular-times-tooltip-value">{currentCount}</span> now
+                  </div>
+                )}
+                <div className="popular-times-tooltip-row">
+                  <span className="popular-times-tooltip-value">{usual}</span> usually
+                </div>
+                <div className="popular-times-tooltip-hour">{hourLabel}</div>
+              </div>
             </div>
           );
         })}
