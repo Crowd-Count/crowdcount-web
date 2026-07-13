@@ -28,7 +28,7 @@ export default function AboutPage() {
           <div data-aos="fade-up" data-aos-delay="0">
             <div className="text-box">
               <img src="/assets/Icons/bubble.left.and.text.bubble.right.fill.png" alt="Contact Bubble" className="scaled-image" /><br />
-              Feel absolutely free to contact us at <a href="mailto:info@crowdcount.tech" id="primary">info@crowdcount.tech</a>
+              Feel absolutely free to contact us at <a href="mailto:elkan@crowdcount.tech" id="primary">elkan@crowdcount.tech</a>
               <br />And while you&apos;re at it, come visit our linkedin page at <a href="https://www.crowdcount.tech/linkedin" target="_blank" rel="noopener noreferrer" id="primary">crowdcount.tech/linkedin</a>
             </div>
           </div>
