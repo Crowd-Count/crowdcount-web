@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useRef, useState, useCallback } from 'react';
-import { usePathname } from 'next/navigation';
 import { API_BASE_URL } from '@/lib/constants';
 
 interface AlertInfo {
@@ -33,12 +32,10 @@ const ANIM_MS = 450;
 export default function AlertBanner() {
   const [alert, setAlert] = useState<AlertInfo | null>(null);
   const [leaving, setLeaving] = useState(false);
-  const pathname = usePathname();
   const collapseRef = useRef<HTMLDivElement>(null);
   const innerRef = useRef<HTMLDivElement>(null);
 
-  // Never occupy space on the full-screen map page.
-  const openTarget = !!alert && !leaving && pathname !== '/map';
+  const openTarget = !!alert && !leaving;
 
   // Fetch the active alert once. The component lives in the root layout, which
   // persists across client-side navigations, so there's no need to re-fetch or

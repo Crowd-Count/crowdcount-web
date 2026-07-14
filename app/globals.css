@@ -436,11 +436,31 @@ a:hover {
    FULL-SCREEN MAP PAGE LAYOUT
    ============================================ */
 
-/* Hide global nav/footer/alert on full-screen map page */
+/* Hide global nav/footer on full-screen map page */
 body:has(.map-page) #sticky-nav,
-body:has(.map-page) #bottom-note,
-body:has(.map-page) .cc-alert-collapse {
+body:has(.map-page) #bottom-note {
     display: none !important;
+}
+
+/* On the map page the alert banner still shows, but the map must fit *under*
+   it instead of being pushed off-screen. Make the body a full-height flex
+   column: the banner keeps its (animated) height and the map flexes to fill
+   the rest, so the two stay glued together and resize in sync. */
+body:has(.map-page) {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    overflow: hidden;
+}
+
+body:has(.map-page) .cc-alert-collapse {
+    flex: 0 0 auto;
+}
+
+body:has(.map-page) .map-page {
+    flex: 1 1 auto;
+    height: auto;
+    min-height: 0;
 }
 
 .map-page {
