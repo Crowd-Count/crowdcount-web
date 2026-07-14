@@ -28,28 +28,23 @@ function getAlertColors(type: string) {
   }
 }
 
+const ANIM_MS = 450;
+
 export default function AlertBanner() {
   const [alert, setAlert] = useState<AlertInfo | null>(null);
-  const [show, setShow] = useState(false);
+  const [leaving, setLeaving] = useState(false);
   const pathname = usePathname();
-  const isSecondary = pathname !== '/';
-  const dismissedRef = useRef<Set<string>>(new Set());
+  const collapseRef = useRef<HTMLDivElement>(null);
+  const innerRef = useRef<HTMLDivElement>(null);
 
-  const hideAlert = useCallback((dismiss: boolean) => {
-    if (dismiss && alert) {
-      dismissedRef.current.add(alert.alert_id);
-      try {
-        sessionStorage.setItem('crowdcount_alert_seen_' + alert.alert_id, 'true');
-      } catch {}
-    }
-    setShow(false);
-    if (isSecondary) {
-      document.body.style.paddingTop = '';
-    }
-  }, [alert, isSecondary]);
+  // Never occupy space on the full-screen map page.
+  const openTarget = !!alert && !leaving && pathname !== '/map';
 
+  // Fetch the active alert once. The component lives in the root layout, which
+  // persists across client-side navigations, so there's no need to re-fetch or
+  // re-animate on every route change.
   useEffect(() => {
-    let scrollHandler: (() => void) | null = null;
+    let cancelled = false;
 
     async function checkAlert() {
       try {
@@ -63,33 +58,14 @@ export default function AlertBanner() {
           headers: { 'X-Client-Type': 'web' },
         });
         const detailData = await detailRes.json();
-        const alerts = detailData.alert_info;
-        if (!alerts || alerts.length === 0) return;
+        const a: AlertInfo | undefined = detailData.alert_info?.[0];
+        if (!a) return;
 
-        const a = alerts[0];
-        // Check session storage
         try {
           if (sessionStorage.getItem('crowdcount_alert_seen_' + a.alert_id) === 'true') return;
         } catch {}
-        if (dismissedRef.current.has(a.alert_id)) return;
 
-        setAlert(a);
-        setTimeout(() => {
-          setShow(true);
-          if (isSecondary) {
-            document.body.style.transition = 'padding-top 0.5s ease-in-out';
-            document.body.style.paddingTop = '44px';
-          }
-        }, 10);
-
-        scrollHandler = () => {
-          if (window.scrollY > 50) {
-            setShow(false);
-            if (isSecondary) document.body.style.paddingTop = '';
-            if (scrollHandler) window.removeEventListener('scroll', scrollHandler);
-          }
-        };
-        window.addEventListener('scroll', scrollHandler);
+        if (!cancelled) setAlert(a);
       } catch (err) {
         console.error('Error checking alert:', err);
       }
@@ -97,38 +73,84 @@ export default function AlertBanner() {
 
     checkAlert();
     return () => {
-      if (scrollHandler) window.removeEventListener('scroll', scrollHandler);
+      cancelled = true;
     };
-  }, [pathname, isSecondary]);
+  }, []);
+
+  // Animate the in-flow height between 0 and the banner's natural height so the
+  // page content is pushed down/back up smoothly and never overlapped. Using an
+  // explicit measured height (rather than a hardcoded value) keeps the reserved
+  // space exactly correct no matter how many lines the message wraps to.
+  useEffect(() => {
+    const el = collapseRef.current;
+    if (!el) return;
+
+    let timer: ReturnType<typeof setTimeout>;
+
+    if (openTarget) {
+      const target = innerRef.current?.offsetHeight ?? 0;
+      // Start from the current (or fully collapsed) height, then transition up.
+      el.style.height = el.style.height && el.style.height !== 'auto'
+        ? `${el.offsetHeight}px`
+        : '0px';
+      void el.offsetHeight; // force reflow so the change below animates
+      el.style.height = `${target}px`;
+      // Once expanded, release to auto so a viewport resize that re-wraps the
+      // text can never clip the banner or leave a stale gap.
+      timer = setTimeout(() => {
+        if (collapseRef.current) collapseRef.current.style.height = 'auto';
+      }, ANIM_MS);
+    } else {
+      el.style.height = `${el.offsetHeight}px`;
+      void el.offsetHeight; // force reflow
+      el.style.height = '0px';
+      if (leaving) {
+        timer = setTimeout(() => {
+          setAlert(null);
+          setLeaving(false);
+        }, ANIM_MS);
+      }
+    }
+
+    return () => clearTimeout(timer);
+  }, [openTarget, leaving]);
+
+  const dismiss = useCallback(() => {
+    if (alert) {
+      try {
+        sessionStorage.setItem('crowdcount_alert_seen_' + alert.alert_id, 'true');
+      } catch {}
+    }
+    setLeaving(true);
+  }, [alert]);
 
   if (!alert) return null;
 
   const colors = getAlertColors(alert.alert_type);
 
   return (
-    <div
-      className={`alert${show ? ' show' : ''}`}
-      style={{ backgroundColor: colors.bg, color: colors.color }}
-      data-alert-id={alert.alert_id}
-    >
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
-        <div>
-          <strong>{alert.title}</strong> <span>{alert.body}</span>
+    <div ref={collapseRef} className="cc-alert-collapse" aria-hidden={!openTarget}>
+      <div
+        ref={innerRef}
+        className="cc-alert"
+        style={{ backgroundColor: colors.bg, color: colors.color }}
+        data-alert-id={alert.alert_id}
+        role="status"
+        aria-live="polite"
+      >
+        <div className="cc-alert-inner">
+          <p className="cc-alert-text">
+            <strong>{alert.title}</strong> <span>{alert.body}</span>
+          </p>
+          <button
+            type="button"
+            className="cc-alert-close"
+            aria-label="Dismiss alert"
+            onClick={dismiss}
+          >
+            &times;
+          </button>
         </div>
-        <button
-          onClick={() => hideAlert(true)}
-          style={{
-            background: 'none',
-            border: 'none',
-            color: 'inherit',
-            fontSize: '18px',
-            cursor: 'pointer',
-            padding: '4px 8px',
-            opacity: 0.7,
-          }}
-        >
-          &times;
-        </button>
       </div>
     </div>
   );

@@ -439,7 +439,7 @@ a:hover {
 /* Hide global nav/footer/alert on full-screen map page */
 body:has(.map-page) #sticky-nav,
 body:has(.map-page) #bottom-note,
-body:has(.map-page) > .alert {
+body:has(.map-page) .cc-alert-collapse {
     display: none !important;
 }
 
@@ -1735,23 +1735,65 @@ select::-ms-expand {
     }
 }
 
-.alert {
-    position: fixed;
-    top: -100px; /* Initially off-screen */
-    left: 0;
-    right: 0;
-    background-color: #ffcc00; /* Default color */
-    color: black;
-    padding: 10px;
-    text-align: center;
-    font-size: 16px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    transition: top 0.5s ease-in-out; /* Smooth transition */
-    z-index: 1000;
+/* Site announcement banner (see components/AlertBanner.tsx).
+   Namespaced as .cc-alert* to avoid colliding with Bootstrap's .alert styles.
+   The outer collapse wrapper animates its height so the banner pushes page
+   content down when it appears and cleanly reclaims the space when dismissed. */
+.cc-alert-collapse {
+    height: 0;
+    overflow: hidden;
+    transition: height 0.45s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.alert.show {
-    top: 0; /* Slide down to this position */
+.cc-alert {
+    background-color: #ffcc00; /* Default color, overridden inline per alert type */
+    color: black;
+    padding: 12px 16px;
+    text-align: center;
+    font-size: 15px;
+    line-height: 1.45;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.12);
+}
+
+.cc-alert-inner {
+    position: relative;
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 0 36px; /* reserve room for the close button so text stays centered */
+}
+
+.cc-alert-text {
+    margin: 0;
+}
+
+.cc-alert-close {
+    position: absolute;
+    top: 50%;
+    right: 0;
+    transform: translateY(-50%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    background: none;
+    border: none;
+    color: inherit;
+    font-size: 22px;
+    line-height: 1;
+    cursor: pointer;
+    opacity: 0.65;
+    transition: opacity 0.2s ease;
+}
+
+.cc-alert-close:hover {
+    opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .cc-alert-collapse {
+        transition: none;
+    }
 }
 
 .hidden {
