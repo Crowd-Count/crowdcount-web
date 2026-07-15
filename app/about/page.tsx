@@ -39,7 +39,7 @@ export default function AboutPage() {
               Our small startup team consists of the following:
               <br /><a href="https://www.linkedin.com/in/elkanbruha" target="_blank" rel="noopener noreferrer" id="primary">Elkan Bruha</a> - Founder and Lead Engineer
               <br /><a href="https://www.linkedin.com/in/hayden-forbes" target="_blank" rel="noopener noreferrer" id="primary">Hayden Forbes</a> - Co-Founder and Business Lead
-              <br /><a href="https://www.linkedin.com/in/josh-d'annunzio-3b0171227/" target="_blank" rel="noopener noreferrer" id="primary">Josh D&apos;Annunzio</a> - Computer Vision Lead
+              <br /><a href="https://www.linkedin.com/in/josh-dannunzio/" target="_blank" rel="noopener noreferrer" id="primary">Josh D&apos;Annunzio</a> - Computer Vision Lead
               <br /><a href="https://www.linkedin.com/in/jake-pechart-2516732b9/" target="_blank" rel="noopener noreferrer" id="primary">Jake Pechart</a> - Legal Support
               <br /><a href="https://www.linkedin.com/in/eric-neverdasovs-6a11b925a/" target="_blank" rel="noopener noreferrer" id="primary">Eric Neverdasovs</a> - Product Designer &amp; Manufacturer
               <br />We are always looking for help, so if you want to join our team, feel free to <a href="mailto:elkan@crowdcount.tech"> contact us</a>.
