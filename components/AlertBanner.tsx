@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState, useCallback } from 'react';
+import { usePathname } from 'next/navigation';
 import { API_BASE_URL } from '@/lib/constants';
 
 interface AlertInfo {
@@ -34,6 +35,9 @@ export default function AlertBanner() {
   const [leaving, setLeaving] = useState(false);
   const collapseRef = useRef<HTMLDivElement>(null);
   const innerRef = useRef<HTMLDivElement>(null);
+  // The homepage hero fills the viewport, so there the banner drops down over
+  // it instead of pushing the hero (and its menu) below the fold.
+  const overlay = usePathname() === '/';
 
   const openTarget = !!alert && !leaving;
 
@@ -74,10 +78,11 @@ export default function AlertBanner() {
     };
   }, []);
 
-  // Animate the in-flow height between 0 and the banner's natural height so the
-  // page content is pushed down/back up smoothly and never overlapped. Using an
-  // explicit measured height (rather than a hardcoded value) keeps the reserved
-  // space exactly correct no matter how many lines the message wraps to.
+  // Animate the height between 0 and the banner's natural height so the page
+  // content is pushed down/back up smoothly (or, in overlay mode, the banner
+  // slides down over it). Using an explicit measured height (rather than a
+  // hardcoded value) keeps the reserved space exactly correct no matter how
+  // many lines the message wraps to.
   useEffect(() => {
     const el = collapseRef.current;
     if (!el) return;
@@ -126,7 +131,11 @@ export default function AlertBanner() {
   const colors = getAlertColors(alert.alert_type);
 
   return (
-    <div ref={collapseRef} className="cc-alert-collapse" aria-hidden={!openTarget}>
+    <div
+      ref={collapseRef}
+      className={`cc-alert-collapse${overlay ? ' cc-alert-collapse--overlay' : ''}`}
+      aria-hidden={!openTarget}
+    >
       <div
         ref={innerRef}
         className="cc-alert"

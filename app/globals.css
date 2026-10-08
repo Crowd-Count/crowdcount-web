@@ -1758,11 +1758,21 @@ select::-ms-expand {
 /* Site announcement banner (see components/AlertBanner.tsx).
    Namespaced as .cc-alert* to avoid colliding with Bootstrap's .alert styles.
    The outer collapse wrapper animates its height so the banner pushes page
-   content down when it appears and cleanly reclaims the space when dismissed. */
+   content down when it appears and cleanly reclaims the space when dismissed.
+   On the homepage (--overlay) it slides down over the full-viewport hero
+   instead, so the hero and its menu don't move. */
 .cc-alert-collapse {
     height: 0;
     overflow: hidden;
     transition: height 0.45s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.cc-alert-collapse--overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1001; /* above .sticky-nav */
 }
 
 .cc-alert {
